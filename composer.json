@@ -1,0 +1,38 @@
+{
+  "name": "sad_spirit/pg-gateway",
+  "type": "library",
+  "description": "Table Data Gateway implementation for Postgres that supports custom SQL",
+  "keywords": ["PostgreSQL", "Postgres", "table", "data", "gateway", "SQL", "ORM"],
+  "homepage": "https://github.com/sad-spirit/pg-gateway/",
+  "license": "BSD-2-Clause",
+  "authors": [
+    {
+      "name":     "Alexey Borzov",
+      "email":    "avb@php.net"
+    }
+  ],
+  "support": {
+      "issues":   "https://github.com/sad-spirit/pg-gateway/issues"
+  },
+  "require": {
+    "php":                    ">=7.4.0",
+    "ext-pgsql":              "*",
+    "sad_spirit/pg_builder":  "^2.2",
+    "sad_spirit/pg_wrapper":  "^2.2"
+  },
+  "require-dev":  {
+    "psr/cache":              "^1.0",
+    "phpunit/phpunit":        "^9.0",
+    "vimeo/psalm":            "^5.14"
+  },
+  "autoload": {
+    "psr-4": {
+      "sad_spirit\\pg_gateway\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "sad_spirit\\pg_gateway\\tests\\": "tests/"
+    }
+  }
+}
