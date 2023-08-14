@@ -20,8 +20,16 @@
             <errorLevel type="suppress">
                 <!-- Doesn't like catching \Psr\Cache\InvalidArgumentException that does not extend \Throwable -->
                 <file name="src/metadata/CachedMetadataLoader.php"/>
+                <file name="src/TableLocator.php"/>
                 <referencedClass name="\Psr\Cache\InvalidArgumentException"/>
             </errorLevel>
         </InvalidCatch>
+
+        <MissingClosureReturnType>
+            <errorLevel type="suppress">
+                <!-- Cannot typehint mixed in PHP 7.4 -->
+                <file name="src/TableLocator.php"/>
+            </errorLevel>
+        </MissingClosureReturnType>
     </issueHandlers>
 </psalm>
