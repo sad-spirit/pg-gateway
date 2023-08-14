@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        postgres-version: ['9.5', '15']
+        postgres-version: ['10', '15']
         operating-system: ['ubuntu-latest']
         php-version: ['7.4', '8.0', '8.1', '8.2']
         include:
