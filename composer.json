@@ -23,7 +23,11 @@
   "require-dev":  {
     "psr/cache":              "^1.0",
     "phpunit/phpunit":        "^9.0",
+    "squizlabs/php_codesniffer": "^3.6",
     "vimeo/psalm":            "^5.14"
+  },
+  "suggest": {
+    "psr/cache-implementation": "Used for caching generated queries"
   },
   "autoload": {
     "psr-4": {
