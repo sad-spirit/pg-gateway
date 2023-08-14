@@ -14,4 +14,14 @@
             <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>
+
+    <issueHandlers>
+        <InvalidCatch>
+            <errorLevel type="suppress">
+                <!-- Doesn't like catching \Psr\Cache\InvalidArgumentException that does not extend \Throwable -->
+                <file name="src/metadata/CachedMetadataLoader.php"/>
+                <referencedClass name="\Psr\Cache\InvalidArgumentException"/>
+            </errorLevel>
+        </InvalidCatch>
+    </issueHandlers>
 </psalm>
