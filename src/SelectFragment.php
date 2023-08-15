@@ -30,7 +30,7 @@ interface SelectFragment extends Fragment
      * @param bool      $isCount   Whether a "SELECT COUNT(*)" query is being processed
      * @return void
      */
-    public function apply(Statement $statement, bool $isCount = false): void;
+    public function applyTo(Statement $statement, bool $isCount = false): void;
 
     /**
      * Returns whether this fragment should be added to a "SELECT COUNT(*)" query

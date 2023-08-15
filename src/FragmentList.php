@@ -215,13 +215,13 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
      * @param bool $isCount
      * @return void
      */
-    public function apply(Statement $statement, bool $isCount = false): void
+    public function applyTo(Statement $statement, bool $isCount = false): void
     {
         foreach ($this->getSortedFragments() as $fragment) {
             if ($fragment instanceof SelectFragment) {
-                $fragment->apply($statement, $isCount);
+                $fragment->applyTo($statement, $isCount);
             } else {
-                $fragment->apply($statement);
+                $fragment->applyTo($statement);
             }
         }
     }

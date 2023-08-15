@@ -39,7 +39,7 @@ interface Fragment extends KeyEquatable
      *
      * @param Statement $statement
      */
-    public function apply(Statement $statement): void;
+    public function applyTo(Statement $statement): void;
 
     /**
      * Returns the fragment's priority

@@ -39,7 +39,7 @@ class ClosureFragment implements Fragment
         return Fragment::PRIORITY_DEFAULT;
     }
 
-    public function apply(Statement $statement): void
+    public function applyTo(Statement $statement): void
     {
         ($this->closure)($statement);
     }

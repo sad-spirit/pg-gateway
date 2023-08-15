@@ -172,7 +172,7 @@ class TableLocatorTest extends DatabaseBackedTest
                     $definition->getName(),
                     new Identifier('foo')
                 ));
-                $fragment->apply($delete);
+                $fragment->applyTo($delete);
                 return $delete;
             },
             $cacheKey

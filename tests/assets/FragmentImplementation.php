@@ -41,7 +41,7 @@ class FragmentImplementation implements Fragment
         $this->setPriority($priority);
     }
 
-    public function apply(Statement $statement): void
+    public function applyTo(Statement $statement): void
     {
         if (!isset($statement->where)) {
             throw new InvalidArgumentException(sprintf(
