@@ -18,11 +18,11 @@ use sad_spirit\pg_gateway\{
     SelectProxy,
     TableGateway,
     TableLocator,
+    TableSelect,
     fragments\ClosureFragment,
     fragments\InsertSelectFragment,
     fragments\SetClauseFragment,
     exceptions\InvalidArgumentException,
-    exceptions\LogicException,
     metadata\Columns,
     metadata\PrimaryKey,
     metadata\References
@@ -132,9 +132,9 @@ class GenericTableGateway implements TableGateway
         return $this->execute($this->createInsertStatement($fragmentList), $fragmentList);
     }
 
-    public function select($fragments = null, array $parameters = []): SelectProxy
+    public function select($fragments = null, array $parameters = []): TableSelect
     {
-        throw new LogicException('Not implemented yet');
+        return new TableSelect($this->tableLocator, $this, $fragments, $parameters);
     }
 
     public function update(array $set, $fragments = null, array $parameters = []): ResultSet

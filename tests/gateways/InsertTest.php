@@ -101,10 +101,10 @@ class InsertTest extends DatabaseBackedTest
         $this::assertEquals('Some non-default title', $result[0]['title']);
     }
 
-    public function testInsertWithSelect(): void
+    public function testInsertWithSelectNode(): void
     {
         /** @var Select $select */
-        $select = self::$tableLocator->getStatementFactory()->createFromString(
+        $select = self::$tableLocator->createFromString(
             "select unnest(array['first title', 'second title'])"
         );
         $result = self::$gateway->insert($select, function (Insert $insert) {
@@ -114,5 +114,23 @@ class InsertTest extends DatabaseBackedTest
 
         $this::assertEquals(2, $result->getAffectedRows());
         $this::assertEquals(['first title', 'second title'], $result->fetchColumn('title'));
+    }
+
+    public function testInsertWithSelectProxy(): void
+    {
+        $sourceGateway = new GenericTableGateway(new QualifiedName('source_test'), self::$tableLocator);
+
+        $result = self::$gateway->insert(
+            $sourceGateway->select(
+                fn (Select $select) => $select->where->and('id = :id'),
+                ['id' => -2]
+            ),
+            function (Insert $insert) {
+                $insert->returning[] = 'self.title';
+            }
+        );
+
+        $this::assertEquals(1, $result->getAffectedRows());
+        $this::assertEquals('Minus second title', $result[0]['title']);
     }
 }
