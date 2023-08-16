@@ -13,19 +13,24 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway;
 
-use sad_spirit\pg_gateway\exceptions\UnexpectedValueException;
+use sad_spirit\pg_gateway\{
+    exceptions\InvalidArgumentException,
+    exceptions\UnexpectedValueException,
+    gateways\GenericTableGateway
+};
 use sad_spirit\pg_wrapper\{
     Connection,
     converters\DefaultTypeConverterFactory
 };
 use sad_spirit\pg_builder\{
+    NativeStatement,
     Parser,
     Statement,
-    NativeStatement,
     StatementFactory,
     converters\TypeNameNodeHandler,
     converters\BuilderSupportDecorator,
     exceptions\SyntaxException,
+    nodes\QualifiedName,
     nodes\TypeName
 };
 use Psr\Cache\CacheItemPoolInterface;
@@ -42,6 +47,10 @@ class TableLocator
     private TypeNameNodeHandler $typeConverterFactory;
     private ?CacheItemPoolInterface $statementCache;
 
+    /** @var array<string,QualifiedName> */
+    private array $names = [];
+    /** @var array<string,TableGateway> */
+    private array $gateways = [];
 
     /**
      * Computes a reasonably unique hash of a value.
@@ -208,5 +217,54 @@ class TableLocator
         }
 
         return $native;
+    }
+
+    /**
+     * Returns a TableGateway implementation for a given table name
+     *
+     * @param string|QualifiedName $name
+     * @return TableGateway
+     */
+    public function get($name): TableGateway
+    {
+        if (\is_string($name)) {
+            $name = $this->getQualifiedName($name);
+        } elseif (!$name instanceof QualifiedName) {
+            /** @psalm-suppress RedundantConditionGivenDocblockType, DocblockTypeContradiction */
+            throw new InvalidArgumentException(\sprintf(
+                "%s() expects either a string or an instance of QualifiedName for a table name, %s given",
+                __METHOD__,
+                \is_object($name) ? 'object(' . \get_class($name) . ')' : \gettype($name)
+            ));
+        }
+        return $this->gateways[(string)$name] ??= $this->createGateway($name);
+    }
+
+    /**
+     * Either parses a table name or returns a previously parsed one as a QualifiedName node
+     *
+     * @param string $name
+     * @return QualifiedName
+     */
+    private function getQualifiedName(string $name): QualifiedName
+    {
+        return $this->names[$name] ??= $this->getParser()->parseQualifiedName($name);
+    }
+
+    /**
+     * Creates a TableGateway for a given table name
+     *
+     * Will use an implementation of TableGatewayFactory if available, falling back to using
+     * GenericTableGateway
+     *
+     * @param QualifiedName $name
+     * @return TableGateway
+     */
+    private function createGateway(QualifiedName $name): TableGateway
+    {
+        if (null !== $this->gatewayFactory && ($gateway = $this->gatewayFactory->create($name, $this))) {
+            return $gateway;
+        }
+        return new GenericTableGateway($name, $this);
     }
 }

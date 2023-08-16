@@ -36,11 +36,14 @@ use sad_spirit\pg_gateway\{
     Fragment,
     TableDefinition,
     TableGateway,
+    TableGatewayFactory,
     TableLocator,
-    exceptions\UnexpectedValueException
+    exceptions\UnexpectedValueException,
+    gateways\GenericTableGateway
 };
 use sad_spirit\pg_gateway\tests\assets\{
     FragmentImplementation,
+    SpecificTableGateway,
     TableDefinitionImplementation
 };
 use sad_spirit\pg_wrapper\converters\{
@@ -146,6 +149,42 @@ class TableLocatorTest extends DatabaseBackedTest
 
         $tableLocator = new TableLocator(self::$connection, null, null, $this->getMockForNoCache());
         $this->createDeleteStatement($tableLocator, $definition, $fragment);
+    }
+
+
+    public function testGetGatewayNoFactory(): void
+    {
+        $tableLocator = new TableLocator(self::$connection);
+
+        $gateway = $tableLocator->get(new QualifiedName('update_test'));
+        $this::assertSame(GenericTableGateway::class, \get_class($gateway));
+
+        $another = $tableLocator->get(' "update_test"  ');
+        $this::assertSame($gateway, $another);
+
+        $this::assertEquals(new QualifiedName('update_test'), $gateway->getName());
+    }
+
+    public function testGetGatewayUsingFactory(): void
+    {
+        $tableLocator = new TableLocator(
+            self::$connection,
+            new class implements TableGatewayFactory {
+                public function create(QualifiedName $name, TableLocator $tableLocator): ?TableGateway
+                {
+                    if ('unconditional' === $name->relation->value) {
+                        return new SpecificTableGateway($tableLocator);
+                    }
+                    return null;
+                }
+            }
+        );
+
+        $specific = $tableLocator->get('unconditional');
+        $this::assertInstanceOf(SpecificTableGateway::class, $specific);
+
+        $generic  = $tableLocator->get('update_test');
+        $this::assertSame(GenericTableGateway::class, \get_class($generic));
     }
 
 
