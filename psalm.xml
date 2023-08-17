@@ -28,6 +28,7 @@
         <MissingClosureReturnType>
             <errorLevel type="suppress">
                 <!-- Cannot typehint mixed in PHP 7.4 -->
+                <file name="src/gateways/CompositePrimaryKeyTableGateway.php"/>
                 <file name="src/TableLocator.php"/>
             </errorLevel>
         </MissingClosureReturnType>
