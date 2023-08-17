@@ -18,6 +18,7 @@ namespace sad_spirit\pg_gateway\tests\conditions;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_gateway\{
     TableGateway,
+    exceptions\InvalidArgumentException,
     exceptions\UnexpectedValueException,
     metadata\Column,
     metadata\PrimaryKey,
@@ -91,6 +92,38 @@ class PrimaryKeyConditionTest extends TestCase
         $this::assertEquals(['foo' => 5], $foo->normalizeValue(['foo' => 5]));
         $this::assertEquals(['foo' => 5], $foo->normalizeValue(5));
         $this::assertEquals(['foo' => new \stdClass()], $foo->normalizeValue(new \stdClass()));
+    }
+
+    public function testNormalizeValueMultipleColumns(): void
+    {
+        $foobar = new PrimaryKeyCondition($this->getPrimaryKeyMock(['foo', 'bar']), $this->getConverterFactoryMock());
+
+        $this::assertEquals(
+            ['foo' => 'value', 'bar' => 'another value'],
+            $foobar->normalizeValue(['foo' => 'value', 'bar' => 'another value'])
+        );
+
+        $this::expectException(InvalidArgumentException::class);
+        $this::expectExceptionMessage('Expecting an array');
+        $foobar->normalizeValue(new \stdClass());
+    }
+
+    public function testMissingPrimaryKeyColumn(): void
+    {
+        $foo = new PrimaryKeyCondition($this->getPrimaryKeyMock(['foo']), $this->getConverterFactoryMock());
+
+        $this::expectException(InvalidArgumentException::class);
+        $this::expectExceptionMessage('not found');
+        $foo->normalizeValue(['bar' => 'baz']);
+    }
+
+    public function testExtraFieldInArray(): void
+    {
+        $foo = new PrimaryKeyCondition($this->getPrimaryKeyMock(['foo']), $this->getConverterFactoryMock());
+
+        $this::expectException(InvalidArgumentException::class);
+        $this::expectExceptionMessage('do not correspond to primary key columns');
+        $foo->normalizeValue(['foo' => 'value', 'bar' => 'baz']);
     }
 
     public function testAddToStatement(): void
