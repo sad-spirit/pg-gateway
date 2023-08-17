@@ -265,6 +265,6 @@ class TableLocator
         if (null !== $this->gatewayFactory && ($gateway = $this->gatewayFactory->create($name, $this))) {
             return $gateway;
         }
-        return new GenericTableGateway($name, $this);
+        return GenericTableGateway::create($name, $this);
     }
 }

@@ -57,6 +57,34 @@ class GenericTableGateway implements TableGateway
     private ?PrimaryKey $primaryKey = null;
     private ?References $references = null;
 
+    /**
+     * Creates an instance of GenericTableGateway or its subclass based on table's primary key
+     *
+     * @param QualifiedName $name
+     * @param TableLocator $tableLocator
+     * @return self
+     */
+    public static function create(QualifiedName $name, TableLocator $tableLocator): self
+    {
+        $primaryKey = new PrimaryKey($tableLocator->getConnection(), $name);
+
+        switch (\count($primaryKey)) {
+            case 0:
+                $gateway = new self($name, $tableLocator);
+                break;
+
+            case 1:
+                $gateway = new PrimaryKeyTableGateway($name, $tableLocator);
+                break;
+
+            default:
+                $gateway = new CompositePrimaryKeyTableGateway($name, $tableLocator);
+        }
+
+        $gateway->primaryKey = $primaryKey;
+        return $gateway;
+    }
+
     public function __construct(QualifiedName $name, TableLocator $tableLocator)
     {
         $this->name = $name;

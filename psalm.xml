@@ -32,5 +32,13 @@
                 <file name="src/TableLocator.php"/>
             </errorLevel>
         </MissingClosureReturnType>
+
+        <UndefinedPropertyAssignment>
+            <errorLevel type="suppress">
+                <!-- https://github.com/vimeo/psalm/issues/8404 -->
+                <file name="src/gateways/GenericTableGateway.php"/>
+                <referencedProperty name="primaryKey"/>
+            </errorLevel>
+        </UndefinedPropertyAssignment>
     </issueHandlers>
 </psalm>
