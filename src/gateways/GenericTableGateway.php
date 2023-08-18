@@ -19,13 +19,23 @@ use sad_spirit\pg_gateway\{
     TableGateway,
     TableLocator,
     TableSelect,
+    exceptions\InvalidArgumentException,
     fragments\ClosureFragment,
     fragments\InsertSelectFragment,
     fragments\SetClauseFragment,
-    exceptions\InvalidArgumentException,
     metadata\Columns,
     metadata\PrimaryKey,
     metadata\References
+};
+use sad_spirit\pg_gateway\conditions\{
+    NotCondition,
+    ParametrizedCondition,
+    SqlStringCondition,
+    column\AnyCondition,
+    column\BoolCondition,
+    column\IsNullCondition,
+    column\NotAllCondition,
+    column\OperatorCondition
 };
 use sad_spirit\pg_builder\{
     Delete,
@@ -271,6 +281,141 @@ class GenericTableGateway implements TableGateway
             $statementType,
             TableLocator::hash($this->getName()),
             $fragmentKey
+        );
+    }
+
+    /**
+     * Creates a "column = any(values::column_type[])" Condition
+     *
+     * This is roughly equivalent to "column IN (...values)" but requires only one placeholder
+     *
+     * @param string $column
+     * @param array $values
+     * @return ParametrizedCondition
+     */
+    public function any(string $column, array $values): ParametrizedCondition
+    {
+        return new ParametrizedCondition(
+            new AnyCondition(
+                $this->getColumns()->get($column),
+                $this->tableLocator->getTypeConverterFactory()
+            ),
+            [$column => $values]
+        );
+    }
+
+    /**
+     * Creates a "column" Condition for a column of "bool" type
+     *
+     * @param string $column
+     * @return BoolCondition
+     */
+    public function column(string $column): BoolCondition
+    {
+        return new BoolCondition($this->getColumns()->get($column));
+    }
+
+    /**
+     * Creates a "NOT column" Condition for a column of "bool" type
+     *
+     * @param string $column
+     * @return NotCondition
+     */
+    public function notColumn(string $column): NotCondition
+    {
+        return new NotCondition($this->column($column));
+    }
+
+    /**
+     * Creates a "column IS NULL" Condition
+     *
+     * @param string $column
+     * @return IsNullCondition
+     */
+    public function isNull(string $column): IsNullCondition
+    {
+        return new IsNullCondition($this->getColumns()->get($column));
+    }
+
+    /**
+     * Creates a "column IS NOT NULL" Condition
+     *
+     * @param string $column
+     * @return NotCondition
+     */
+    public function isNotNull(string $column): NotCondition
+    {
+        return new NotCondition($this->isNull($column));
+    }
+
+    /**
+     * Creates a "column <> all(values::column_type[])" Condition
+     *
+     * This is roughly equivalent to "column NOT IN (...values)" but requires only one placeholder
+     *
+     * @param string $column
+     * @param array $values
+     * @return ParametrizedCondition
+     */
+    public function notAll(string $column, array $values): ParametrizedCondition
+    {
+        return new ParametrizedCondition(
+            new NotAllCondition(
+                $this->getColumns()->get($column),
+                $this->tableLocator->getTypeConverterFactory()
+            ),
+            [$column => $values]
+        );
+    }
+
+    /**
+     * Creates a "column OPERATOR value" condition
+     *
+     * The value will be actually passed separately as a query parameter
+     *
+     * @param string $column
+     * @param string $operator
+     * @param mixed $value
+     * @return ParametrizedCondition
+     */
+    public function operatorCondition(string $column, string $operator, $value): ParametrizedCondition
+    {
+        return new ParametrizedCondition(
+            new OperatorCondition(
+                $this->getColumns()->get($column),
+                $this->tableLocator->getTypeConverterFactory(),
+                $operator
+            ),
+            [$column => $value]
+        );
+    }
+
+    /**
+     * Creates a "column = value" condition
+     *
+     * The value will be actually passed separately as a query parameter
+     *
+     * @param string $column
+     * @param mixed $value
+     * @return ParametrizedCondition
+     */
+    public function equal(string $column, $value): ParametrizedCondition
+    {
+        return $this->operatorCondition($column, '=', $value);
+    }
+
+    /**
+     * Creates a Condition based on the given SQL expression
+     *
+     * @param string $sql
+     * @param array $parameters
+     * @return ParametrizedCondition
+     */
+    public function sqlCondition(string $sql, array $parameters = []): ParametrizedCondition
+    {
+        return new ParametrizedCondition(
+            new SqlStringCondition($this->tableLocator->getParser(), $sql),
+            $parameters
         );
     }
 }
