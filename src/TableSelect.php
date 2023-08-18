@@ -121,7 +121,7 @@ final class TableSelect implements SelectProxy
         return $this->gateway->getReferences();
     }
 
-    public function getParameterHolder(): ?ParameterHolder
+    public function getParameterHolder(): ParameterHolder
     {
         return $this->fragments->getParameterHolder();
     }

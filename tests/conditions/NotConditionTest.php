@@ -14,19 +14,26 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\conditions;
 
 use PHPUnit\Framework\TestCase;
-use sad_spirit\pg_builder\Delete;
-use sad_spirit\pg_builder\StatementFactory;
+use sad_spirit\pg_gateway\{
+    conditions\NotCondition,
+    conditions\ParametrizedCondition,
+    fragments\WhereClauseFragment,
+    holders\EmptyParameterHolder
+};
+use sad_spirit\pg_gateway\tests\{
+    NormalizeWhitespace,
+    assets\ConditionImplementation
+};
+use sad_spirit\pg_builder\{
+    Delete,
+    StatementFactory
+};
 use sad_spirit\pg_builder\nodes\{
     ColumnReference,
     expressions\IsExpression,
     expressions\KeywordConstant,
     expressions\NotExpression
 };
-use sad_spirit\pg_gateway\tests\assets\ConditionImplementation;
-use sad_spirit\pg_gateway\tests\NormalizeWhitespace;
-use sad_spirit\pg_gateway\conditions\NotCondition;
-use sad_spirit\pg_gateway\conditions\ParametrizedCondition;
-use sad_spirit\pg_gateway\fragments\WhereClauseFragment;
 
 class NotConditionTest extends TestCase
 {
@@ -97,7 +104,10 @@ class NotConditionTest extends TestCase
         $child = new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE));
 
         $notChild = new NotCondition($child);
-        $this::assertNull($notChild->getParameterHolder());
+        $this::assertInstanceOf(
+            EmptyParameterHolder::class,
+            $notChild->getParameterHolder()
+        );
 
         $notChildParametrized = new NotCondition(new ParametrizedCondition($child, ['foo' => 'bar']));
         $this::assertEquals(['foo' => 'bar'], $notChildParametrized->getParameterHolder()->getParameters());

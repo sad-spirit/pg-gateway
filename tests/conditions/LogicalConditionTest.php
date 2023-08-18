@@ -16,14 +16,15 @@ namespace sad_spirit\pg_gateway\tests\conditions;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_builder\nodes\expressions\KeywordConstant;
 use sad_spirit\pg_gateway\{
-    tests\NormalizeWhitespace,
-    exceptions\InvalidArgumentException
+    conditions\LogicalCondition,
+    conditions\ParametrizedCondition,
+    exceptions\InvalidArgumentException,
+    holders\EmptyParameterHolder
 };
-use sad_spirit\pg_gateway\conditions\{
-    LogicalCondition,
-    ParametrizedCondition
+use sad_spirit\pg_gateway\tests\{
+    NormalizeWhitespace,
+    assets\ConditionImplementation
 };
-use sad_spirit\pg_gateway\tests\assets\ConditionImplementation;
 
 abstract class LogicalConditionTest extends TestCase
 {
@@ -74,7 +75,10 @@ abstract class LogicalConditionTest extends TestCase
 
         $className = $this->getTestedClassName();
         $conditionNoParameters = new $className($one, $two);
-        $this::assertNull($conditionNoParameters->getParameterHolder());
+        $this::assertInstanceOf(
+            EmptyParameterHolder::class,
+            $conditionNoParameters->getParameterHolder()
+        );
 
         $conditionParameters = new $className(
             new ParametrizedCondition($one, ['foo' => 'bar']),

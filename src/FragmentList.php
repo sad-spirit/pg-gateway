@@ -17,6 +17,7 @@ use sad_spirit\pg_gateway\{
     exceptions\InvalidArgumentException,
     exceptions\LogicException,
     fragments\ClosureFragment,
+    holders\EmptyParameterHolder,
     holders\RecursiveParameterHolder,
     holders\SimpleParameterHolder
 };
@@ -142,7 +143,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
     {
         if (
             !$fragment instanceof Parametrized
-            || null === ($incomingHolder = $fragment->getParameterHolder())
+            || ($incomingHolder = $fragment->getParameterHolder()) instanceof EmptyParameterHolder
         ) {
             return;
         }
@@ -150,7 +151,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
         $existing = $this->fragments[$existingIdx];
         if (
             !$existing instanceof Parametrized
-            || null === ($existingHolder = $existing->getParameterHolder())
+            || ($existingHolder = $existing->getParameterHolder()) instanceof EmptyParameterHolder
         ) {
             $this->fragments[$existingIdx] = $fragment;
         } else {

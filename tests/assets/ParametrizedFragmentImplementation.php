@@ -36,7 +36,7 @@ class ParametrizedFragmentImplementation extends FragmentImplementation implemen
         $this->parameters = $parameters;
     }
 
-    public function getParameterHolder(): ?ParameterHolder
+    public function getParameterHolder(): ParameterHolder
     {
         return new SimpleParameterHolder($this, $this->parameters);
     }

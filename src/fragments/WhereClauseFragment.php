@@ -18,7 +18,8 @@ use sad_spirit\pg_gateway\{
     Fragment,
     ParameterHolder,
     Parametrized,
-    exceptions\InvalidArgumentException
+    exceptions\InvalidArgumentException,
+    holders\EmptyParameterHolder
 };
 use sad_spirit\pg_builder\Statement;
 
@@ -58,8 +59,10 @@ final class WhereClauseFragment implements Fragment, Parametrized
         return null === $conditionKey ? null : 'where.' . $conditionKey;
     }
 
-    public function getParameterHolder(): ?ParameterHolder
+    public function getParameterHolder(): ParameterHolder
     {
-        return $this->condition instanceof Parametrized ? $this->condition->getParameterHolder() : null;
+        return $this->condition instanceof Parametrized
+            ? $this->condition->getParameterHolder()
+            : new EmptyParameterHolder();
     }
 }

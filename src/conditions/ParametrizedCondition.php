@@ -45,7 +45,7 @@ final class ParametrizedCondition extends Condition implements Parametrized
         return $this->wrapped->getKey();
     }
 
-    public function getParameterHolder(): ?ParameterHolder
+    public function getParameterHolder(): ParameterHolder
     {
         return new SimpleParameterHolder($this->wrapped, $this->parameters);
     }

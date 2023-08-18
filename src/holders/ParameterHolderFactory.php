@@ -27,7 +27,7 @@ class ParameterHolderFactory
     /**
      * Creates an implementation of ParameterHolder based on arguments that actually are implementations of Parametrized
      */
-    public static function create(?KeyEquatable ...$maybeParametrized): ?ParameterHolder
+    public static function create(?KeyEquatable ...$maybeParametrized): ParameterHolder
     {
         $holders = \array_filter(\array_map(
             fn(?KeyEquatable $item) => $item instanceof Parametrized ? $item->getParameterHolder() : null,
@@ -36,7 +36,7 @@ class ParameterHolderFactory
 
         switch (\count($holders)) {
             case 0:
-                return null;
+                return new EmptyParameterHolder();
             case 1:
                 return \reset($holders);
             default:

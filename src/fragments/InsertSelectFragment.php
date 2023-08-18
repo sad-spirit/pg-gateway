@@ -58,7 +58,7 @@ class InsertSelectFragment implements Fragment, Parametrized
         return $this->select->getKey();
     }
 
-    public function getParameterHolder(): ?ParameterHolder
+    public function getParameterHolder(): ParameterHolder
     {
         return $this->select->getParameterHolder();
     }

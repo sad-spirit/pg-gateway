@@ -63,7 +63,7 @@ abstract class LogicalCondition extends Condition implements Parametrized
         return $keys;
     }
 
-    public function getParameterHolder(): ?ParameterHolder
+    public function getParameterHolder(): ParameterHolder
     {
         return ParameterHolderFactory::create(...$this->children);
     }

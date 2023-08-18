@@ -16,7 +16,8 @@ use sad_spirit\pg_gateway\{
     ParameterHolder,
     Parametrized,
     SelectFragment,
-    exceptions\InvalidArgumentException
+    exceptions\InvalidArgumentException,
+    holders\EmptyParameterHolder
 };
 use sad_spirit\pg_builder\Select;
 use sad_spirit\pg_builder\Statement;
@@ -67,8 +68,10 @@ final class HavingClauseFragment implements SelectFragment, Parametrized
         return false;
     }
 
-    public function getParameterHolder(): ?ParameterHolder
+    public function getParameterHolder(): ParameterHolder
     {
-        return $this->condition instanceof Parametrized ? $this->condition->getParameterHolder() : null;
+        return $this->condition instanceof Parametrized
+            ? $this->condition->getParameterHolder()
+            : new EmptyParameterHolder();
     }
 }

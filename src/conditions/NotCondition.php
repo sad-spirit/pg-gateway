@@ -16,7 +16,8 @@ namespace sad_spirit\pg_gateway\conditions;
 use sad_spirit\pg_gateway\{
     Condition,
     ParameterHolder,
-    Parametrized
+    Parametrized,
+    holders\EmptyParameterHolder
 };
 use sad_spirit\pg_builder\nodes\{
     ScalarExpression,
@@ -56,8 +57,10 @@ final class NotCondition extends Condition implements Parametrized
             : null;
     }
 
-    public function getParameterHolder(): ?ParameterHolder
+    public function getParameterHolder(): ParameterHolder
     {
-        return $this->child instanceof Parametrized ? $this->child->getParameterHolder() : null;
+        return $this->child instanceof Parametrized
+            ? $this->child->getParameterHolder()
+            : new EmptyParameterHolder();
     }
 }

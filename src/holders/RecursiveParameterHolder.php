@@ -93,7 +93,9 @@ final class RecursiveParameterHolder implements ParameterHolder, \IteratorAggreg
      */
     public function flatten(): self
     {
-        return new self(...$this->flattenRecursive($this));
+        return [] === ($children = $this->flattenRecursive($this))
+            ? new self(new EmptyParameterHolder())
+            : new self(...$children);
     }
 
     /**
@@ -109,7 +111,7 @@ final class RecursiveParameterHolder implements ParameterHolder, \IteratorAggreg
         foreach ($holder as $child) {
             if ($child instanceof self) {
                 $flattened = \array_merge($flattened, $this->flattenRecursive($child));
-            } else {
+            } elseif (!$child instanceof EmptyParameterHolder) {
                 $flattened[] = $child;
             }
         }
