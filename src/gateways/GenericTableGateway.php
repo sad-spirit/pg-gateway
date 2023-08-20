@@ -19,6 +19,7 @@ use sad_spirit\pg_gateway\{
     TableGateway,
     TableLocator,
     TableSelect,
+    builders\ColumnsBuilder,
     exceptions\InvalidArgumentException,
     fragments\ClosureFragment,
     fragments\InsertSelectFragment,
@@ -417,5 +418,25 @@ class GenericTableGateway implements TableGateway
             new SqlStringCondition($this->tableLocator->getParser(), $sql),
             $parameters
         );
+    }
+
+    /**
+     * Creates a Builder for configuring a list of columns returned by a SELECT statement
+     *
+     * @return ColumnsBuilder
+     */
+    public function listColumns(): ColumnsBuilder
+    {
+        return new ColumnsBuilder($this, false);
+    }
+
+    /**
+     * Creates a Builder for configuring a list of columns in the RETURNING clause
+     *
+     * @return ColumnsBuilder
+     */
+    public function returningColumns(): ColumnsBuilder
+    {
+        return new ColumnsBuilder($this, true);
     }
 }
