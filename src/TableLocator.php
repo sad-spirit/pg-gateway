@@ -41,6 +41,8 @@ use Psr\Cache\InvalidArgumentException as PsrException;
  */
 class TableLocator
 {
+    private static int $aliasIndex = 0;
+
     private Connection $connection;
     private ?TableGatewayFactory $gatewayFactory;
     private StatementFactory $statementFactory;
@@ -65,6 +67,16 @@ class TableLocator
         $hash = \substr(\base64_encode(\hash('sha256', \serialize($value), true)), 0, 8);
 
         return \strtr($hash, '/+', '._');
+    }
+
+    /**
+     * Generates a unique alias for a table
+     *
+     * @return string
+     */
+    public static function generateAlias(): string
+    {
+        return 'gw_' . ++self::$aliasIndex;
     }
 
     public function __construct(
