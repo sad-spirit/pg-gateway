@@ -20,6 +20,8 @@ use sad_spirit\pg_gateway\{
     TableLocator,
     TableSelect,
     builders\ColumnsBuilder,
+    builders\ExistsBuilder,
+    builders\JoinBuilder,
     exceptions\InvalidArgumentException,
     fragments\ClosureFragment,
     fragments\InsertSelectFragment,
@@ -438,5 +440,54 @@ class GenericTableGateway implements TableGateway
     public function returningColumns(): ColumnsBuilder
     {
         return new ColumnsBuilder($this, true);
+    }
+
+    /**
+     * Creates a Builder for configuring a join to the given table
+     *
+     * @param string|QualifiedName|TableGateway|SelectProxy $joined
+     * @return JoinBuilder
+     */
+    public function join($joined): JoinBuilder
+    {
+        return new JoinBuilder($this, $this->normalizeSelect($joined));
+    }
+
+    /**
+     * Creates a Builder for configuring a "[NOT] EXISTS(...)" condition
+     *
+     * @param string|QualifiedName|TableGateway|SelectProxy $select
+     * @return ExistsBuilder
+     */
+    public function exists($select): ExistsBuilder
+    {
+        return new ExistsBuilder($this, $this->normalizeSelect($select));
+    }
+
+    /**
+     * Tries to convert a parameter passed to join() or exists() to SelectProxy
+     *
+     * @param string|QualifiedName|TableGateway|SelectProxy $select
+     * @return SelectProxy
+     * @psalm-suppress RedundantConditionGivenDocblockType
+     * @psalm-suppress DocblockTypeContradiction
+     */
+    private function normalizeSelect($select): SelectProxy
+    {
+        if (\is_string($select) || $select instanceof QualifiedName) {
+            $realSelect = $this->tableLocator->get($select)
+                ->select();
+        } elseif ($select instanceof TableGateway) {
+            $realSelect = $select->select();
+        } elseif ($select instanceof SelectProxy) {
+            $realSelect = $select;
+        } else {
+            throw new InvalidArgumentException(\sprintf(
+                "A table name, TableGateway or SelectProxy instance expected, %s given",
+                \is_object($select) ? \get_class($select) : \gettype($select)
+            ));
+        }
+
+        return $realSelect;
     }
 }
