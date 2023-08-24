@@ -15,8 +15,11 @@ namespace sad_spirit\pg_gateway\fragments;
 
 use sad_spirit\pg_gateway\{
     Fragment,
+    ParameterHolder,
+    Parametrized,
     SelectFragment,
-    exceptions\InvalidArgumentException
+    exceptions\InvalidArgumentException,
+    holders\EmptyParameterHolder
 };
 use sad_spirit\pg_builder\{
     Select,
@@ -26,7 +29,7 @@ use sad_spirit\pg_builder\{
 /**
  * Modifies the list of expressions returned by SELECT statement
  */
-final class SelectListFragment implements SelectFragment
+final class SelectListFragment implements SelectFragment, Parametrized
 {
     private TargetListManipulator $manipulator;
 
@@ -61,5 +64,12 @@ final class SelectListFragment implements SelectFragment
         return null === ($key = $this->manipulator->getKey())
             ? null
             : 'select-list.' . $key;
+    }
+
+    public function getParameterHolder(): ParameterHolder
+    {
+        return $this->manipulator instanceof Parametrized
+            ? $this->manipulator->getParameterHolder()
+            : new EmptyParameterHolder();
     }
 }

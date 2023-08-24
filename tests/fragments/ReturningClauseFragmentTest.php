@@ -19,12 +19,13 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\fragments;
 
 use PHPUnit\Framework\TestCase;
-use sad_spirit\pg_gateway\tests\assets\TargetListManipulatorImplementation;
-use sad_spirit\pg_gateway\tests\NormalizeWhitespace;
-use sad_spirit\pg_gateway\{
-    exceptions\InvalidArgumentException,
-    fragments\ReturningClauseFragment
+use sad_spirit\pg_gateway\tests\{
+    NormalizeWhitespace,
+    assets\ParametrizedTargetListManipulatorImplementation,
+    assets\TargetListManipulatorImplementation
 };
+use sad_spirit\pg_gateway\exceptions\InvalidArgumentException;
+use sad_spirit\pg_gateway\fragments\ReturningClauseFragment;
 use sad_spirit\pg_builder\{
     StatementFactory,
     nodes\ColumnReference,
@@ -111,5 +112,19 @@ class ReturningClauseFragmentTest extends TestCase
             ['update a_table set foo = null'],
             ['insert into a_table default values']
         ];
+    }
+
+    public function testGetParameters(): void
+    {
+        $fragment = new ReturningClauseFragment(new ParametrizedTargetListManipulatorImplementation(
+            new TargetElement(
+                new ColumnReference('foo'),
+                new Identifier('bar')
+            ),
+            null,
+            ['foo' => 'bar']
+        ));
+
+        $this::assertEquals(['foo' => 'bar'], $fragment->getParameterHolder()->getParameters());
     }
 }

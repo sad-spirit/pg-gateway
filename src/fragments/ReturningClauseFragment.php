@@ -13,14 +13,19 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\fragments;
 
-use sad_spirit\pg_gateway\Fragment;
-use sad_spirit\pg_gateway\exceptions\InvalidArgumentException;
+use sad_spirit\pg_gateway\{
+    Fragment,
+    ParameterHolder,
+    Parametrized,
+    exceptions\InvalidArgumentException,
+    holders\EmptyParameterHolder
+};
 use sad_spirit\pg_builder\Statement;
 
 /**
  * Changes the RETURNING clause of DELETE / INSERT / UPDATE
  */
-final class ReturningClauseFragment implements Fragment
+final class ReturningClauseFragment implements Fragment, Parametrized
 {
     private TargetListManipulator $manipulator;
 
@@ -50,5 +55,12 @@ final class ReturningClauseFragment implements Fragment
         return null === ($key = $this->manipulator->getKey())
             ? null
             : 'returning.' . $key;
+    }
+
+    public function getParameterHolder(): ParameterHolder
+    {
+        return $this->manipulator instanceof Parametrized
+            ? $this->manipulator->getParameterHolder()
+            : new EmptyParameterHolder();
     }
 }
