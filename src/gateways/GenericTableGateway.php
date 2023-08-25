@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\gateways;
 
 use sad_spirit\pg_gateway\{
+    Condition,
     FragmentList,
     SelectProxy,
     TableGateway,
@@ -24,9 +25,6 @@ use sad_spirit\pg_gateway\{
     builders\JoinBuilder,
     builders\ScalarSubqueryBuilder,
     exceptions\InvalidArgumentException,
-    fragments\ClosureFragment,
-    fragments\InsertSelectFragment,
-    fragments\SetClauseFragment,
     metadata\Columns,
     metadata\PrimaryKey,
     metadata\References
@@ -40,6 +38,16 @@ use sad_spirit\pg_gateway\conditions\{
     column\IsNullCondition,
     column\NotAllCondition,
     column\OperatorCondition
+};
+use sad_spirit\pg_gateway\fragments\{
+    ClosureFragment,
+    InsertSelectFragment,
+    ReturningClauseFragment,
+    SelectListFragment,
+    SetClauseFragment,
+    TargetListManipulator,
+    target_list\ConditionAppender,
+    target_list\SqlStringAppender
 };
 use sad_spirit\pg_builder\{
     Delete,
@@ -446,12 +454,61 @@ class GenericTableGateway implements TableGateway
     /**
      * Creates a builder for configuring a scalar subquery to be added to the output list of a SELECT statement
      *
+     * While the companion `returningSubquery()` method is possible, it's unlikely to be used
+     *
      * @param SelectProxy $select
      * @return ScalarSubqueryBuilder
      */
     public function outputSubquery(SelectProxy $select): ScalarSubqueryBuilder
     {
         return new ScalarSubqueryBuilder($this, $select);
+    }
+
+    /**
+     * Adds expression(s) to the list of columns returned by a SELECT statement
+     *
+     * @param string|Condition $expression
+     * @param string|null $alias
+     * @return SelectListFragment
+     */
+    public function outputExpression($expression, ?string $alias = null): SelectListFragment
+    {
+        return new SelectListFragment($this->expressionToManipulator($expression, $alias));
+    }
+
+    /**
+     * Adds expression(s) to the list of columns in the RETURNING clause
+     *
+     * @param string|Condition $expression
+     * @param string|null $alias
+     * @return ReturningClauseFragment
+     */
+    public function returningExpression($expression, ?string $alias = null): ReturningClauseFragment
+    {
+        return new ReturningClauseFragment($this->expressionToManipulator($expression, $alias));
+    }
+
+    /**
+     * Returns the proper TargetListManipulator for the given expression
+     *
+     * @param string|Condition $expression
+     * @param string|null $alias
+     * @return TargetListManipulator
+     * @psalm-suppress RedundantConditionGivenDocblockType
+     * @psalm-suppress DocblockTypeContradiction
+     */
+    private function expressionToManipulator($expression, ?string $alias = null): TargetListManipulator
+    {
+        if (\is_string($expression)) {
+            return new SqlStringAppender($this->tableLocator->getParser(), $expression, $alias);
+        } elseif ($expression instanceof Condition) {
+            return new ConditionAppender($expression, $alias);
+        } else {
+            throw new InvalidArgumentException(\sprintf(
+                "An SQL string or Condition instance expected, %s given",
+                \is_object($expression) ? 'object(' . \get_class($expression) . ')' : \gettype($expression)
+            ));
+        }
     }
 
     /**

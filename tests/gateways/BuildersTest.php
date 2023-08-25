@@ -268,4 +268,28 @@ class BuildersTest extends DatabaseBackedTest
             $select->createSelectStatement()->getSql()
         );
     }
+
+    public function testOutputExpressionUsingString(): void
+    {
+        $select = self::$gateway->select(
+            self::$gateway->outputExpression('upper(self.title) as upper_title')
+        );
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'select self.*, upper(self.title) as upper_title from update_test as self',
+            $select->createSelectStatement()->getSql()
+        );
+    }
+
+    public function testOutputExpressionUsingCondition(): void
+    {
+        $select = self::$gateway->select(
+            self::$gateway->outputExpression(self::$gateway->isNull('title'), 'null_title')
+        );
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'select self.*, self.title is null as null_title from update_test as self',
+            $select->createSelectStatement()->getSql()
+        );
+    }
 }
