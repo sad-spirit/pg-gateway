@@ -22,6 +22,7 @@ use sad_spirit\pg_gateway\{
     builders\ColumnsBuilder,
     builders\ExistsBuilder,
     builders\JoinBuilder,
+    builders\ScalarSubqueryBuilder,
     exceptions\InvalidArgumentException,
     fragments\ClosureFragment,
     fragments\InsertSelectFragment,
@@ -427,7 +428,7 @@ class GenericTableGateway implements TableGateway
      *
      * @return ColumnsBuilder
      */
-    public function listColumns(): ColumnsBuilder
+    public function outputColumns(): ColumnsBuilder
     {
         return new ColumnsBuilder($this, false);
     }
@@ -440,6 +441,17 @@ class GenericTableGateway implements TableGateway
     public function returningColumns(): ColumnsBuilder
     {
         return new ColumnsBuilder($this, true);
+    }
+
+    /**
+     * Creates a builder for configuring a scalar subquery to be added to the output list of a SELECT statement
+     *
+     * @param SelectProxy $select
+     * @return ScalarSubqueryBuilder
+     */
+    public function outputSubquery(SelectProxy $select): ScalarSubqueryBuilder
+    {
+        return new ScalarSubqueryBuilder($this, $select);
     }
 
     /**
@@ -484,7 +496,7 @@ class GenericTableGateway implements TableGateway
         } else {
             throw new InvalidArgumentException(\sprintf(
                 "A table name, TableGateway or SelectProxy instance expected, %s given",
-                \is_object($select) ? \get_class($select) : \gettype($select)
+                \is_object($select) ? 'object(' . \get_class($select) . ')' : \gettype($select)
             ));
         }
 

@@ -9,6 +9,8 @@
  * file that was distributed with this source code.
  */
 
+/** @noinspection SqlResolve */
+
 declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\tests\gateways;
@@ -201,5 +203,69 @@ class BuildersTest extends DatabaseBackedTest
             )
         );
         $this::assertEquals(['cutoff' => '2023-08-07'], $condition->getParameterHolder()->getParameters());
+    }
+
+    public function testJoinUsingTableName(): void
+    {
+        $select = self::$gateway->select(
+            self::$gateway->join('update_test')
+                ->alias('custom')
+        );
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'select self.*, custom.* from update_test as self, update_test as custom',
+            $select->createSelectStatement()->getSql()
+        );
+    }
+
+    public function testJoinUsingGateway(): void
+    {
+        $select = self::$gateway->select(
+            self::$gateway->join(self::$gateway)
+                ->alias('custom')
+        );
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'select self.*, custom.* from update_test as self, update_test as custom',
+            $select->createSelectStatement()->getSql()
+        );
+    }
+
+    public function testJoinUsingSelectProxy(): void
+    {
+        $select = self::$gateway->select(
+            self::$gateway->join(
+                self::$gateway->select(self::$gateway->column('flag'))
+            )
+                ->alias('custom')
+        );
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'select self.*, custom.* from update_test as self, update_test as custom where custom.flag',
+            $select->createSelectStatement()->getSql()
+        );
+    }
+
+    public function testOutputSubquery(): void
+    {
+        /** @var GenericTableGateway $unconditional */
+        $unconditional = self::$tableLocator->get('unconditional');
+
+        $select = self::$gateway->select(
+            self::$gateway->outputSubquery(
+                $unconditional->select($unconditional->outputColumns()->only(['id']))
+            )
+                ->alias('custom')
+                ->columnAlias('klmn')
+                ->joinOn(
+                    self::$gateway->sqlCondition('self.title = joined.title')
+                )
+        );
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'select self.*, ( select custom.id from unconditional as custom where self.title = custom.title )'
+            . ' as klmn from update_test as self',
+            $select->createSelectStatement()->getSql()
+        );
     }
 }

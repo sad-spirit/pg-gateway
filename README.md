@@ -79,16 +79,17 @@ $gwLink     = $locator->get('example.users_roles');
 ```
 
 and use these to perform a non-trivial query
+
 ```PHP
 $adminRoles = $gwRoles->select([
-    $gwRoles->listColumns()
+    $gwRoles->outputColumns()
         ->except(['description'])
         ->replace('/^/', 'role_'),
     $gwRoles->operatorCondition('name', '~*', 'admin')
 ]);
 
 $activeAdminRoles = $gwLink->select([
-    $gwLink->listColumns()
+    $gwLink->outputColumns()
         ->only(['valid_from', 'valid_to']),
     $gwLink->join($adminRoles)
         ->onForeignKey(),
@@ -96,7 +97,7 @@ $activeAdminRoles = $gwLink->select([
 ]);
 
 $activeAdminUsers = $gwUsers->select([
-    $gwUsers->listColumns()
+    $gwUsers->outputColumns()
         ->except(['password_hash'])
         ->replace('/^/', 'user_'),
     $gwUsers->join($activeAdminRoles)
