@@ -13,11 +13,11 @@ Using those packages immediately allows
 
 ## Design goals
 
- * Code generation should not be necessary, default gateway implementations should be useful as-is.
- * Gateways should be aware of the table properties: columns, primary key, foreign keys.
- * It should be possible to cache the generated SQL, skipping the whole parsing/building process.
- * Therefore, API should encourage building parametrized queries.
- * It should be possible to combine queries built by several Gateways via joins / `EXISTS()`
+ * Code generation is not necessary, default gateway implementations are useful as-is.
+ * Gateways are aware of the table metadata: columns, primary key, foreign keys.
+ * It is possible to cache the generated SQL, skipping the whole parsing/building process.
+ * API encourages building parametrized queries.
+ * Queries built by several Gateways can be combined via joins / `EXISTS()` / etc.
 
 ## Usage example
 
@@ -125,5 +125,7 @@ where gw_2."name" ~* $1::"text"
 
 ## Documentation
 
-TBD
+* [Package overview](./docs/index.md)
+* [`TableLocator` class](./docs/locator.md)
+* [`TableGateway` interface and its implementations](./docs/gateways.md)
 
