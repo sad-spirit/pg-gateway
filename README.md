@@ -127,5 +127,14 @@ where gw_2."name" ~* $1::"text"
 
 * [Package overview](./docs/index.md)
 * [`TableLocator` class](./docs/locator.md)
+* [Working with table metadata](./docs/metadata.md)
 * [`TableGateway` interface and its implementations](./docs/gateways.md)
 
+## Requirements
+
+`pg_gateway` requires at least PHP 7.4 with native [pgsql extension](https://php.net/manual/en/book.pgsql.php).
+
+Minimum supported PostgreSQL version is 10.
+
+It is highly recommended to use [PSR-6 compatible](https://www.php-fig.org/psr/psr-6/) cache in production,
+both for metadata lookup and for generated queries.

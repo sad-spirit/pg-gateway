@@ -1,0 +1,93 @@
+# Table metadata
+
+The package loads and uses the following table metadata: 
+ * List of table columns, represented by `metadata\Columns` class. It is used for configuring the list of columns returned
+   by the query, for setting of column values in `INSERT` and `UPDATE` queries, and for Conditions
+   on specific columns;
+ * `PRIMARY KEY` constraint, represented by `metadata\PrimaryKey` class. It allows accessing table rows by primary key 
+   and performing `upsert()` and `replaceRelated()` operations;
+ * `FOREIGN KEY` constraints, represented by `metadata\References` class. These are used to perform joins in all the
+   relevant Fragments.
+
+All of the above classes extend `CachedMetadataLoader`: that class tries to use metadata cache from `Connection` object
+if that cache is available before loading metadata from database.
+
+Of course, it is highly recommended to use metadata cache in production.
+
+## `TableDefinition` interface
+
+The interface defines access to metadata of a particular table. It contains accessors for its name,
+the `Connection` object representing the database the table is in and for instances of the above-mentioned classes:
+ * `getConnection(): Connection`
+ * `getName(): QualifiedName` - due to specifics of `pg_builder`'s `Node` classes this should always return a clone of 
+   the original object, so it is not a good idea to check with `===`.
+ * `getColumns(): metadata\Columns`
+ * `getPrimaryKey(): metadata\PrimaryKey`
+ * `getReferences(): metadata\References`
+
+`TableDefinition` is extended by `TableGateway` and `SelectProxy`, these have default implementations in the package.
+
+## `Columns` class
+
+This class serves as a container for `Column` value objects, allowing iteration over these and providing some
+additional methods:
+ * `getAll(): Column[]` - returns an array with all columns.
+ * `getNames(): string[]` - returns the names of all columns.
+ * `has(string $column): bool` - checks whether the column with a given name exists.
+ * `get(string $column): Column` - gets a column by name, will throw an `OutOfBoundsException` if not found.
+
+As the class implements `IteratorAggregate` and `Countable` interfaces, the following is possible:
+```PHP
+$columns = $definition->getColumns();
+
+echo "The table has " . count($columns) . " column(s), specifically:\n";
+foreach ($columns as $column) {
+    echo $column->getName() . "\n";
+}
+```
+
+The `Column` class has the following accessors:
+ * `getName(): string` - returns the column name.
+ * `isNullable(): bool` - returns whether the column is nullable.
+ * `getTypeOID(): int|numeric-string` - returns OID of the column data type.
+
+## `PrimaryKey` class
+
+This is also a container for `Column` objects, representing columns that form the table's primary key.
+It also implements `IteratorAggregate` and `Countable` interfaces and has the following extra methods:
+ * `getAll(): Column[]` - returns an array with all primary key columns.
+ * `getNames(): string[]` - returns names of the columns in the table's primary key.
+ * `isGenerated(): bool` - returns whether table's primary key is automatically generated. This includes the
+   SQL standard `GENERATED` columns, Postgres specific `SERIAL` and those having 
+   `nextval('sequence_name')` for a default value.
+
+## `References` class
+
+This is a container for `ForeignKey` value objects, representing both `FOREIGN KEY` constraints added to the table
+and those referencing it. As usual, the class implements `IteratorAggregate` and `Countable` interfaces and has
+the following extra methods:
+ * `get(QualifiedName $relatedTable, string[] $keyColumns = []): ForeignKey` - returns a `ForeignKey` object matching 
+   the given related table and constraint columns (if given). The columns are always those on the child side of 
+   the relationship. Will throw an `InvalidArgumentException` unless exactly one matching key is found.
+ * `to(QualifiedName $referencedTable, string[] $keyColumns = []): ForeignKey[]` - returns foreign keys on the current 
+   table referencing the given one and containing the given columns (if actually given).
+ * `from(QualifiedName $childTable, string[] $keyColumns = []): ForeignKey[]` - returns foreign keys defined
+   on the given table referencing the current one and containing the given columns (if actually given).
+ 
+The `ForeignKey` class has the following accessors:
+ * `getChildTable(): QualifiedName` - returns the name of the child table (the one to which the `FOREIGN KEY` 
+   constraint was added).
+ * `getReferencedTable(): QualifiedName` - returns the name of the referenced / parent table
+   (the one mentioned in the `REFERENCES` clause of `FOREIGN KEY`).
+ * `getChildColumns(): string[]` - returns the names of the columns in the child table.
+ * `getReferencedColumns(): string[]` - returns the names of the columns in the referenced table.
+ * `getConstraintName(): string` - returns the name of the `FOREIGN KEY` constraint. This is always available, may be
+   autogenerated by Postgres if not given explicitly.
+ * `isRecursive(): bool` - returns whether a foreign key is recursive, i.e. refers back to the same table.
+
+`ForeignKey` also implements `IteratorAggregate` with iteration going over column mapping:
+```PHP
+foreach ($foreignKey as $childColumn => $referencedColumn) {
+    echo "Column " . $childColumn . " references " . $referencedColumn . "\n";
+}
+```
