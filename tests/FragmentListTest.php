@@ -253,6 +253,15 @@ class FragmentListTest extends TestCase
         $list->mergeParameters(['foo' => 'different value']);
     }
 
+    public function testFilteredListInheritsParameters(): void
+    {
+        $list = new FragmentList();
+        $list->mergeParameters(['foo' => 'bar', 'baz' => 'xyzzy']);
+
+        $filtered = $list->filter(fn($fragment) => true);
+        $this::assertEquals(['foo' => 'bar', 'baz' => 'xyzzy'], $filtered->getParameters());
+    }
+
     /**
      * @param mixed $fragments
      * @dataProvider invalidFragmentsProvider

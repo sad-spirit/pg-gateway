@@ -17,7 +17,7 @@ use sad_spirit\pg_gateway\{
     exceptions\InvalidArgumentException,
     exceptions\LogicException,
     fragments\ClosureFragment,
-    holders\EmptyParameterHolder,
+    holders\ParameterHolderFactory,
     holders\RecursiveParameterHolder,
     holders\SimpleParameterHolder
 };
@@ -55,6 +55,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
      *
      * @param mixed $fragments
      * @return FragmentList
+     * @throws InvalidArgumentException
      */
     public static function normalize($fragments): self
     {
@@ -102,9 +103,9 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
      * Instances of FragmentList will be "flattened" with their items added rather than the list itself
      *
      * @param Fragment|FragmentBuilder $fragment
-     * @return void
+     * @return $this
      */
-    public function add(object $fragment): void
+    public function add(object $fragment): self
     {
         if ($fragment instanceof self) {
             $this->mergeParameters($fragment->parameters, $fragment);
@@ -116,7 +117,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
         } elseif ($fragment instanceof Fragment) {
             $fragmentKey = $fragment->getKey();
             if (null !== $fragmentKey && isset($this->fragmentKeys[$fragmentKey])) {
-                $this->handleDuplicateFragment($fragment, $this->fragmentKeys[$fragmentKey]);
+                $this->mergeDuplicateFragmentParameters($fragment, $this->fragmentKeys[$fragmentKey]);
             } else {
                 $this->fragments[] = $fragment;
                 if (null !== $fragmentKey) {
@@ -129,6 +130,8 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
                 \get_class($fragment)
             ));
         }
+
+        return $this;
     }
 
 
@@ -139,28 +142,30 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
      * @param int      $existingIdx Index of the Fragment having the same key in $fragments array
      * @return void
      */
-    private function handleDuplicateFragment(Fragment $fragment, int $existingIdx): void
+    private function mergeDuplicateFragmentParameters(Fragment $fragment, int $existingIdx): void
     {
         if (
             !$fragment instanceof Parametrized
-            || ($incomingHolder = $fragment->getParameterHolder()) instanceof EmptyParameterHolder
+            || [] === ($incomingHolder = $fragment->getParameterHolder())->getParameters()
         ) {
             return;
         }
 
         $existing = $this->fragments[$existingIdx];
         if (
-            !$existing instanceof Parametrized
-            || ($existingHolder = $existing->getParameterHolder()) instanceof EmptyParameterHolder
+            $existing instanceof Parametrized
+            && [] !== ($existingHolder = $existing->getParameterHolder())->getParameters()
         ) {
-            $this->fragments[$existingIdx] = $fragment;
-        } else {
-            $mergedParameters = (new RecursiveParameterHolder($existingHolder, $incomingHolder))
-                ->getParameters();
-            $addedParameters  = \array_diff_key($mergedParameters, $existingHolder->getParameters());
+            $addedParameters = \array_diff_key(
+                (new RecursiveParameterHolder($existingHolder, $incomingHolder))
+                    ->getParameters(),
+                $existingHolder->getParameters()
+            );
             if ([] !== $addedParameters) {
                 $this->mergeParameters($addedParameters);
             }
+        } else {
+            $this->fragments[$existingIdx] = $fragment;
         }
     }
 
@@ -187,6 +192,14 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
         return $this;
     }
 
+    /**
+     * Returns values for query parameters
+     *
+     * All parameter values are returned: those that were merged into the list itself and those that belong
+     * to Parametrized fragments in the list
+     *
+     * @return array<string, mixed>
+     */
     public function getParameters(): array
     {
         return $this->getParameterHolder()->getParameters();
@@ -196,10 +209,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
     {
         return new RecursiveParameterHolder(
             new SimpleParameterHolder($this, $this->parameters),
-            ...\array_filter(\array_map(
-                fn(Fragment $fragment) => $fragment instanceof Parametrized ? $fragment->getParameterHolder() : null,
-                $this->fragments
-            ))
+            ParameterHolderFactory::create(...$this->fragments)
         );
     }
 
@@ -282,7 +292,8 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
      */
     public function filter(\Closure $callback): self
     {
-        return new self(...\array_filter($this->fragments, $callback));
+        return (new self(...\array_filter($this->fragments, $callback)))
+            ->mergeParameters($this->parameters);
     }
 
     public function getIterator(): \ArrayIterator
