@@ -17,6 +17,7 @@ use sad_spirit\pg_gateway\{
     Condition,
     ParameterHolder,
     Parametrized,
+    exceptions\InvalidArgumentException,
     holders\SimpleParameterHolder
 };
 use sad_spirit\pg_builder\nodes\ScalarExpression;
@@ -31,6 +32,12 @@ final class ParametrizedCondition extends Condition implements Parametrized
 
     public function __construct(Condition $wrapped, array $parameters)
     {
+        if ($wrapped instanceof Parametrized) {
+            throw new InvalidArgumentException(\sprintf(
+                "%s already implements Parametrized interface",
+                \get_class($wrapped)
+            ));
+        }
         $this->wrapped = $wrapped;
         $this->parameters = $parameters;
     }
