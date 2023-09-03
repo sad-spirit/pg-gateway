@@ -1,12 +1,12 @@
 # `Fragment` implementations
 
-Everything that is passed to a query method of `GeenricTableGateway` will eventually be represented by
+Everything that is passed to a query method of `GenericTableGateway` will eventually be represented by
 an implementation of `Fragment` and kept in a `FragmentList`.
 
 ## `FragmentList`
 
 An instance of this class aggregates fragments used to build a query and parameter values used to execute it.
-It implements `SelectFragment` and `Parametrized` package interfaces as well
+`FragmentList` implements `SelectFragment` and `Parametrized` package interfaces as well
 as native `IteratorAggregate` and `Countable`.
 
 Constructor of this class accepts a variable number of `Fragment` or `FragmentBuilder` instances
@@ -14,7 +14,7 @@ Constructor of this class accepts a variable number of `Fragment` or `FragmentBu
 
 which are passed to `add()` method.
 
-There is also a static `normalize()` method that accepts `$fragments` parameter that is passed to a query method
+There is also a static `normalize()` method that accepts `$fragments` parameter that was passed to a query method
 of `TableGateway` and returns an instance of `FragmentList`:
  * `normalize($fragments): self` - `$fragments` can be either a `\Closure`, an implementation of `Fragment` 
    or `FragmentBuilder`, or, most commonly, iterable over `Fragment` or `FragmentBuilder` implementations.
