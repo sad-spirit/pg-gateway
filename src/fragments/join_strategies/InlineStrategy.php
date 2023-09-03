@@ -37,6 +37,7 @@ use sad_spirit\pg_builder\{
  * Select statement being joined can only contain
  *  - WITH clause
  *  - WHERE clause
+ *  - ORDER BY clause
  * in addition to obvious target list and FROM clause, everything else will trigger an Exception.
  * All the clauses will be merged into the relevant clauses of the base statement.
  */

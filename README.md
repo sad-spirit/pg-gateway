@@ -130,6 +130,7 @@ where gw_2."name" ~* $1::"text"
 * [Working with table metadata](./docs/metadata.md)
 * [`TableGateway` interface and its implementations](./docs/gateways.md)
 * [Query fragments: base interfaces, parameters, aliases](./docs/fragments-base.md)
+* [`Fragment` implementations](./docs/fragments-implementations.md)
 
 ## Requirements
 
