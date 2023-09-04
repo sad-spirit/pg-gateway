@@ -21,7 +21,7 @@ use sad_spirit\pg_builder\{
 };
 
 /**
- * Generates a fragment for the WHERE clause from SQL string
+ * Condition represented by an SQL string
  */
 class SqlStringCondition extends Condition
 {

@@ -22,7 +22,7 @@ use sad_spirit\pg_builder\nodes\{
 };
 
 /**
- * Generates a "foo IS [NOT] NULL" Condition for the "foo" table column
+ * Generates a "foo IS NULL" Condition for the "foo" table column
  */
 final class IsNullCondition extends ColumnCondition
 {

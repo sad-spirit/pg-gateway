@@ -28,7 +28,7 @@ use sad_spirit\pg_builder\converters\TypeNameNodeHandler;
 use sad_spirit\pg_gateway\TableLocator;
 
 /**
- * Generates a "foo OPERATOR :foo::foo_type" condition for the "foo" table column
+ * Generates a "self.foo OPERATOR :foo::foo_type" condition for the "foo" table column
  */
 class OperatorCondition extends TypedCondition
 {

@@ -24,7 +24,7 @@ use sad_spirit\pg_builder\nodes\{
 };
 
 /**
- * Generates a "foo = any(:foo::foo_type[])" condition for the "foo" table column
+ * Generates a "self.foo = any(:foo::foo_type[])" condition for the "foo" table column
  */
 final class AnyCondition extends TypedCondition
 {

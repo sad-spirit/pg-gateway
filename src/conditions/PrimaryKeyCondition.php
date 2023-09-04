@@ -34,7 +34,7 @@ use sad_spirit\pg_builder\nodes\{
 use sad_spirit\pg_builder\converters\TypeNameNodeHandler;
 
 /**
- * Generates a WHERE clause fragment for finding a table row by its primary key
+ * A condition for finding a table row by its primary key
  */
 final class PrimaryKeyCondition extends Condition
 {

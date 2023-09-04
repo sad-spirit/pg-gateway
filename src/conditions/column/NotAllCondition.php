@@ -26,7 +26,7 @@ use sad_spirit\pg_builder\nodes\expressions\{
 };
 
 /**
- * Generates a "foo <> all(:foo::foo_type[])" condition for the "foo" table column
+ * Generates a "self.foo <> all(:foo::foo_type[])" condition for the "foo" table column
  */
 final class NotAllCondition extends TypedCondition
 {
