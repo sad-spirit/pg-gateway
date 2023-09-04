@@ -131,6 +131,7 @@ where gw_2."name" ~* $1::"text"
 * [`TableGateway` interface and its implementations](./docs/gateways.md)
 * [Query fragments: base interfaces, parameters, aliases](./docs/fragments-base.md)
 * [`Fragment` implementations](./docs/fragments-implementations.md)
+* [`Condition` classes](./docs/conditions.md)
 
 ## Requirements
 
