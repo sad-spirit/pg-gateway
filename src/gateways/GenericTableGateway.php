@@ -297,9 +297,9 @@ class GenericTableGateway implements TableGateway
     }
 
     /**
-     * Creates a "column = any(values::column_type[])" Condition
+     * Creates a `self.column = any(:column::column_type[])` SQL condition
      *
-     * This is roughly equivalent to "column IN (...values)" but requires only one placeholder
+     * This is roughly equivalent to `column IN (...values)` but requires only one placeholder
      *
      * @param string $column
      * @param array $values
@@ -317,7 +317,7 @@ class GenericTableGateway implements TableGateway
     }
 
     /**
-     * Creates a "column" Condition for a column of "bool" type
+     * Creates a `self.column` Condition for a column of `bool` type
      *
      * @param string $column
      * @return BoolCondition
@@ -328,7 +328,7 @@ class GenericTableGateway implements TableGateway
     }
 
     /**
-     * Creates a "NOT column" Condition for a column of "bool" type
+     * Creates a `NOT self.column` Condition for a column of `bool` type
      *
      * @param string $column
      * @return NotCondition
@@ -339,7 +339,7 @@ class GenericTableGateway implements TableGateway
     }
 
     /**
-     * Creates a "column IS NULL" Condition
+     * Creates a `self.column IS NULL` Condition
      *
      * @param string $column
      * @return IsNullCondition
@@ -350,7 +350,7 @@ class GenericTableGateway implements TableGateway
     }
 
     /**
-     * Creates a "column IS NOT NULL" Condition
+     * Creates a `self.column IS NOT NULL` Condition
      *
      * @param string $column
      * @return NotCondition
@@ -361,9 +361,9 @@ class GenericTableGateway implements TableGateway
     }
 
     /**
-     * Creates a "column <> all(values::column_type[])" Condition
+     * Creates a `self.column <> all(:column::column_type[])` Condition
      *
-     * This is roughly equivalent to "column NOT IN (...values)" but requires only one placeholder
+     * This is roughly equivalent to `self.column NOT IN (...values)` but requires only one placeholder
      *
      * @param string $column
      * @param array $values
@@ -381,7 +381,7 @@ class GenericTableGateway implements TableGateway
     }
 
     /**
-     * Creates a "column OPERATOR value" condition
+     * Creates a `self.column <OPERATOR> :column::column_type` condition
      *
      * The value will be actually passed separately as a query parameter
      *
@@ -403,7 +403,7 @@ class GenericTableGateway implements TableGateway
     }
 
     /**
-     * Creates a "column = value" condition
+     * Creates a `self.column = :column::column_type` condition
      *
      * The value will be actually passed separately as a query parameter
      *
@@ -523,7 +523,7 @@ class GenericTableGateway implements TableGateway
     }
 
     /**
-     * Creates a Builder for configuring a "[NOT] EXISTS(...)" condition
+     * Creates a Builder for configuring a `[NOT] EXISTS(...)` condition
      *
      * @param string|QualifiedName|TableGateway|SelectProxy $select
      * @return ExistsBuilder
