@@ -16,14 +16,27 @@ Of course, it is highly recommended to use metadata cache in production.
 
 ## `TableDefinition` interface
 
-The interface defines access to metadata of a particular table. It contains accessors for its name,
-the `Connection` object representing the database the table is in and for instances of the above-mentioned classes:
- * `getConnection(): Connection`
- * `getName(): QualifiedName` - due to specifics of `pg_builder`'s `Node` classes this should always return a clone of 
-   the original object, so it is not a good idea to check with `===`.
- * `getColumns(): metadata\Columns`
- * `getPrimaryKey(): metadata\PrimaryKey`
- * `getReferences(): metadata\References`
+The interface defines access to metadata of a particular table:
+```PHP
+
+namespace sad_spirit\pg_gateway;
+
+use sad_spirit\pg_builder\nodes\QualifiedName;
+use sad_spirit\pg_wrapper\Connection;
+
+interface TableDefinition
+{
+    public function getConnection() : Connection;
+    public function getName() : QualifiedName;
+    public function getColumns() : metadata\Columns;
+    public function getPrimaryKey() : metadata\PrimaryKey;
+    public function getReferences() : metadata\References;
+}
+```
+The `Connection` object returned by `getConnection()` represents the database the table is in.
+
+Due to specifics of `pg_builder`'s `Node` classes `getName()` should always return a clone of 
+the original object, so it is not a good idea to check the return value with `===`.
 
 `TableDefinition` is extended by `TableGateway` and `SelectProxy`, these have default implementations in the package.
 
@@ -31,10 +44,19 @@ the `Connection` object representing the database the table is in and for instan
 
 This class serves as a container for `Column` value objects, allowing iteration over these and providing some
 additional methods:
- * `getAll(): Column[]` - returns an array with all columns.
- * `getNames(): string[]` - returns the names of all columns.
- * `has(string $column): bool` - checks whether the column with a given name exists.
- * `get(string $column): Column` - gets a column by name, will throw an `OutOfBoundsException` if not found.
+```PHP
+namespace sad_spirit\pg_gateway\metadata;
+
+class Columns extends CachedMetadataLoader implements \IteratorAggregate, \Countable
+{
+    public function getAll() : Column[];
+    public function getNames() : string[];
+    public function has(string $column) : bool;
+    public function get(string $column) : Column;
+}
+```
+
+`get()` will throw an `OutOfBoundsException` if a column with the given name was not found.
 
 As the class implements `IteratorAggregate` and `Countable` interfaces, the following is possible:
 ```PHP
@@ -47,45 +69,83 @@ foreach ($columns as $column) {
 ```
 
 The `Column` class has the following accessors:
- * `getName(): string` - returns the column name.
- * `isNullable(): bool` - returns whether the column is nullable.
- * `getTypeOID(): int|numeric-string` - returns OID of the column data type.
+```PHP
+namespace sad_spirit\pg_gateway\metadata;
+
+class Column
+{
+    public function getName() : string;
+    public function isNullable() : bool;
+    public function getTypeOID() : int|numeric-string;
+}
+```
 
 ## `PrimaryKey` class
 
-This is also a container for `Column` objects, representing columns that form the table's primary key.
-It also implements `IteratorAggregate` and `Countable` interfaces and has the following extra methods:
- * `getAll(): Column[]` - returns an array with all primary key columns.
- * `getNames(): string[]` - returns names of the columns in the table's primary key.
- * `isGenerated(): bool` - returns whether table's primary key is automatically generated. This includes the
-   SQL standard `GENERATED` columns, Postgres specific `SERIAL` and those having 
-   `nextval('sequence_name')` for a default value.
+This is also a container for `Column` objects, representing columns that form the table's primary key:
+```PHP
+namespace sad_spirit\pg_gateway\metadata;
+
+class PrimaryKey extends CachedMetadataLoader implements \IteratorAggregate, \Countable
+{
+    public function getAll() : Column[];
+    public function getNames() : string[];
+    public function isGenerated() : bool;
+}
+```
+
+`isGenerated()` returns whether table's primary key is automatically generated. This includes the
+SQL standard `GENERATED` columns, Postgres specific `SERIAL`,
+and those having `nextval('sequence_name')` for a default value.
 
 ## `References` class
 
 This is a container for `ForeignKey` value objects, representing both `FOREIGN KEY` constraints added to the table
-and those referencing it. As usual, the class implements `IteratorAggregate` and `Countable` interfaces and has
-the following extra methods:
- * `get(QualifiedName $relatedTable, string[] $keyColumns = []): ForeignKey` - returns a `ForeignKey` object matching 
+and those referencing it: 
+```PHP
+namespace sad_spirit\pg_gateway\metadata;
+
+use sad_spirit\pg_builder\nodes\QualifiedName;
+
+class References extends CachedMetadataLoader implements \IteratorAggregate, \Countable
+{
+    public function get(QualifiedName $relatedTable, string[] $keyColumns = []) : ForeignKey;
+    public function from(QualifiedName $childTable, string[] $keyColumns = []) : ForeignKey[];
+    public function to(QualifiedName $referencedTable, string[] $keyColumns = []) : ForeignKey[];
+}
+```
+
+ * `get()` returns a single `ForeignKey` object matching 
    the given related table and constraint columns (if given). The columns are always those on the child side of 
    the relationship. Will throw an `InvalidArgumentException` unless exactly one matching key is found.
- * `to(QualifiedName $referencedTable, string[] $keyColumns = []): ForeignKey[]` - returns foreign keys on the current 
-   table referencing the given one and containing the given columns (if actually given).
- * `from(QualifiedName $childTable, string[] $keyColumns = []): ForeignKey[]` - returns foreign keys defined
-   on the given table referencing the current one and containing the given columns (if actually given).
- 
-The `ForeignKey` class has the following accessors:
- * `getChildTable(): QualifiedName` - returns the name of the child table (the one to which the `FOREIGN KEY` 
-   constraint was added).
- * `getReferencedTable(): QualifiedName` - returns the name of the referenced / parent table
-   (the one mentioned in the `REFERENCES` clause of `FOREIGN KEY`).
- * `getChildColumns(): string[]` - returns the names of the columns in the child table.
- * `getReferencedColumns(): string[]` - returns the names of the columns in the referenced table.
- * `getConstraintName(): string` - returns the name of the `FOREIGN KEY` constraint. This is always available, may be
-   autogenerated by Postgres if not given explicitly.
- * `isRecursive(): bool` - returns whether a foreign key is recursive, i.e. refers back to the same table.
+ * `from()` returns foreign keys defined on the given table referencing the current one and
+   `to()` returns foreign keys on the current table referencing the given one.
 
-`ForeignKey` also implements `IteratorAggregate` with iteration going over column mapping:
+The `ForeignKey` class has the following accessors:
+```PHP
+namespace sad_spirit\pg_gateway\metadata;
+
+use sad_spirit\pg_builder\nodes\QualifiedName;
+
+class ForeignKey implements \IteratorAggregate
+{
+    public function getChildTable() : QualifiedName;
+    public function getReferencedTable() : QualifiedName;
+    public function getChildColumns() : string[];
+    public function getReferencedColumns() : string[];
+    public function getConstraintName() : string;
+    public function isRecursive() : bool;
+}
+```
+"Child" here is the table to which the `FOREIGN KEY` constraint was added, "referenced" is the table
+actually referenced from that constraint.
+
+`getConstraintName()` returns the name of the `FOREIGN KEY` constraint. This is always available, may be
+   autogenerated by Postgres if not given explicitly.
+
+`isRecursive()` returns whether a foreign key is recursive, i.e. refers back to the same table.
+
+Iteration over `ForeignKey` object goes through column mapping:
 ```PHP
 foreach ($foreignKey as $childColumn => $referencedColumn) {
     echo "Column " . $childColumn . " references " . $referencedColumn . "\n";
