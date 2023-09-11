@@ -2,12 +2,22 @@
 
 ## `TableGateway` interface
 
-This interface extends `TableDefinition` (thus gateways provide access to table metadata) and defines
-four methods corresponding to SQL statements:
- * `delete($fragments = null, array $parameters = []): ResultSet`
- * `insert(array<string, mixed>|SelectCommon|SelectProxy $values, $fragments = null, array $parameters = []): ResultSet`
- * `select($fragments = null, array $parameters = []): SelectProxy`
- * `update(array $set, $fragments = null, array $parameters = []): ResultSet`
+This interface extends `TableDefinition` (thus gateways provide [access to table metadata](./metadata.md)) and defines
+four methods corresponding to SQL statements: 
+```PHP
+namespace sad_spirit\pg_gateway;
+
+use sad_spirit\pg_builder\SelectCommon;
+use sad_spirit\pg_wrapper\ResultSet;
+
+interface TableGateway extends TableDefinition
+{
+    public function delete($fragments = null, array $parameters = []) : ResultSet;
+    public function insert(array<string, mixed>|SelectCommon|SelectProxy $values, $fragments = null, array $parameters = []) : ResultSet;
+    public function select($fragments = null, array $parameters = []) : SelectProxy;
+    public function update(array $set, $fragments = null, array $parameters = []): ResultSet;
+}
+```
 
 `$fragments` parameter for the above methods can be one of the following
  * `\Closure` - this is used for ad-hoc queries;
@@ -24,6 +34,8 @@ $documentsGateway->insert([
     'added' => new Expression('now()')
 ]);
 ```
+Literals will not be embedded into the generated SQL, parameter placeholders will be inserted and their values
+eventually passed to `Connection::executeParams()`.
 
 Note also that while `delete()` / `insert()` / `update()` methods immediately return `ResultSet` objects,
 `select()` returns a `SelectProxy` instance.
@@ -33,8 +45,13 @@ Note also that while `delete()` / `insert()` / `update()` methods immediately re
 It is sometimes needed to modify the query AST in a completely custom way. Passing a closure as `$fragments` to one of 
 the above methods allows exactly this:
 ```PHP
+use sad_spirit\pg_builder\Delete;
+
 $gateway->delete(function (Delete $delete) {
     // Modify the $delete query any way you like
+    $delete->with->merge('with recursive foo as (...)');
+    $delete->using[] = 'foo'
+    $delete->where->and('self.bar @@@ foo.id');
 });
 ```
 
@@ -43,7 +60,25 @@ The downside is that a query built in that way will not be cached.
 ### `SelectProxy` interface
 
 Unlike other methods of `TableGateway`, `select()` *will not* immediately execute the generated `SELECT` statement,
-but will return a proxy object. An implementation of `SelectProxy` should contain all the data needed to execute 
+but will return a proxy object implementing `SelectProxy` interface:
+```PHP
+namespace sad_spirit\pg_gateway;
+
+use sad_spirit\pg_builder\SelectCommon;
+use sad_spirit\pg_wrapper\ResultSet;
+
+interface SelectProxy extends KeyEquatable, Parametrized, TableDefinition, \IteratorAggregate
+{
+    public function executeCount() : int|numeric-string;
+    public function getIterator() : ResultSet;
+    public function createSelectAST() : SelectCommon;
+}
+```
+
+`KeyEquatable` and `Parametrized` are [base interfaces for query fragments](./fragments-base.md), they are required
+to use `SelectProxy` inside fragments.
+
+An implementation of `SelectProxy` should contain all the data needed to execute 
 `SELECT` (and `SELECT COUNT(*)`), with actual queries executed only when `getIterator()` or `executeCount()` is called, 
 respectively.
 
@@ -60,7 +95,35 @@ But having a proxy object allows less common cases as well:
  * The configured object can be used inside a more complex query, this is covered by `createSelectAST()` method.
 
 The package provides a default implementation in `TableSelect` class, it is implemented immutable as is the case with
-all other Fragments.
+all other Fragments
+```PHP
+namespace sad_spirit\pg_gateway;
+
+use sad_spirit\pg_builder\NativeStatement;
+
+final class TableSelect implements SelectProxy
+{
+    public function __construct(
+        TableLocator $tableLocator,
+        TableGateway $gateway,
+        $fragments = null,
+        array $parameters = [],
+        \Closure $baseSelectAST = null,
+        \Closure $baseCountAST = null
+    );
+
+    public function createSelectStatement() : NativeStatement;
+    public function createSelectCountStatement() : NativeStatement;
+}
+```
+
+The constructor accepts closures creating base statement ASTs for `SELECT` and `SELECT count(*)` queries.
+If e.g. a table uses "soft-deletes" then it may make sense to start from 
+```SQL
+SELECT FROM foo AS self WHERE not self.deleted
+```
+
+Results of `createSelectStatement()` / `createSelectCountStatement()` can be used for `prepare()` / `execute()`. 
 
 ## `TableGateway` implementations
 
@@ -74,29 +137,61 @@ of columns in that key.
 ### `GenericTableGateway`
 
 This is the simplest gateway implementation, an instance of which is returned for tables that do not have a primary key
-defined. In addition to the methods defined in the interface the methods to create statements are available:
- * `createDeleteStatement(FragmentList $fragments): NativeStatement`
- * `createInsertStatement(FragmentList $fragments): NativeStatement`
- * `createUpdateStatement(FragmentList $fragments): NativeStatement`
+defined. In addition to the methods defined in the interface it has the static `create()` method mentioned above 
+and the methods to create statements:
+```PHP
+namespace sad_spirit\pg_gateway\gateways;
 
-The results of those can be used for e.g. `prepare()` / `execute()`. `FragmentList` is an object that keeps all
-the fragments used in a query and possibly parameter values for those. It is usually created via
-`FragmentList::normalize()` from whatever can be passed as `$fragments` to `TableGateway` methods.
+use sad_spirit\pg_gateway\{
+    FragmentList,
+    TableLocator
+}
+use sad_spirit\pg_builder\{
+    NativeStatement,
+    nodes\QualifiedName
+}
 
-There are also several builder methods defined, these return `Fragment`s / `FragmentBuilder`s configured for
-that particular gateway.
+class GenericTableGateway implements TableGateway
+{
+    public static function create(QualifiedName $name, TableLocator $tableLocator) : self;
+
+    public function createDeleteStatement(FragmentList $fragments) : NativeStatement;
+    public function createInsertStatement(FragmentList $fragments) : NativeStatement;
+    public function createUpdateStatement(FragmentList $fragments) : NativeStatement
+}
+```
+
+The results of those can be used for e.g. `prepare()` / `execute()`. [`FragmentList`](./fragments-implementations.md) 
+is an object that keeps all the fragments used in a query and possibly parameter values for those.
+It is usually created via `FragmentList::normalize()` from whatever can be passed as `$fragments`
+to `TableGateway` methods.
+
+Note the lack of `createSelectStatement()`, methods of `TableSelect` can be used for that.
+
+There are also [several builder methods defined](./builders-methods.md), 
+these return `Fragment`s / `FragmentBuilder`s configured for that particular gateway.
 
 ### `PrimaryKeyTableGateway`
 
 If a table has a `PRIMARY KEY` constraint defined and the key has only one column, then an instance of this class
 will be returned. It implements an additional `PrimaryKeyAccess` interface with the following methods
- * `deleteByPrimaryKey(mixed $primaryKey): ResultSet`
- * `selectByPrimaryKey(mixed $primaryKey): SelectProxy`
- * `updateByPrimaryKey(mixed $primaryKey, array $set): ResultSet`
- * `upsert(array $values): array`
+```PHP
+namespace sad_spirit\pg_gateway;
 
-The last method builds and executes an `INSERT ... ON CONFLICT DO UPDATE ...` statement returning the primary key of
-the inserted / updated row:
+use sad_spirit\pg_wrapper\ResultSet;
+
+interface PrimaryKeyAccess
+{
+    public function deleteByPrimaryKey(mixed $primaryKey) : ResultSet;
+    public function selectByPrimaryKey(mixed $primaryKey) : SelectProxy;
+    public function updateByPrimaryKey(mixed $primaryKey, array $set): ResultSet;
+
+    public function upsert(array $values): array;
+}
+```
+
+The `upsert()` method builds and executes an `INSERT ... ON CONFLICT DO UPDATE ...` statement
+returning the primary key of the inserted / updated row:
 ```PHP
 $documentsGateway->upsert([
     'id'    => 1,
@@ -105,9 +200,7 @@ $documentsGateway->upsert([
 ```
 will most probably return `['id' => 1]`.
 
-The class also defines a `primaryKey(mixed $value): ParametrizedCondition` method which returns a condition used internally 
-by the methods listed above. It can be combined with other Fragments when received that way.
-
+The class also defines [an additional builder method](./builders-methods.md) for a primary key condition.
 
 ### `CompositePrimaryKeyTableGateway`
 

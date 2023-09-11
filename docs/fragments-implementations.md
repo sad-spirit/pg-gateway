@@ -5,34 +5,48 @@ an implementation of `Fragment` and kept in a `FragmentList`.
 
 ## `FragmentList`
 
-An instance of this class aggregates fragments used to build a query and parameter values used to execute it.
-`FragmentList` implements `SelectFragment` and `Parametrized` package interfaces as well
-as native `IteratorAggregate` and `Countable`.
+An instance of this class aggregates fragments used to build a query and parameter values used to execute it:
+```PHP
+namespace sad_spirit\pg_gateway;
 
-Constructor of this class accepts a variable number of `Fragment` or `FragmentBuilder` instances
- * `__construct(Fragment|FragmentBuilder ...$fragments)`
+class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, \Countable
+{
+    public static function normalize($fragments) : self;
 
-which are passed to `add()` method.
+    public function __construct(Fragment|FragmentBuilder ...$fragments);
+    
+    public function add(Fragment|FragmentBuilder $fragment) : $this;
+    public function mergeParameters(array $parameters, ?KeyEquatable $owner = null) : $this;
+    public function getParameters() : array;
+    public function getSortedFragments() : Fragment[];
+    public function filter(\Closure $callback) : self;
+}
+```
 
-There is also a static `normalize()` method that accepts `$fragments` parameter that was passed to a query method
-of `TableGateway` and returns an instance of `FragmentList`:
- * `normalize($fragments): self` - `$fragments` can be either a `\Closure`, an implementation of `Fragment` 
-   or `FragmentBuilder`, or, most commonly, iterable over `Fragment` or `FragmentBuilder` implementations.
-   Anything else will result in `InvalidArgumentException`.
+The static `normalize()` method accepts `$fragments` parameter that usually was passed to a query method
+of `TableGateway` and returns an instance of `FragmentList`. `$fragments` can be either a `\Closure`,
+an implementation of `Fragment` or `FragmentBuilder`, or, most commonly,
+iterable over `Fragment` or `FragmentBuilder` implementations. Anything else will result in `InvalidArgumentException`.
 
-The class defines several additional methods:
- * `add(Fragment|FragmentBuilder $fragment): self` - adds a fragment to the list. If an instance of `FragmentList`
-   is given, it will be "flattened" with its items added rather than the list itself. If `FragmentBuilder`
-   is given, the return value of its `getFragment()` method is added to the list, not the builder.
- * `mergeParameters(array<string, mixed> $parameters, ?KeyEquatable $owner = null): self` - adds values
-   for several named parameters. `$owner` is used only for a possible exception message in `RecursiveParameterHolder`.
- * `getParameters(): array<string, mixed>` - shorthand for `$list->getParameterHolder()->getParameters()`.
+`add()` - adds a fragment to the list. If an instance of `FragmentList`
+is given, it will be "flattened" with its items added rather than the list itself. If `FragmentBuilder`
+is given, the return value of its `getFragment()` method is added to the list, not the builder.
+
+`mergeParameters()` - adds values for several named parameters.
+`$owner` is used only for a possible exception message in `RecursiveParameterHolder`.
+ 
+`getParameters()` - shorthand for
+```PHP
+$list->getParameterHolder()->getParameters();
+```
    Note that all parameter values are returned: those that were merged into the list itself and those that belong
    to `Parametrized` fragments in the list.
- * `getSortedFragments(): Fragment[]` - returns fragments sorted by priority (higher first) and key (alphabetically).
-   This is used by `applyTo()` to apply contained fragments in a defined order.
- * `filter(\Closure $callback): self` - filters the `FragmentList` using the given callback (uses `array_filter()`
-   internally). `TableSelect::executeCount()` uses this to leave only relevant fragments in the list.
+
+`getSortedFragments()` - returns fragments sorted by priority (higher first) and key (alphabetically).
+This is used by `applyTo()` to apply contained fragments in a defined order.
+  
+`filter()` - filters the `FragmentList` using the given callback (uses `array_filter()` internally).
+`TableSelect::executeCount()` uses this to leave only relevant fragments in the list.
    
 You only really need an explicit instance of `FragmentList` when you want to use `create*()` methods 
 of `GenericTableGateway`. Anywhere else the `$fragments` parameter will be normalized to `FragmentList` automatically.
