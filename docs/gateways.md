@@ -120,7 +120,7 @@ final class TableSelect implements SelectProxy
 The constructor accepts closures creating base statement ASTs for `SELECT` and `SELECT count(*)` queries.
 If e.g. a table uses "soft-deletes" then it may make sense to start from 
 ```SQL
-SELECT FROM foo AS self WHERE not self.deleted
+SELECT self.* FROM foo AS self WHERE not self.deleted
 ```
 
 Results of `createSelectStatement()` / `createSelectCountStatement()` can be used for `prepare()` / `execute()`. 
