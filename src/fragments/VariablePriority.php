@@ -29,8 +29,10 @@ trait VariablePriority
         return $this->priority;
     }
 
-    public function setPriority(int $priority): void
+    public function setPriority(int $priority): self
     {
         $this->priority = $priority;
+
+        return $this;
     }
 }

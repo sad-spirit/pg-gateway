@@ -11,7 +11,6 @@
 
 /**
  * @noinspection SqlResolve
- * @noinspection SqlWithoutWhere
  */
 
 declare(strict_types=1);
@@ -39,6 +38,7 @@ use sad_spirit\pg_builder\{
 class SelectListFragmentTest extends TestCase
 {
     use NormalizeWhitespace;
+    use NonSelectStatements;
 
     private static ?StatementFactory $statementFactory = null;
 
@@ -103,15 +103,6 @@ class SelectListFragmentTest extends TestCase
 
         $this::assertStringContainsString('some_key', $fragment->getKey());
         $this::assertNotEquals('some_key', $fragment->getKey());
-    }
-
-    public function nonApplicableStatementsProvider(): array
-    {
-        return [
-            ['delete from a_table'],
-            ['update a_table set foo = null'],
-            ['insert into a_table default values']
-        ];
     }
 
     public function testGetParameters(): void

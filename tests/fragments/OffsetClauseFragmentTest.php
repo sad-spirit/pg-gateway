@@ -11,7 +11,6 @@
 
 /**
  * @noinspection SqlResolve
- * @noinspection SqlWithoutWhere
  */
 
 declare(strict_types=1);
@@ -33,6 +32,7 @@ use sad_spirit\pg_builder\StatementFactory;
 class OffsetClauseFragmentTest extends TestCase
 {
     use NormalizeWhitespace;
+    use NonSelectStatements;
 
     private static ?StatementFactory $statementFactory = null;
 
@@ -84,14 +84,5 @@ class OffsetClauseFragmentTest extends TestCase
         $this::assertNotNull($offsetNoParam->getKey());
         $this::assertEquals($offsetNoParam->getKey(), $offsetOne->getKey());
         $this::assertEquals($offsetOne->getKey(), $offsetFive->getKey());
-    }
-
-    public function nonApplicableStatementsProvider(): array
-    {
-        return [
-            ['delete from a_table'],
-            ['update a_table set foo = null'],
-            ['insert into a_table default values']
-        ];
     }
 }
