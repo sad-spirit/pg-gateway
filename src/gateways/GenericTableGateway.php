@@ -42,6 +42,9 @@ use sad_spirit\pg_gateway\conditions\{
 use sad_spirit\pg_gateway\fragments\{
     ClosureFragment,
     InsertSelectFragment,
+    LimitClauseFragment,
+    OffsetClauseFragment,
+    OrderByClauseFragment,
     ReturningClauseFragment,
     SelectListFragment,
     SetClauseFragment,
@@ -58,6 +61,7 @@ use sad_spirit\pg_builder\{
 };
 use sad_spirit\pg_builder\nodes\{
     Identifier,
+    OrderByElement,
     QualifiedName,
     lists\SetClauseList,
     range\InsertTarget,
@@ -558,5 +562,60 @@ class GenericTableGateway implements TableGateway
         }
 
         return $realSelect;
+    }
+
+    /**
+     * Returns a Fragment that sets the `ORDER BY` list of a `SELECT` query to the given expressions
+     *
+     * As setting the list basically involves embedding custom incoming SQL into query, this is the default restricted
+     * version that allows only column names and ordinal numbers as sort expressions. It is not a good idea to
+     * use unchecked user input anyway, white-lists of allowed sort expressions are preferable.
+     *
+     * @param iterable<OrderByElement|string>|string $orderBy
+     * @return OrderByClauseFragment
+     */
+    public function orderBy($orderBy): OrderByClauseFragment
+    {
+        return new OrderByClauseFragment($this->tableLocator->getParser(), $orderBy);
+    }
+
+    /**
+     * Returns a Fragment that sets the `ORDER BY` list of a `SELECT` query to the given expressions (unsafe version)
+     *
+     * This version should be used explicitly if sorting by arbitrary expressions is needed. User input should
+     * NEVER be used with this method.
+     *
+     * @param iterable<OrderByElement|string>|string $orderBy
+     * @return OrderByClauseFragment
+     */
+    public function orderByUnsafe($orderBy): OrderByClauseFragment
+    {
+        return new OrderByClauseFragment($this->tableLocator->getParser(), $orderBy, false);
+    }
+
+    /**
+     * Returns a Fragment that adds the `LIMIT` clause to a `SELECT` query
+     *
+     * The actual value for `LIMIT` is not embedded into SQL, but passed as a query parameter
+     *
+     * @param int $limit
+     * @return LimitClauseFragment
+     */
+    public function limit(int $limit): LimitClauseFragment
+    {
+        return new LimitClauseFragment($limit);
+    }
+
+    /**
+     * Returns a Fragment that adds the `OFFSET` clause to a `SELECT` query
+     *
+     * The actual value for `OFFSET` is not embedded into SQL, but passed as a query parameter
+     *
+     * @param int $offset
+     * @return OffsetClauseFragment
+     */
+    public function offset(int $offset): OffsetClauseFragment
+    {
+        return new OffsetClauseFragment($offset);
     }
 }

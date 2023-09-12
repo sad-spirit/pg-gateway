@@ -101,18 +101,31 @@ $activeAdminUsers = $gwUsers->select([
         ->except(['password_hash'])
         ->replace('/^/', 'user_'),
     $gwUsers->join($activeAdminRoles)
-        ->onForeignKey()
+        ->onForeignKey(),
+    $gwUsers->orderBy('user_login, role_name'),
+    $gwUsers->limit(5)
 ]);
+
+// Let's assume we want to output that list with pagination
+echo "Total users with active admin roles: " . $activeAdminUsers->executeCount() . "\n\n";
 
 foreach ($activeAdminUsers as $row) {
     print_r($row);
 }
 
-echo $activeAdminUsers->createSelectStatement()->getSql();
+echo $activeAdminUsers->createSelectCountStatement()->getSql() . ";\n\n";
+echo $activeAdminUsers->createSelectStatement()->getSql() . ';';
 ```
 
-where the last `echo` will output something similar to
+where the last two `echo` statements will output something similar to
 ```SQL
+select count(self.*)
+from example.users as self, example.users_roles as gw_1, example.roles as gw_2
+where gw_2."name" ~* $1::"text"
+    and gw_1.role_id = gw_2.id
+    and current_date between coalesce(gw_1.valid_from, 'yesterday') and coalesce(gw_1.valid_to, 'tomorrow')
+    and gw_1.user_id = self.id;
+
 select gw_2.id as role_id, gw_2."name" as role_name, gw_1.valid_from, gw_1.valid_to, self.id as user_id,
     self.login as user_login
 from example.users as self, example.users_roles as gw_1, example.roles as gw_2
@@ -120,6 +133,8 @@ where gw_2."name" ~* $1::"text"
     and gw_1.role_id = gw_2.id
     and current_date between coalesce(gw_1.valid_from, 'yesterday') and coalesce(gw_1.valid_to, 'tomorrow')
     and gw_1.user_id = self.id
+order by user_login, role_name
+limit $2;
 ```
 
 

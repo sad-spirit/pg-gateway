@@ -20,6 +20,9 @@ use sad_spirit\pg_gateway\{
     conditions\ParametrizedCondition,
     exceptions\LogicException,
     exceptions\OutOfBoundsException,
+    exceptions\UnexpectedValueException,
+    fragments\LimitClauseFragment,
+    fragments\OffsetClauseFragment,
     gateways\GenericTableGateway,
     tests\DatabaseBackedTest,
     tests\NormalizeWhitespace
@@ -290,6 +293,51 @@ class BuildersTest extends DatabaseBackedTest
         $this::assertStringEqualsStringNormalizingWhitespace(
             'select self.*, self.title is null as null_title from update_test as self',
             $select->createSelectStatement()->getSql()
+        );
+    }
+
+    public function testOrderBy(): void
+    {
+        $select = self::$gateway->select(
+            self::$gateway->orderBy('added')
+        );
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'select self.* from update_test as self order by added',
+            $select->createSelectStatement()->getSql()
+        );
+
+        $this::expectException(UnexpectedValueException::class);
+        $this::expectExceptionMessage('column names or ordinal numbers');
+        self::$gateway->select(self::$gateway->orderBy('upper(title)'))
+            ->createSelectStatement();
+    }
+
+    public function testOrderByUnsafe(): void
+    {
+        $select = self::$gateway->select(
+            self::$gateway->orderByUnsafe('upper(title)')
+        );
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'select self.* from update_test as self order by upper(title)',
+            $select->createSelectStatement()->getSql()
+        );
+    }
+
+    public function testLimit(): void
+    {
+        $this::assertEquals(
+            new LimitClauseFragment(5),
+            self::$gateway->limit(5)
+        );
+    }
+
+    public function testOffset(): void
+    {
+        $this::assertEquals(
+            new OffsetClauseFragment(5),
+            self::$gateway->offset(5)
         );
     }
 }
