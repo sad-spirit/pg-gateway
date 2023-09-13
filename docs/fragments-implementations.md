@@ -155,3 +155,66 @@ $documentsGateway->select([
         ->useForCount(false)                  // join will not be used by executeCount()
 ]);
 ```
+
+## `LimitClauseFragment` and `OffsetClauseFragment`
+
+These add the `LIMIT` and `OFFSET` clauses to `SELECT` statements. The clauses are added with parameter placeholders
+`:limit` and `:offset`, values for these parameters are passed to the query with the fragments
+as those implement `Parametrized`.
+
+Builder methods are available for these:
+```PHP
+$gateway->select([
+    $gateway->limit(5),
+    $gateway->offset(10)
+]);
+```
+
+## `OrderByClauseFragment`
+
+This fragment modifies the `ORDER BY` list of a `SELECT` query using the given expressions. Its constructor accepts
+two flags modifying the behaviour:
+
+```PHP
+namespace sad_spirit\pg_gateway\fragments;
+
+use sad_spirit\pg_gateway\SelectFragment;
+use sad_spirit\pg_builder\Parser;
+use sad_spirit\pg_builder\nodes\OrderByElement;
+
+class OrderByClauseFragment implements SelectFragment
+{
+    public function __construct(
+        Parser $parser,
+        iterable<OrderByElement|string>|string $orderBy,
+        bool $restricted = true,
+        bool $merge = false,
+        int $priority = self::PRIORITY_DEFAULT
+    );
+}
+```
+
+`$restricted` toggles whether only column names and ordinal numbers are allowed in `ORDER BY` list. As sort options
+often come from user input and have be embedded in SQL, there is that additional protection from SQL injection
+by default.
+
+`$merge` toggles whether the new expressions should be added to the existing `ORDER BY` items rather than replace those.
+In that case the order in which fragments are added can be controlled with `$priority`.
+
+There are builder methods that create fragments replace the existing items
+```PHP
+$gateway->select([
+    $gateway->orderBy('foo, bar') // $restricted = true
+]);
+
+$gateway->select([
+    $gateway->orderByUnsafe('coalesce(foo, bar)') // $restricted = false
+]);
+```
+
+If there is a need to merge items, the class can be instantiated directly:
+```PHP
+$gateway->select([
+    new OrderByClauseFragment($parser, 'foo, bar', true, true, Fragment::PRIORITY_HIGH)
+]);
+```

@@ -47,7 +47,13 @@ class GenericTableGateway implements TableGateway
     public function returningExpression(string|Condition $expression, ?string $alias = null) : ReturningClauseFragment;
     
     // creating a builder for joins
-    public function join(string|QualifiedName|TableGateway|SelectProxy $joined): JoinBuilder;
+    public function join(string|QualifiedName|TableGateway|SelectProxy $joined) : JoinBuilder;
+
+    // fragments for SELECT statements
+    public function orderBy(iterable<OrderByElement|string>|string $orderBy) : OrderByClauseFragment;
+    public function orderByUnsafe(iterable<OrderByElement|string>|string $orderBy) : OrderByClauseFragment;
+    public function limit(int $limit) : LimitClauseFragment;
+    public function offset(int $offset) : OffsetClauseFragment;
 }
 ```
 
@@ -118,6 +124,16 @@ to positional one and its type info extracted and used to properly convert the g
 * `join()` - [creates a Builder for configuring a join](./builders-classes.md) to the given table.
    The argument has the same semantics as for `exists()` method described above.
 
+### Fragments for `SELECT` statements
+
+ * `orderBy()` / `orderByUnsafe()` - these create fragments that set the `ORDER BY` list of a `SELECT` query
+   to the given expressions, the difference being that the former allows only column names and ordinal numbers
+   as expressions while the latter allows everything. The reasoning is that sort options are often coming from
+   user input and due to SQL language structure should be embedded in the query without the means to use
+   some parameter-like constructs. "Unsafe" in the method name is a huge hint not to pass user input. 
+ * `limit()` creates a fragment adding the `LIMIT` clause. Note that the given `$limit` value will not actually
+   be embedded in SQL but passed as a parameter value.
+ * `offset()` creates a fragment adding the `OFFSET` clause. `$offset` parameter is also not embedded in SQL.
 
 ## Builder methods of `PrimaryKeyTableGateway`
 
