@@ -1,7 +1,7 @@
 {
   "name": "sad_spirit/pg-gateway",
   "type": "library",
-  "description": "Table Data Gateway implementation for Postgres based on pg_builder package, allows combining reusable fragments into complex queries",
+  "description": "Table Data Gateway implementation for Postgres based on pg_builder, mix and match manually written SQL with query builder",
   "keywords": ["PostgreSQL", "Postgres", "table", "data", "gateway", "SQL", "ORM"],
   "homepage": "https://github.com/sad-spirit/pg-gateway/",
   "license": "BSD-2-Clause",
