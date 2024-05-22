@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\tests\metadata;
 
-use sad_spirit\pg_builder\nodes\QualifiedName;
 use sad_spirit\pg_gateway\{
     exceptions\UnexpectedValueException,
     metadata\Column,
     metadata\Columns,
+    metadata\TableName,
     tests\DatabaseBackedTest
 };
 
@@ -39,26 +39,26 @@ class ColumnsTest extends DatabaseBackedTest
     {
         $this::expectException(UnexpectedValueException::class);
         $this::expectExceptionMessage('does not exist');
-        new Columns(self::$connection, new QualifiedName('cols_test', 'missing'));
+        new Columns(self::$connection, new TableName('cols_test', 'missing'));
     }
 
     public function testFailsOnNonTable(): void
     {
         $this::expectException(UnexpectedValueException::class);
         $this::expectExceptionMessage('is not a table');
-        new Columns(self::$connection, new QualifiedName('cols_test', 'notatable'));
+        new Columns(self::$connection, new TableName('cols_test', 'notatable'));
     }
 
     public function testFailsOnZeroColumnTable(): void
     {
         $this::expectException(UnexpectedValueException::class);
         $this::expectExceptionMessage('has zero columns');
-        new Columns(self::$connection, new QualifiedName('cols_test', 'zerocolumns'));
+        new Columns(self::$connection, new TableName('cols_test', 'zerocolumns'));
     }
 
     public function testDefaultsToPublicSchema(): void
     {
-        $cols = new Columns(self::$connection, new QualifiedName('cols'));
+        $cols = new Columns(self::$connection, new TableName('cols'));
 
         $this::assertCount(2, $cols);
         $this::assertEquals(
@@ -72,7 +72,7 @@ class ColumnsTest extends DatabaseBackedTest
 
     public function testSimpleTable(): void
     {
-        $cols = new Columns(self::$connection, new QualifiedName('cols_test', 'simple'));
+        $cols = new Columns(self::$connection, new TableName('cols_test', 'simple'));
 
         $this::assertCount(2, $cols);
         $this::assertEquals(
@@ -86,7 +86,7 @@ class ColumnsTest extends DatabaseBackedTest
 
     public function testTableWithDroppedColumns(): void
     {
-        $cols = new Columns(self::$connection, new QualifiedName('cols_test', 'hasdropped'));
+        $cols = new Columns(self::$connection, new TableName('cols_test', 'hasdropped'));
 
         $this::assertCount(1, $cols);
         $this::assertArrayNotHasKey('bar', $cols->getAll());
@@ -94,7 +94,7 @@ class ColumnsTest extends DatabaseBackedTest
 
     public function testDomainType(): void
     {
-        $cols = new Columns(self::$connection, new QualifiedName('cols_test', 'hasdomain'));
+        $cols = new Columns(self::$connection, new TableName('cols_test', 'hasdomain'));
 
         $this::assertEquals(['foo' => new Column('foo', true, 25)], $cols->getAll());
     }
@@ -107,7 +107,7 @@ class ColumnsTest extends DatabaseBackedTest
                 'name' => new Column('name', true, 25)
             ]
         ));
-        new Columns(self::$connection, new QualifiedName('cols_test', 'simple'));
+        new Columns(self::$connection, new TableName('cols_test', 'simple'));
     }
 
     public function testMetadataIsLoadedFromCache(): void
@@ -118,7 +118,7 @@ class ColumnsTest extends DatabaseBackedTest
                 'name' => new Column('name', true, 25)
             ]
         ));
-        $cols = new Columns(self::$connection, new QualifiedName('cols_test', 'simple'));
+        $cols = new Columns(self::$connection, new TableName('cols_test', 'simple'));
         $this::assertEquals(
             [
                 'id'   => new Column('id', false, 23),

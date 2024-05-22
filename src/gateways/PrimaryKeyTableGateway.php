@@ -121,7 +121,7 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
     protected function createBaseUpsertAST(): Insert
     {
         $insert = $this->tableLocator->getStatementFactory()->insert(new InsertTarget(
-            $this->getName(),
+            $this->getName()->createNode(),
             new Identifier(self::ALIAS_SELF)
         ));
 

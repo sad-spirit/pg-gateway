@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\metadata;
 
-use sad_spirit\pg_builder\nodes\QualifiedName;
-
 /**
  * Represents information about a FOREIGN KEY (referential integrity constraint) in the DB
  *
@@ -22,8 +20,8 @@ use sad_spirit\pg_builder\nodes\QualifiedName;
  */
 class ForeignKey implements \IteratorAggregate
 {
-    private QualifiedName $childTable;
-    private QualifiedName $referencedTable;
+    private TableName $childTable;
+    private TableName $referencedTable;
     /** @var string[] */
     private array $childColumns;
     /** @var string[] */
@@ -31,9 +29,9 @@ class ForeignKey implements \IteratorAggregate
     private string $constraintName;
 
     public function __construct(
-        QualifiedName $childTable,
+        TableName $childTable,
         array $childColumns,
-        QualifiedName $referencedTable,
+        TableName $referencedTable,
         array $referencedColumns,
         string $constraintName
     ) {
@@ -47,9 +45,9 @@ class ForeignKey implements \IteratorAggregate
     /**
      * Returns the name of the child table (the one to which the FOREIGN KEY constraint was added)
      *
-     * @return QualifiedName
+     * @return TableName
      */
-    public function getChildTable(): QualifiedName
+    public function getChildTable(): TableName
     {
         return $this->childTable;
     }
@@ -57,9 +55,9 @@ class ForeignKey implements \IteratorAggregate
     /**
      * Returns the name of the referenced / parent table (the one mentioned in the REFERENCES clause of FOREIGN KEY)
      *
-     * @return QualifiedName
+     * @return TableName
      */
-    public function getReferencedTable(): QualifiedName
+    public function getReferencedTable(): TableName
     {
         return $this->referencedTable;
     }
@@ -115,10 +113,6 @@ class ForeignKey implements \IteratorAggregate
      */
     public function isRecursive(): bool
     {
-        // Comparing "catalog" properties can be skipped
-        $childSchema      = null === $this->childTable->schema ? null : $this->childTable->schema->value;
-        $referencedSchema = null === $this->referencedTable->schema ? null : $this->referencedTable->schema->value;
-        return $childSchema === $referencedSchema
-            && $this->childTable->relation->value === $this->referencedTable->relation->value;
+        return $this->childTable->equals($this->referencedTable);
     }
 }

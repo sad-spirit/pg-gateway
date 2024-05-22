@@ -15,7 +15,6 @@ namespace sad_spirit\pg_gateway\metadata;
 
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\InvalidArgumentException;
-use sad_spirit\pg_builder\nodes\QualifiedName;
 use sad_spirit\pg_wrapper\Connection;
 
 /**
@@ -26,7 +25,7 @@ use sad_spirit\pg_wrapper\Connection;
  */
 abstract class CachedMetadataLoader
 {
-    final public function __construct(Connection $connection, QualifiedName $table)
+    final public function __construct(Connection $connection, TableName $table)
     {
         $cacheItem = null;
         if (null !== ($cache = $connection->getMetadataCache())) {
@@ -51,18 +50,18 @@ abstract class CachedMetadataLoader
      * Returns the cache key under which this particular metadata will be stored
      *
      * @param Connection $connection
-     * @param QualifiedName $table
+     * @param TableName $table
      * @return string
      */
-    abstract protected function getCacheKey(Connection $connection, QualifiedName $table): string;
+    abstract protected function getCacheKey(Connection $connection, TableName $table): string;
 
     /**
      * Loads the metadata from Postgres system catalogs
      *
      * @param Connection $connection
-     * @param QualifiedName $table
+     * @param TableName $table
      */
-    abstract protected function loadFromDatabase(Connection $connection, QualifiedName $table): void;
+    abstract protected function loadFromDatabase(Connection $connection, TableName $table): void;
 
     /**
      * Loads the metadata from cache

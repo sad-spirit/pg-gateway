@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway;
 
-use sad_spirit\pg_builder\nodes\QualifiedName;
 use sad_spirit\pg_wrapper\Connection;
 
 /**
@@ -31,9 +30,9 @@ interface TableDefinition
     /**
      * Returns table name
      *
-     * @return QualifiedName
+     * @return metadata\TableName
      */
-    public function getName(): QualifiedName;
+    public function getName(): metadata\TableName;
 
     /**
      * Returns table columns

@@ -14,19 +14,21 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\conditions;
 
 use PHPUnit\Framework\TestCase;
-use sad_spirit\pg_builder\nodes\QualifiedName;
 use sad_spirit\pg_builder\SqlBuilderWalker;
-use sad_spirit\pg_gateway\conditions\ForeignKeyCondition;
-use sad_spirit\pg_gateway\metadata\ForeignKey;
+use sad_spirit\pg_gateway\{
+    conditions\ForeignKeyCondition,
+    metadata\ForeignKey,
+    metadata\TableName
+};
 
 class ForeignKeyConditionTest extends TestCase
 {
     public function testSingleColumnForeignKey(): void
     {
         $foreignKey = new ForeignKey(
-            new QualifiedName('bar'),
+            new TableName('bar'),
             ['foo_id'],
-            new QualifiedName('foo'),
+            new TableName('foo'),
             ['id'],
             'test_key'
         );
@@ -51,9 +53,9 @@ class ForeignKeyConditionTest extends TestCase
     public function testMultipleColumnsForeignKey(): void
     {
         $foreignKey = new ForeignKey(
-            new QualifiedName('foobar_related'),
+            new TableName('foobar_related'),
             ['foobar_one', 'foobar_two'],
-            new QualifiedName('foobar'),
+            new TableName('foobar'),
             ['one', 'two'],
             'test_multi_key'
         );

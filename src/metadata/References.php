@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\metadata;
 
 use Psr\Cache\CacheItemInterface;
-use sad_spirit\pg_builder\nodes\QualifiedName;
 use sad_spirit\pg_gateway\exceptions\InvalidArgumentException;
 use sad_spirit\pg_wrapper\Connection;
 
@@ -90,16 +89,15 @@ class References extends CachedMetadataLoader implements \IteratorAggregate, \Co
     /** @var array<string, array<int, int>> */
     private array $referencedBy = [];
 
-    protected function getCacheKey(Connection $connection, QualifiedName $table): string
+    protected function getCacheKey(Connection $connection, TableName $table): string
     {
         return sprintf('%s.references.%x', $connection->getConnectionId(), \crc32((string)$table));
     }
 
-    protected function loadFromDatabase(Connection $connection, QualifiedName $table): void
+    protected function loadFromDatabase(Connection $connection, TableName $table): void
     {
-        $canonical    = $this->addPublicSchemaIfNotQualified($table);
-        $canonicalStr = (string)$canonical;
-        $index        = -1;
+        $tableStr = (string)$table;
+        $index    = -1;
 
         foreach (
             [
@@ -110,16 +108,16 @@ class References extends CachedMetadataLoader implements \IteratorAggregate, \Co
             foreach (
                 $connection->executeParams(
                     $query,
-                    [$canonical->relation->value, $canonical->schema ? $canonical->schema->value : 'public']
+                    [$table->getRelation(), $table->getSchema()]
                 ) as $row
             ) {
-                $relatedTable    = new QualifiedName($row['nspname'], $row['relname']);
+                $relatedTable    = new TableName($row['nspname'], $row['relname']);
                 $relatedTableStr = (string)$relatedTable;
 
                 $this->foreignKeys[++$index] = new ForeignKey(
-                    $from ? clone $canonical : $relatedTable,
+                    $from ? $table : $relatedTable,
                     $row['child_columns'],
-                    $from ? $relatedTable : clone $canonical,
+                    $from ? $relatedTable : $table,
                     $row['referenced_columns'],
                     $row['conname']
                 );
@@ -131,7 +129,7 @@ class References extends CachedMetadataLoader implements \IteratorAggregate, \Co
                         $this->referencing[$relatedTableStr][] = $index;
                     }
                 }
-                if (!$from || $relatedTableStr === $canonicalStr) {
+                if (!$from || $relatedTableStr === $tableStr) {
                     if (!isset($this->referencedBy[$relatedTableStr])) {
                         $this->referencedBy[$relatedTableStr]   = [$index];
                     } else {
@@ -150,14 +148,6 @@ class References extends CachedMetadataLoader implements \IteratorAggregate, \Co
     protected function setCachedData(CacheItemInterface $cacheItem): CacheItemInterface
     {
         return $cacheItem->set([$this->foreignKeys, $this->referencing, $this->referencedBy]);
-    }
-
-    private function addPublicSchemaIfNotQualified(QualifiedName $incoming): QualifiedName
-    {
-        return new QualifiedName(
-            $incoming->schema ? $incoming->schema->value : 'public',
-            $incoming->relation->value
-        );
     }
 
     /**
@@ -179,18 +169,17 @@ class References extends CachedMetadataLoader implements \IteratorAggregate, \Co
      * Here specifying the constraint column "employee_id" or "boss_id" uniquely identifies the constraint,
      * while specifying referenced "id" column is useless, it will most likely be the primary key.
      *
-     * @param QualifiedName $relatedTable
-     * @param string[]      $keyColumns
+     * @param TableName $relatedTable
+     * @param string[] $keyColumns
      * @return ForeignKey
-     * @throws InvalidArgumentException Unless exactly one matching reference is found
      */
-    public function get(QualifiedName $relatedTable, array $keyColumns = []): ForeignKey
+    public function get(TableName $relatedTable, array $keyColumns = []): ForeignKey
     {
-        $canonical = (string)$this->addPublicSchemaIfNotQualified($relatedTable);
-        $keys      = \array_merge(
-            $this->getMatchingKeys($this->referencedBy, $canonical, $keyColumns),
+        $relatedStr = (string)$relatedTable;
+        $keys       = \array_merge(
+            $this->getMatchingKeys($this->referencedBy, $relatedStr, $keyColumns),
             \array_filter(
-                $this->getMatchingKeys($this->referencing, $canonical, $keyColumns),
+                $this->getMatchingKeys($this->referencing, $relatedStr, $keyColumns),
                 fn(ForeignKey $key) => !$key->isRecursive()
             )
         );
@@ -198,13 +187,13 @@ class References extends CachedMetadataLoader implements \IteratorAggregate, \Co
         if ([] === $keys) {
             throw new InvalidArgumentException(\sprintf(
                 "No matching foreign keys for %s%s",
-                $relatedTable->__toString(),
+                $relatedStr,
                 [] === $keyColumns ? '' : ' using (' . \implode(', ', $keyColumns) . ')'
             ));
         } elseif (1 < \count($keys)) {
             throw new InvalidArgumentException(\sprintf(
                 "Several matching foreign keys for %s%s: %s",
-                $relatedTable->__toString(),
+                $relatedStr,
                 [] === $keyColumns ? '' : ' using (' . \implode(', ', $keyColumns) . ')',
                 \implode(', ', \array_map(fn(ForeignKey $key) => $key->getConstraintName(), $keys))
             ));
@@ -216,33 +205,25 @@ class References extends CachedMetadataLoader implements \IteratorAggregate, \Co
     /**
      * Returns foreign keys on the current table referencing the given one and containing the given columns
      *
-     * @param QualifiedName $referencedTable Target table of the FOREIGN KEY constraint
-     * @param string[]      $keyColumns      If empty, all keys to the referenced table will be returned
-     * @return ForeignKey[]
+     * @param TableName $referencedTable Target table of the FOREIGN KEY constraint
+     * @param string[] $keyColumns If empty, all keys to the referenced table will be returned
+     * @return ForeignKey
      */
-    public function to(QualifiedName $referencedTable, array $keyColumns = []): array
+    public function to(TableName $referencedTable, array $keyColumns = []): array
     {
-        return $this->getMatchingKeys(
-            $this->referencing,
-            (string)$this->addPublicSchemaIfNotQualified($referencedTable),
-            $keyColumns
-        );
+        return $this->getMatchingKeys($this->referencing, (string)$referencedTable, $keyColumns);
     }
 
     /**
      * Returns foreign keys defined on the given table referencing the current one and containing the given columns
      *
-     * @param QualifiedName $childTable The table where FOREIGN KEY constraint is defined
-     * @param string[]      $keyColumns If empty, all foreign keys defined on the table will be returned
-     * @return ForeignKey[]
+     * @param TableName $childTable The table where FOREIGN KEY constraint is defined
+     * @param string[] $keyColumns If empty, all foreign keys defined on the table will be returned
+     * @return ForeignKey
      */
-    public function from(QualifiedName $childTable, array $keyColumns = []): array
+    public function from(TableName $childTable, array $keyColumns = []): array
     {
-        return $this->getMatchingKeys(
-            $this->referencedBy,
-            (string)$this->addPublicSchemaIfNotQualified($childTable),
-            $keyColumns
-        );
+        return $this->getMatchingKeys($this->referencedBy, (string)$childTable, $keyColumns);
     }
 
     /**

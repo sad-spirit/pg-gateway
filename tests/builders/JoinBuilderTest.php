@@ -22,17 +22,15 @@ use sad_spirit\pg_gateway\{
     exceptions\LogicException,
     fragments\JoinFragment,
     fragments\JoinStrategy,
-    tests\DatabaseBackedTest,
+    metadata\TableName,
+    tests\DatabaseBackedTest
 };
 use sad_spirit\pg_gateway\fragments\join_strategies\{
     ExplicitJoinStrategy,
     InlineStrategy,
     LateralSubselectStrategy
 };
-use sad_spirit\pg_builder\nodes\{
-    QualifiedName,
-    range\JoinExpression
-};
+use sad_spirit\pg_builder\nodes\range\JoinExpression;
 
 class JoinBuilderTest extends DatabaseBackedTest
 {
@@ -89,7 +87,7 @@ class JoinBuilderTest extends DatabaseBackedTest
             new JoinFragment(
                 $joined,
                 new ForeignKeyCondition(
-                    $base->getReferences()->get(new QualifiedName('fkey_test', 'documents')),
+                    $base->getReferences()->get(new TableName('fkey_test', 'documents')),
                     true
                 )
             ),
@@ -109,7 +107,7 @@ class JoinBuilderTest extends DatabaseBackedTest
             new JoinFragment(
                 $joined,
                 new ForeignKeyCondition(
-                    $base->getReferences()->get(new QualifiedName('fkey_test', 'documents_tags')),
+                    $base->getReferences()->get(new TableName('fkey_test', 'documents_tags')),
                     false
                 )
             ),
@@ -129,7 +127,7 @@ class JoinBuilderTest extends DatabaseBackedTest
             new JoinFragment(
                 $joined,
                 new ForeignKeyCondition(
-                    $base->getReferences()->get(new QualifiedName('public', 'employees'), ['boss_id']),
+                    $base->getReferences()->get(new TableName('public', 'employees'), ['boss_id']),
                     true
                 )
             ),
@@ -152,7 +150,7 @@ class JoinBuilderTest extends DatabaseBackedTest
             new JoinFragment(
                 $joined,
                 new ForeignKeyCondition(
-                    $base->getReferences()->get(new QualifiedName('fkey_test', 'documents')),
+                    $base->getReferences()->get(new TableName('fkey_test', 'documents')),
                     false
                 )
             ),

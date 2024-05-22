@@ -27,7 +27,8 @@ use sad_spirit\pg_gateway\{
     exceptions\InvalidArgumentException,
     metadata\Columns,
     metadata\PrimaryKey,
-    metadata\References
+    metadata\References,
+    metadata\TableName
 };
 use sad_spirit\pg_gateway\conditions\{
     NotCondition,
@@ -77,7 +78,7 @@ use sad_spirit\pg_wrapper\{
  */
 class GenericTableGateway implements TableGateway
 {
-    private QualifiedName $name;
+    private TableName $name;
     protected TableLocator $tableLocator;
     private ?Columns $columns = null;
     private ?PrimaryKey $primaryKey = null;
@@ -86,11 +87,11 @@ class GenericTableGateway implements TableGateway
     /**
      * Creates an instance of GenericTableGateway or its subclass based on table's primary key
      *
-     * @param QualifiedName $name
+     * @param TableName $name
      * @param TableLocator $tableLocator
      * @return self
      */
-    public static function create(QualifiedName $name, TableLocator $tableLocator): self
+    public static function create(TableName $name, TableLocator $tableLocator): self
     {
         $primaryKey = new PrimaryKey($tableLocator->getConnection(), $name);
 
@@ -111,15 +112,15 @@ class GenericTableGateway implements TableGateway
         return $gateway;
     }
 
-    public function __construct(QualifiedName $name, TableLocator $tableLocator)
+    public function __construct(TableName $name, TableLocator $tableLocator)
     {
         $this->name = $name;
         $this->tableLocator = $tableLocator;
     }
 
-    public function getName(): QualifiedName
+    public function getName(): TableName
     {
-        return clone $this->name;
+        return $this->name;
     }
 
     public function getConnection(): Connection
@@ -227,7 +228,7 @@ class GenericTableGateway implements TableGateway
         return $this->tableLocator->createNativeStatementUsingCache(
             function () use ($fragments): Delete {
                 $delete = $this->tableLocator->getStatementFactory()->delete(new UpdateOrDeleteTarget(
-                    $this->getName(),
+                    $this->getName()->createNode(),
                     new Identifier(self::ALIAS_SELF)
                 ));
                 $fragments->applyTo($delete);
@@ -249,7 +250,7 @@ class GenericTableGateway implements TableGateway
         return $this->tableLocator->createNativeStatementUsingCache(
             function () use ($fragments): Insert {
                 $insert = $this->tableLocator->getStatementFactory()->insert(new InsertTarget(
-                    $this->getName(),
+                    $this->getName()->createNode(),
                     new Identifier(TableGateway::ALIAS_SELF)
                 ));
                 $fragments->applyTo($insert);
@@ -271,7 +272,7 @@ class GenericTableGateway implements TableGateway
             function () use ($fragments): Update {
                 $update = $this->tableLocator->getStatementFactory()->update(
                     new UpdateOrDeleteTarget(
-                        $this->getName(),
+                        $this->getName()->createNode(),
                         new Identifier(TableGateway::ALIAS_SELF)
                     ),
                     new SetClauseList()

@@ -15,11 +15,8 @@ namespace sad_spirit\pg_gateway;
 
 use sad_spirit\pg_wrapper\ResultSet;
 use sad_spirit\pg_wrapper\Connection;
-use sad_spirit\pg_builder\{
-    SelectCommon,
-    NativeStatement,
-    nodes\QualifiedName
-};
+use sad_spirit\pg_builder\NativeStatement;
+use sad_spirit\pg_builder\SelectCommon;
 
 /**
  * A decorator for a SelectProxy replacing its generated Select statement with another one
@@ -117,7 +114,7 @@ abstract class SelectTransformer implements SelectProxy
         return $this->wrapped->getConnection();
     }
 
-    public function getName(): QualifiedName
+    public function getName(): metadata\TableName
     {
         return $this->wrapped->getName();
     }

@@ -13,11 +13,11 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\tests\metadata;
 
-use sad_spirit\pg_builder\nodes\QualifiedName;
 use sad_spirit\pg_gateway\{
     exceptions\InvalidArgumentException,
     metadata\ForeignKey,
     metadata\References,
+    metadata\TableName,
     tests\DatabaseBackedTest
 };
 
@@ -37,7 +37,7 @@ class ReferencesTest extends DatabaseBackedTest
 
     public function testDefaultsToPublicSchema(): void
     {
-        $references = new References(self::$connection, new QualifiedName('employees'));
+        $references = new References(self::$connection, new TableName('employees'));
 
         $this::assertCount(2, $references);
         $this::assertEqualsCanonicalizing(
@@ -48,92 +48,92 @@ class ReferencesTest extends DatabaseBackedTest
 
     public function testMissing(): void
     {
-        $references = new References(self::$connection, new QualifiedName('public', 'employees'));
+        $references = new References(self::$connection, new TableName('public', 'employees'));
 
         $this::expectException(InvalidArgumentException::class);
         $this::expectExceptionMessage('No matching foreign keys');
-        $references->get(new QualifiedName('fkey_test', 'documents_tags'));
+        $references->get(new TableName('fkey_test', 'documents_tags'));
     }
 
     public function testRecursiveForeignKey(): void
     {
-        $references = new References(self::$connection, new QualifiedName('fkey_test', 'documents'));
+        $references = new References(self::$connection, new TableName('fkey_test', 'documents'));
 
         $this::assertEquals(
             'documents_hierarchy_fkey',
-            $references->get(new QualifiedName('fkey_test', 'documents'))->getConstraintName()
+            $references->get(new TableName('fkey_test', 'documents'))->getConstraintName()
         );
 
-        $from = $references->from(new QualifiedName('fkey_test', 'documents'));
+        $from = $references->from(new TableName('fkey_test', 'documents'));
         $this::assertCount(1, $from);
         $this::assertEquals('documents_hierarchy_fkey', $from[0]->getConstraintName());
 
-        $to = $references->to(new QualifiedName('fkey_test', 'documents'));
+        $to = $references->to(new TableName('fkey_test', 'documents'));
         $this::assertCount(1, $to);
         $this::assertEquals('documents_hierarchy_fkey', $to[0]->getConstraintName());
     }
 
     public function testAmbiguousChildSide(): void
     {
-        $references = new References(self::$connection, new QualifiedName('fkey_test', 'documents'));
+        $references = new References(self::$connection, new TableName('fkey_test', 'documents'));
 
         $this::assertEqualsCanonicalizing(
             ['documents_author_fkey', 'documents_approval_fkey'],
             \array_map(
                 fn(ForeignKey $key) => $key->getConstraintName(),
-                $references->to(new QualifiedName('public', 'employees'))
+                $references->to(new TableName('public', 'employees'))
             )
         );
 
         $this::expectException(InvalidArgumentException::class);
         $this::expectExceptionMessage('Several matching foreign keys');
-        $references->get(new QualifiedName('public', 'employees'));
+        $references->get(new TableName('public', 'employees'));
     }
 
     public function testSpecificColumnsChildSide(): void
     {
-        $references = new References(self::$connection, new QualifiedName('fkey_test', 'documents'));
+        $references = new References(self::$connection, new TableName('fkey_test', 'documents'));
 
         $this::assertEquals(
             'documents_approval_fkey',
-            $references->get(new QualifiedName('public', 'employees'), ['boss_id'])->getConstraintName()
+            $references->get(new TableName('public', 'employees'), ['boss_id'])->getConstraintName()
         );
     }
 
     public function testAmbiguousParentSide(): void
     {
-        $references = new References(self::$connection, new QualifiedName('public', 'employees'));
+        $references = new References(self::$connection, new TableName('public', 'employees'));
 
         $this::assertEqualsCanonicalizing(
             ['documents_author_fkey', 'documents_approval_fkey'],
             \array_map(
                 fn(ForeignKey $key) => $key->getConstraintName(),
-                $references->from(new QualifiedName('fkey_test', 'documents'))
+                $references->from(new TableName('fkey_test', 'documents'))
             )
         );
 
         $this::expectException(InvalidArgumentException::class);
         $this::expectExceptionMessage('Several matching foreign keys');
-        $references->get(new QualifiedName('fkey_test', 'documents'));
+        $references->get(new TableName('fkey_test', 'documents'));
     }
 
     public function testSpecificColumnsParentSide(): void
     {
-        $references = new References(self::$connection, new QualifiedName('public', 'employees'));
+        $references = new References(self::$connection, new TableName('public', 'employees'));
 
         $this::assertEquals(
             'documents_author_fkey',
-            $references->get(new QualifiedName('fkey_test', 'documents'), ['employee_id'])->getConstraintName()
+            $references->get(new TableName('fkey_test', 'documents'), ['employee_id'])->getConstraintName()
         );
     }
 
     public function testAutoGeneratedName(): void
     {
-        $references = new References(self::$connection, new QualifiedName('fkey_test', 'documents_tags'));
+        $references = new References(self::$connection, new TableName('fkey_test', 'documents_tags'));
 
         $this::assertMatchesRegularExpression(
             '/_fkey$/',
-            $references->get(new QualifiedName('fkey_test', 'documents'))->getConstraintName()
+            $references->get(new TableName('fkey_test', 'documents'))->getConstraintName()
         );
     }
 
@@ -141,24 +141,24 @@ class ReferencesTest extends DatabaseBackedTest
     {
         self::$connection->setMetadataCache($this->getMockForCacheMiss([
             [new ForeignKey(
-                new QualifiedName('fkey_test', 'documents_comments'),
+                new TableName('fkey_test', 'documents_comments'),
                 ['doc_id'],
-                new QualifiedName('fkey_test', 'documents'),
+                new TableName('fkey_test', 'documents'),
                 ['id'],
                 'documents_comments_fkey'
             )],
             ['fkey_test.documents' => [0]],
             []
         ]));
-        new References(self::$connection, new QualifiedName('fkey_test', 'documents_comments'));
+        new References(self::$connection, new TableName('fkey_test', 'documents_comments'));
     }
 
     public function testMetadataIsLoadedFromCache(): void
     {
         $key = new ForeignKey(
-            new QualifiedName('fkey_test', 'documents_comments'),
+            new TableName('fkey_test', 'documents_comments'),
             ['doc_id'],
-            new QualifiedName('fkey_test', 'documents'),
+            new TableName('fkey_test', 'documents'),
             ['id'],
             'documents_comments_fkey'
         );
@@ -168,7 +168,7 @@ class ReferencesTest extends DatabaseBackedTest
             ['fkey_test.documents' => [0]],
             []
         ]));
-        $references = new References(self::$connection, new QualifiedName('fkey_test', 'documents_comments'));
-        $this::assertEquals($key, $references->get(new QualifiedName('fkey_test', 'documents')));
+        $references = new References(self::$connection, new TableName('fkey_test', 'documents_comments'));
+        $this::assertEquals($key, $references->get(new TableName('fkey_test', 'documents')));
     }
 }

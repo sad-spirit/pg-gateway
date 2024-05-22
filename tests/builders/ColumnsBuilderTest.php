@@ -28,10 +28,10 @@ use sad_spirit\pg_gateway\{
     exceptions\UnexpectedValueException,
     gateways\GenericTableGateway,
     gateways\PrimaryKeyTableGateway,
+    metadata\TableName,
     tests\DatabaseBackedTest,
     tests\NormalizeWhitespace
 };
-use sad_spirit\pg_builder\nodes\QualifiedName;
 
 class ColumnsBuilderTest extends DatabaseBackedTest
 {
@@ -55,7 +55,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
 
     public function testStarIsANoOpForSelect(): void
     {
-        $gateway = self::$tableLocator->get(new QualifiedName('fkey_test', 'documents'));
+        $gateway = self::$tableLocator->get(new TableName('fkey_test', 'documents'));
         $fragmentDefault = (new ColumnsBuilder($gateway, false))
             ->getFragment();
         $fragmentStar = (new ColumnsBuilder($gateway, false))
@@ -75,7 +75,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
     public function testNoneIsANoOpForReturningClause(): void
     {
         /** @var GenericTableGateway $gateway */
-        $gateway = self::$tableLocator->get(new QualifiedName('fkey_test', 'documents'));
+        $gateway = self::$tableLocator->get(new TableName('fkey_test', 'documents'));
         $fragmentDefault = (new ColumnsBuilder($gateway, true))
             ->getFragment();
         $fragmentNone = (new ColumnsBuilder($gateway, true))
@@ -101,7 +101,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
-            'select from employees as self',
+            'select from public.employees as self',
             self::$tableLocator->getStatementFactory()->createFromAST($select->createSelectAST())->getSql()
         );
     }
@@ -116,7 +116,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
-            'select self.id as employee_id, self."name" as employee_name from employees as self',
+            'select self.id as employee_id, self."name" as employee_name from public.employees as self',
             self::$tableLocator->getStatementFactory()->createFromAST($select->createSelectAST())->getSql()
         );
     }
@@ -168,7 +168,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
 
     public function testExceptColumns(): void
     {
-        $gateway = self::$tableLocator->get(new QualifiedName('fkey_test', 'documents'));
+        $gateway = self::$tableLocator->get(new TableName('fkey_test', 'documents'));
         $select  = $gateway->select(
             (new ColumnsBuilder($gateway, false))
                 ->except(['contents'])
@@ -186,7 +186,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
         $this::expectExceptionMessage('No columns');
 
         (new ColumnsBuilder(
-            self::$tableLocator->get(new QualifiedName('fkey_test', 'documents_tags')),
+            self::$tableLocator->get(new TableName('fkey_test', 'documents_tags')),
             false
         ))
             ->primaryKey();
@@ -194,14 +194,14 @@ class ColumnsBuilderTest extends DatabaseBackedTest
 
     public function testPrimaryKeyColumns(): void
     {
-        $gateway = new PrimaryKeyTableGateway(new QualifiedName('employees'), self::$tableLocator);
+        $gateway = new PrimaryKeyTableGateway(new TableName('employees'), self::$tableLocator);
         $select  = $gateway->select(
             (new ColumnsBuilder($gateway, false))
                 ->primaryKey()
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
-            'select self.id from employees as self',
+            'select self.id from public.employees as self',
             self::$tableLocator->getStatementFactory()->createFromAST($select->createSelectAST())->getSql()
         );
     }

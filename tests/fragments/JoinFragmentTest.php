@@ -22,7 +22,8 @@ use sad_spirit\pg_gateway\{
     conditions\SqlStringCondition,
     fragments\JoinFragment,
     fragments\JoinStrategy,
-    gateways\GenericTableGateway
+    gateways\GenericTableGateway,
+    metadata\TableName
 };
 use sad_spirit\pg_gateway\fragments\join_strategies\InlineStrategy;
 use sad_spirit\pg_builder\{
@@ -32,7 +33,6 @@ use sad_spirit\pg_builder\{
     StatementFactory
 };
 use sad_spirit\pg_builder\nodes\{
-    QualifiedName,
     ScalarExpression,
     expressions\KeywordConstant,
     expressions\NumericConstant
@@ -46,7 +46,7 @@ class JoinFragmentTest extends DatabaseBackedTest
     {
         parent::setUpBeforeClass();
         self::$gateway = new GenericTableGateway(
-            new QualifiedName('pg_catalog', 'pg_class'),
+            new TableName('pg_catalog', 'pg_class'),
             new TableLocator(self::$connection)
         );
     }

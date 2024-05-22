@@ -15,10 +15,12 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\tests;
 
-use sad_spirit\pg_gateway\SelectProxy;
-use sad_spirit\pg_gateway\TableLocator;
-use sad_spirit\pg_builder\nodes\QualifiedName;
-use sad_spirit\pg_gateway\gateways\GenericTableGateway;
+use sad_spirit\pg_gateway\{
+    SelectProxy,
+    TableLocator,
+    gateways\GenericTableGateway,
+    metadata\TableName
+};
 use sad_spirit\pg_gateway\tests\assets\SelectTransformerImplementation;
 
 class SelectTransformerTest extends DatabaseBackedTest
@@ -87,7 +89,7 @@ class SelectTransformerTest extends DatabaseBackedTest
 
     public function testDelegatesToWrapped(): void
     {
-        $gateway     = new GenericTableGateway(new QualifiedName('victim'), self::$tableLocator);
+        $gateway     = new GenericTableGateway(new TableName('victim'), self::$tableLocator);
         $select      = $gateway->select(null, ['foo' => 'bar']);
         $transformer = new SelectTransformerImplementation($select, self::$tableLocator);
 
@@ -101,7 +103,7 @@ class SelectTransformerTest extends DatabaseBackedTest
 
     public function testSelectCountIsNotTransformed(): void
     {
-        $gateway     = new GenericTableGateway(new QualifiedName('victim'), self::$tableLocator);
+        $gateway     = new GenericTableGateway(new TableName('victim'), self::$tableLocator);
         $transformer = new SelectTransformerImplementation($gateway->select(), self::$tableLocator);
 
         $this::assertEquals(4, $transformer->executeCount());
@@ -109,11 +111,11 @@ class SelectTransformerTest extends DatabaseBackedTest
 
     public function testTransformSelect(): void
     {
-        $gateway     = new GenericTableGateway(new QualifiedName('victim'), self::$tableLocator);
+        $gateway     = new GenericTableGateway(new TableName('victim'), self::$tableLocator);
         $transformer = new SelectTransformerImplementation($gateway->select(), self::$tableLocator, 'a key');
 
         $this::assertStringEqualsStringNormalizingWhitespace(
-            "select self.* from victim as self union all select self.* from victim as self",
+            "select self.* from public.victim as self union all select self.* from public.victim as self",
             $transformer->createSelectStatement()->getSql()
         );
     }

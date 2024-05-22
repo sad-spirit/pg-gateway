@@ -18,9 +18,9 @@ use sad_spirit\pg_gateway\{
     gateways\GenericTableGateway,
     gateways\PrimaryKeyTableGateway,
     gateways\CompositePrimaryKeyTableGateway,
+    metadata\TableName,
     tests\DatabaseBackedTest
 };
-use sad_spirit\pg_builder\nodes\QualifiedName;
 
 /**
  * Tests the behaviour of GenericTableGateway::create()
@@ -50,7 +50,7 @@ class CreateTest extends DatabaseBackedTest
 
     public function testCreateGatewayForNoPrimaryKeyTable(): void
     {
-        $gateway = GenericTableGateway::create(new QualifiedName('pkey_test', 'nokey'), self::$tableLocator);
+        $gateway = GenericTableGateway::create(new TableName('pkey_test', 'nokey'), self::$tableLocator);
 
         $this::assertInstanceOf(GenericTableGateway::class, $gateway);
         $this::assertNotInstanceOf(PrimaryKeyTableGateway::class, $gateway);
@@ -58,7 +58,7 @@ class CreateTest extends DatabaseBackedTest
 
     public function testCreateGatewayForSingleColumnPrimaryKey(): void
     {
-        $gateway = GenericTableGateway::create(new QualifiedName('haskey'), self::$tableLocator);
+        $gateway = GenericTableGateway::create(new TableName('haskey'), self::$tableLocator);
 
         $this::assertInstanceOf(PrimaryKeyTableGateway::class, $gateway);
         $this::assertNotInstanceOf(CompositePrimaryKeyTableGateway::class, $gateway);
@@ -66,7 +66,7 @@ class CreateTest extends DatabaseBackedTest
 
     public function testCreateGatewayForCompositePrimaryKey(): void
     {
-        $gateway = GenericTableGateway::create(new QualifiedName('pkey_test', 'composite'), self::$tableLocator);
+        $gateway = GenericTableGateway::create(new TableName('pkey_test', 'composite'), self::$tableLocator);
 
         $this::assertInstanceOf(CompositePrimaryKeyTableGateway::class, $gateway);
     }

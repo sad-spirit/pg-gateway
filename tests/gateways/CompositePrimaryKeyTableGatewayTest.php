@@ -17,12 +17,10 @@ use sad_spirit\pg_gateway\{
     TableLocator,
     exceptions\InvalidArgumentException,
     gateways\CompositePrimaryKeyTableGateway,
+    metadata\TableName,
     tests\DatabaseBackedTest
 };
-use sad_spirit\pg_builder\{
-    Select,
-    nodes\QualifiedName
-};
+use sad_spirit\pg_builder\Select;
 
 /**
  * Tests methods from CompositePrimaryKeyTableGateway
@@ -35,7 +33,7 @@ class CompositePrimaryKeyTableGatewayTest extends DatabaseBackedTest
     {
         parent::setUpBeforeClass();
         self::$gateway = new CompositePrimaryKeyTableGateway(
-            new QualifiedName('pkey_test', 'composite'),
+            new TableName('pkey_test', 'composite'),
             new TableLocator(self::$connection)
         );
         self::executeSqlFromFile(self::$connection, 'primary-key-drop.sql', 'composite-primary-key-create.sql');

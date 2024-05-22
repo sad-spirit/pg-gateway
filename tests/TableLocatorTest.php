@@ -28,7 +28,6 @@ use sad_spirit\pg_builder\{
 };
 use sad_spirit\pg_builder\nodes\{
     Identifier,
-    QualifiedName,
     expressions\KeywordConstant,
     range\UpdateOrDeleteTarget
 };
@@ -39,7 +38,8 @@ use sad_spirit\pg_gateway\{
     TableGatewayFactory,
     TableLocator,
     exceptions\UnexpectedValueException,
-    gateways\GenericTableGateway
+    gateways\GenericTableGateway,
+    metadata\TableName
 };
 use sad_spirit\pg_gateway\tests\assets\{
     FragmentImplementation,
@@ -113,7 +113,7 @@ class TableLocatorTest extends DatabaseBackedTest
 
     public function testGeneratedSqlIsStoredInCache(): void
     {
-        $definition = new TableDefinitionImplementation(self::$connection, new QualifiedName('cols_test', 'simple'));
+        $definition = new TableDefinitionImplementation(self::$connection, new TableName('cols_test', 'simple'));
         $fragment   = new FragmentImplementation(
             new KeywordConstant(KeywordConstant::TRUE),
             'a key'
@@ -132,7 +132,7 @@ class TableLocatorTest extends DatabaseBackedTest
             'delete from public.cols as foo where false'
         ));
 
-        $definition   = new TableDefinitionImplementation(self::$connection, new QualifiedName('update_test'));
+        $definition   = new TableDefinitionImplementation(self::$connection, new TableName('update_test'));
         $tableLocator = new TableLocator(self::$connection, null, null, $this->getMockForCacheHit($stmt));
         $fragment     = new FragmentImplementation(new KeywordConstant(KeywordConstant::FALSE), 'a key');
 
@@ -144,7 +144,7 @@ class TableLocatorTest extends DatabaseBackedTest
 
     public function testNoCacheForNullKeyedFragments(): void
     {
-        $definition    = new TableDefinitionImplementation(self::$connection, new QualifiedName('foo'));
+        $definition    = new TableDefinitionImplementation(self::$connection, new TableName('foo'));
         $fragment      = new FragmentImplementation(new KeywordConstant(KeywordConstant::NULL), null);
 
         $tableLocator = new TableLocator(self::$connection, null, null, $this->getMockForNoCache());
@@ -156,13 +156,13 @@ class TableLocatorTest extends DatabaseBackedTest
     {
         $tableLocator = new TableLocator(self::$connection);
 
-        $gateway = $tableLocator->get(new QualifiedName('public', 'cols'));
+        $gateway = $tableLocator->get(new TableName('public', 'cols'));
         $this::assertSame(GenericTableGateway::class, \get_class($gateway));
 
         $another = $tableLocator->get(' "public" . "cols"  ');
         $this::assertSame($gateway, $another);
 
-        $this::assertEquals(new QualifiedName('public', 'cols'), $gateway->getName());
+        $this::assertEquals(new TableName('public', 'cols'), $gateway->getName());
     }
 
     public function testGetGatewayUsingFactory(): void
@@ -170,9 +170,9 @@ class TableLocatorTest extends DatabaseBackedTest
         $tableLocator = new TableLocator(
             self::$connection,
             new class implements TableGatewayFactory {
-                public function create(QualifiedName $name, TableLocator $tableLocator): ?TableGateway
+                public function create(TableName $name, TableLocator $tableLocator): ?TableGateway
                 {
-                    if ('unconditional' === $name->relation->value) {
+                    if ('unconditional' === $name->getRelation()) {
                         return new SpecificTableGateway($tableLocator);
                     }
                     return null;
@@ -208,7 +208,7 @@ class TableLocatorTest extends DatabaseBackedTest
         return $tableLocator->createNativeStatementUsingCache(
             function () use ($tableLocator, $definition, $fragment): Delete {
                 $delete = $tableLocator->getStatementFactory()->delete(new UpdateOrDeleteTarget(
-                    $definition->getName(),
+                    $definition->getName()->createNode(),
                     new Identifier('foo')
                 ));
                 $fragment->applyTo($delete);

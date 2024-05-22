@@ -72,7 +72,7 @@ final class TableSelect implements SelectProxy
             ->mergeParameters($parameters);
 
         $this->baseSelectAST = $baseSelectAST ?? function (): Select {
-            $from = new RelationReference($this->getName());
+            $from = new RelationReference($this->getName()->createNode());
             $from->setAlias(new Identifier(TableGateway::ALIAS_SELF));
             return $this->tableLocator->getStatementFactory()->select(
                 [new TargetElement(new ColumnReference(TableGateway::ALIAS_SELF, '*'))],
@@ -81,7 +81,7 @@ final class TableSelect implements SelectProxy
         };
 
         $this->baseCountAST  = $baseCountAST ?? function (): Select {
-            $from = new RelationReference($this->getName());
+            $from = new RelationReference($this->getName()->createNode());
             $from->setAlias(new Identifier(TableGateway::ALIAS_SELF));
 
             return $this->tableLocator->getStatementFactory()->select(
@@ -101,7 +101,7 @@ final class TableSelect implements SelectProxy
         return $this->gateway->getConnection();
     }
 
-    public function getName(): QualifiedName
+    public function getName(): metadata\TableName
     {
         return $this->gateway->getName();
     }

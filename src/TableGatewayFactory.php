@@ -13,8 +13,6 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway;
 
-use sad_spirit\pg_builder\nodes\QualifiedName;
-
 interface TableGatewayFactory
 {
     /**
@@ -22,10 +20,10 @@ interface TableGatewayFactory
      *
      * Should return null if it cannot find a specific gateway so that TableLocator can fall back to a generic one
      *
-     * @param QualifiedName $name
+     * @param metadata\TableName $name
      * @param TableLocator $tableLocator
      *
      * @return null|TableGateway
      */
-    public function create(QualifiedName $name, TableLocator $tableLocator): ?TableGateway;
+    public function create(metadata\TableName $name, TableLocator $tableLocator): ?TableGateway;
 }

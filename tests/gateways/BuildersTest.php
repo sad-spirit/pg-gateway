@@ -24,10 +24,10 @@ use sad_spirit\pg_gateway\{
     fragments\LimitClauseFragment,
     fragments\OffsetClauseFragment,
     gateways\GenericTableGateway,
+    metadata\TableName,
     tests\DatabaseBackedTest,
     tests\NormalizeWhitespace
 };
-use sad_spirit\pg_builder\nodes\QualifiedName;
 
 /**
  * Tests for methods of GenericTableGateway creating Fragments / FragmentBuilders
@@ -44,7 +44,7 @@ class BuildersTest extends DatabaseBackedTest
         parent::setUpBeforeClass();
         self::executeSqlFromFile(self::$connection, 'update-drop.sql', 'update-create.sql');
         self::$tableLocator = new TableLocator(self::$connection);
-        self::$gateway      = new GenericTableGateway(new QualifiedName('update_test'), self::$tableLocator);
+        self::$gateway      = new GenericTableGateway(new TableName('update_test'), self::$tableLocator);
     }
 
     public static function tearDownAfterClass(): void
@@ -216,7 +216,7 @@ class BuildersTest extends DatabaseBackedTest
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
-            'select self.*, custom.* from update_test as self, update_test as custom',
+            'select self.*, custom.* from public.update_test as self, public.update_test as custom',
             $select->createSelectStatement()->getSql()
         );
     }
@@ -229,7 +229,7 @@ class BuildersTest extends DatabaseBackedTest
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
-            'select self.*, custom.* from update_test as self, update_test as custom',
+            'select self.*, custom.* from public.update_test as self, public.update_test as custom',
             $select->createSelectStatement()->getSql()
         );
     }
@@ -244,7 +244,7 @@ class BuildersTest extends DatabaseBackedTest
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
-            'select self.*, custom.* from update_test as self, update_test as custom where custom.flag',
+            'select self.*, custom.* from public.update_test as self, public.update_test as custom where custom.flag',
             $select->createSelectStatement()->getSql()
         );
     }
@@ -266,8 +266,8 @@ class BuildersTest extends DatabaseBackedTest
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
-            'select self.*, ( select custom.id from unconditional as custom where self.title = custom.title )'
-            . ' as klmn from update_test as self',
+            'select self.*, ( select custom.id from public.unconditional as custom where self.title = custom.title )'
+            . ' as klmn from public.update_test as self',
             $select->createSelectStatement()->getSql()
         );
     }
@@ -279,7 +279,7 @@ class BuildersTest extends DatabaseBackedTest
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
-            'select self.*, upper(self.title) as upper_title from update_test as self',
+            'select self.*, upper(self.title) as upper_title from public.update_test as self',
             $select->createSelectStatement()->getSql()
         );
     }
@@ -291,7 +291,7 @@ class BuildersTest extends DatabaseBackedTest
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
-            'select self.*, self.title is null as null_title from update_test as self',
+            'select self.*, self.title is null as null_title from public.update_test as self',
             $select->createSelectStatement()->getSql()
         );
     }
@@ -303,7 +303,7 @@ class BuildersTest extends DatabaseBackedTest
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
-            'select self.* from update_test as self order by added',
+            'select self.* from public.update_test as self order by added',
             $select->createSelectStatement()->getSql()
         );
 
@@ -320,7 +320,7 @@ class BuildersTest extends DatabaseBackedTest
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
-            'select self.* from update_test as self order by upper(title)',
+            'select self.* from public.update_test as self order by upper(title)',
             $select->createSelectStatement()->getSql()
         );
     }

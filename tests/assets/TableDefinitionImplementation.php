@@ -13,13 +13,13 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\tests\assets;
 
-use sad_spirit\pg_builder\nodes\QualifiedName;
 use sad_spirit\pg_wrapper\Connection;
 use sad_spirit\pg_gateway\{
     TableDefinition,
     metadata\Columns,
     metadata\PrimaryKey,
-    metadata\References
+    metadata\References,
+    metadata\TableName
 };
 
 /**
@@ -28,12 +28,12 @@ use sad_spirit\pg_gateway\{
 class TableDefinitionImplementation implements TableDefinition
 {
     private Connection $connection;
-    private QualifiedName $name;
+    private TableName $name;
     private ?Columns $columns = null;
     private ?PrimaryKey $primaryKey = null;
     private ?References $references = null;
 
-    public function __construct(Connection $connection, QualifiedName $name)
+    public function __construct(Connection $connection, TableName $name)
     {
         $this->connection = $connection;
         $this->name = $name;
@@ -44,9 +44,9 @@ class TableDefinitionImplementation implements TableDefinition
         return $this->connection;
     }
 
-    public function getName(): QualifiedName
+    public function getName(): TableName
     {
-        return clone $this->name;
+        return $this->name;
     }
 
     public function getColumns(): Columns

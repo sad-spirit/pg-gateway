@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\metadata;
 
 use Psr\Cache\CacheItemInterface;
-use sad_spirit\pg_builder\nodes\QualifiedName;
 use sad_spirit\pg_gateway\exceptions\OutOfBoundsException;
 use sad_spirit\pg_gateway\exceptions\UnexpectedValueException;
 use sad_spirit\pg_wrapper\Connection;
@@ -45,16 +44,16 @@ class Columns extends CachedMetadataLoader implements \IteratorAggregate, \Count
      */
     private array $columns = [];
 
-    protected function getCacheKey(Connection $connection, QualifiedName $table): string
+    protected function getCacheKey(Connection $connection, TableName $table): string
     {
         return \sprintf('%s.attributes.%x', $connection->getConnectionId(), \crc32((string)$table));
     }
 
-    protected function loadFromDatabase(Connection $connection, QualifiedName $table): void
+    protected function loadFromDatabase(Connection $connection, TableName $table): void
     {
         $result = $connection->executeParams(self::QUERY, [
-            $table->relation->value,
-            $table->schema ? $table->schema->value : 'public'
+            $table->getRelation(),
+            $table->getSchema()
         ]);
         if (0 === \count($result)) {
             throw new UnexpectedValueException(\sprintf("Relation %s does not exist", $table->__toString()));
