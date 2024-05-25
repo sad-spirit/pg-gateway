@@ -18,7 +18,7 @@ namespace sad_spirit\pg_gateway\metadata;
  *
  * @implements \IteratorAggregate<string, string>
  */
-class ForeignKey implements \IteratorAggregate
+final class ForeignKey implements \IteratorAggregate
 {
     private TableName $childTable;
     private TableName $referencedTable;

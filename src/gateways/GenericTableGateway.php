@@ -28,7 +28,10 @@ use sad_spirit\pg_gateway\{
     metadata\Columns,
     metadata\PrimaryKey,
     metadata\References,
-    metadata\TableName
+    metadata\TableColumns,
+    metadata\TableName,
+    metadata\TablePrimaryKey,
+    metadata\TableReferences
 };
 use sad_spirit\pg_gateway\conditions\{
     NotCondition,
@@ -80,9 +83,9 @@ class GenericTableGateway implements TableGateway
 {
     private TableName $name;
     protected TableLocator $tableLocator;
-    private ?Columns $columns = null;
-    private ?PrimaryKey $primaryKey = null;
-    private ?References $references = null;
+    private ?TableColumns $columns = null;
+    private ?TablePrimaryKey $primaryKey = null;
+    private ?TableReferences $references = null;
 
     /**
      * Creates an instance of GenericTableGateway or its subclass based on table's primary key
@@ -93,7 +96,7 @@ class GenericTableGateway implements TableGateway
      */
     public static function create(TableName $name, TableLocator $tableLocator): self
     {
-        $primaryKey = new PrimaryKey($tableLocator->getConnection(), $name);
+        $primaryKey = new TablePrimaryKey($tableLocator->getConnection(), $name);
 
         switch (\count($primaryKey)) {
             case 0:
@@ -130,17 +133,17 @@ class GenericTableGateway implements TableGateway
 
     public function getColumns(): Columns
     {
-        return $this->columns ??= new Columns($this->getConnection(), $this->name);
+        return $this->columns ??= new TableColumns($this->getConnection(), $this->name);
     }
 
     public function getPrimaryKey(): PrimaryKey
     {
-        return $this->primaryKey ??= new PrimaryKey($this->getConnection(), $this->name);
+        return $this->primaryKey ??= new TablePrimaryKey($this->getConnection(), $this->name);
     }
 
     public function getReferences(): References
     {
-        return $this->references ??= new References($this->getConnection(), $this->name);
+        return $this->references ??= new TableReferences($this->getConnection(), $this->name);
     }
 
     public function delete($fragments = null, array $parameters = []): ResultSet

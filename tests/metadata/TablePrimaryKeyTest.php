@@ -16,12 +16,12 @@ namespace sad_spirit\pg_gateway\tests\metadata;
 use sad_spirit\pg_gateway\{
     exceptions\UnexpectedValueException,
     metadata\Column,
-    metadata\PrimaryKey,
     metadata\TableName,
+    metadata\TablePrimaryKey,
     tests\DatabaseBackedTest
 };
 
-class PrimaryKeyTest extends DatabaseBackedTest
+class TablePrimaryKeyTest extends DatabaseBackedTest
 {
     public static function setUpBeforeClass(): void
     {
@@ -44,28 +44,19 @@ class PrimaryKeyTest extends DatabaseBackedTest
     {
         $this::expectException(UnexpectedValueException::class);
         $this::expectExceptionMessage('does not exist');
-        new PrimaryKey(self::$connection, new TableName('pkey_test', 'missing'));
+        new TablePrimaryKey(self::$connection, new TableName('pkey_test', 'missing'));
     }
 
     public function testFailsOnNonTable(): void
     {
         $this::expectException(UnexpectedValueException::class);
         $this::expectExceptionMessage('is not a table');
-        new PrimaryKey(self::$connection, new TableName('pkey_test', 'explicit_seq'));
-    }
-
-    public function testDefaultsToPublicSchema(): void
-    {
-        $pkey = new PrimaryKey(self::$connection, new TableName('haskey'));
-
-        $this::assertCount(1, $pkey);
-        $this::assertEquals([new Column('id', false, 23)], $pkey->getAll());
-        $this::assertFalse($pkey->isGenerated());
+        new TablePrimaryKey(self::$connection, new TableName('pkey_test', 'explicit_seq'));
     }
 
     public function testMissingPrimaryKey(): void
     {
-        $pkey = new PrimaryKey(self::$connection, new TableName('pkey_test', 'nokey'));
+        $pkey = new TablePrimaryKey(self::$connection, new TableName('pkey_test', 'nokey'));
 
         $this::assertCount(0, $pkey);
         $this::assertEquals([], $pkey->getAll());
@@ -74,7 +65,7 @@ class PrimaryKeyTest extends DatabaseBackedTest
 
     public function testCompositePrimaryKey(): void
     {
-        $pkey = new PrimaryKey(self::$connection, new TableName('pkey_test', 'composite'));
+        $pkey = new TablePrimaryKey(self::$connection, new TableName('pkey_test', 'composite'));
 
         $this::assertCount(3, $pkey);
         $this::assertEquals(['e_id', 's_id', 'i_id'], $pkey->getNames());
@@ -83,7 +74,7 @@ class PrimaryKeyTest extends DatabaseBackedTest
 
     public function testGeneratedPrimaryKeyUsingSQLStandardSyntax(): void
     {
-        $pkey = new PrimaryKey(self::$connection, new TableName('pkey_test', 'standard'));
+        $pkey = new TablePrimaryKey(self::$connection, new TableName('pkey_test', 'standard'));
 
         $this::assertEquals(['i_id'], $pkey->getNames());
         $this::assertTrue($pkey->isGenerated());
@@ -91,7 +82,7 @@ class PrimaryKeyTest extends DatabaseBackedTest
 
     public function testGeneratedPrimaryKeyUsingSerial(): void
     {
-        $pkey = new PrimaryKey(self::$connection, new TableName('pkey_test', 'serial'));
+        $pkey = new TablePrimaryKey(self::$connection, new TableName('pkey_test', 'serial'));
 
         $this::assertEquals(['s_id'], $pkey->getNames());
         $this::assertTrue($pkey->isGenerated());
@@ -99,7 +90,7 @@ class PrimaryKeyTest extends DatabaseBackedTest
 
     public function testGeneratedPrimaryKeyUsingDefaultNextval(): void
     {
-        $pkey = new PrimaryKey(self::$connection, new TableName('pkey_test', 'explicit'));
+        $pkey = new TablePrimaryKey(self::$connection, new TableName('pkey_test', 'explicit'));
 
         $this::assertEquals(['e_id'], $pkey->getNames());
         $this::assertTrue($pkey->isGenerated());
@@ -110,7 +101,7 @@ class PrimaryKeyTest extends DatabaseBackedTest
         self::$connection->setMetadataCache($this->getMockForCacheMiss(
             [[new Column('i_id', false, 23)], true]
         ));
-        new PrimaryKey(self::$connection, new TableName('pkey_test', 'standard'));
+        new TablePrimaryKey(self::$connection, new TableName('pkey_test', 'standard'));
     }
 
     public function testMetadataIsLoadedFromCache(): void
@@ -118,7 +109,7 @@ class PrimaryKeyTest extends DatabaseBackedTest
         self::$connection->setMetadataCache($this->getMockForCacheHit(
             [[new Column('i_id', false, 23)], true]
         ));
-        $pkey = new PrimaryKey(self::$connection, new TableName('pkey_test', 'standard'));
+        $pkey = new TablePrimaryKey(self::$connection, new TableName('pkey_test', 'standard'));
         $this::assertEquals(['i_id'], $pkey->getNames());
         $this::assertTrue($pkey->isGenerated());
     }

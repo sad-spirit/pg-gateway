@@ -19,6 +19,7 @@ use sad_spirit\pg_gateway\{
     metadata\Columns,
     metadata\PrimaryKey,
     metadata\References,
+    metadata\TableColumns,
     metadata\TableName
 };
 
@@ -29,7 +30,7 @@ class TableDefinitionImplementation implements TableDefinition
 {
     private Connection $connection;
     private TableName $name;
-    private ?Columns $columns = null;
+    private ?TableColumns $columns = null;
     private ?PrimaryKey $primaryKey = null;
     private ?References $references = null;
 
@@ -51,7 +52,7 @@ class TableDefinitionImplementation implements TableDefinition
 
     public function getColumns(): Columns
     {
-        return $this->columns ??= new Columns($this->connection, $this->name);
+        return $this->columns ??= new TableColumns($this->connection, $this->name);
     }
 
     public function getPrimaryKey(): PrimaryKey

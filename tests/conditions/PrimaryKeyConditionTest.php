@@ -17,13 +17,13 @@ namespace sad_spirit\pg_gateway\tests\conditions;
 
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_gateway\{
+    metadata\TablePrimaryKey,
     TableGateway,
     exceptions\InvalidArgumentException,
     exceptions\UnexpectedValueException,
     metadata\Column,
     metadata\PrimaryKey,
-    tests\NormalizeWhitespace
-};
+    tests\NormalizeWhitespace};
 use sad_spirit\pg_gateway\conditions\PrimaryKeyCondition;
 use sad_spirit\pg_builder\{
     SqlBuilderWalker,
@@ -39,7 +39,7 @@ class PrimaryKeyConditionTest extends TestCase
 
     private function getPrimaryKeyMock(array $columnNames): PrimaryKey
     {
-        $reflection = new \ReflectionClass(PrimaryKey::class);
+        $reflection = new \ReflectionClass(TablePrimaryKey::class);
         $mock       = $reflection->newInstanceWithoutConstructor();
         $property   = $reflection->getProperty('columns');
         $property->setAccessible(true);

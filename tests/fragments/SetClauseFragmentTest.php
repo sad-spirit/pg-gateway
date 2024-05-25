@@ -25,6 +25,7 @@ use sad_spirit\pg_gateway\{
     exceptions\OutOfBoundsException,
     fragments\SetClauseFragment,
     metadata\Columns,
+    metadata\TableColumns,
     metadata\TableName,
     tests\DatabaseBackedTest,
     tests\NormalizeWhitespace
@@ -50,7 +51,7 @@ class SetClauseFragmentTest extends DatabaseBackedTest
         parent::setUpBeforeClass();
         self::executeSqlFromFile(self::$connection, 'update-drop.sql', 'update-create.sql');
 
-        self::$columns      = new Columns(self::$connection, new TableName('update_test'));
+        self::$columns      = new TableColumns(self::$connection, new TableName('update_test'));
         self::$tableLocator = new TableLocator(self::$connection);
     }
 

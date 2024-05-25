@@ -16,7 +16,7 @@ namespace sad_spirit\pg_gateway\metadata;
 /**
  * Represents properties of a table column
  */
-class Column
+final class Column
 {
     private string $name;
     private bool $nullable;
