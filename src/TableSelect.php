@@ -29,7 +29,7 @@ use sad_spirit\pg_builder\nodes\{
 };
 use sad_spirit\pg_wrapper\{
     Connection,
-    ResultSet
+    Result
 };
 
 /**
@@ -191,7 +191,7 @@ final class TableSelect implements SelectProxy
         );
     }
 
-    public function getIterator(): ResultSet
+    public function getIterator(): Result
     {
         $native = $this->createSelectStatement();
         if ([] === $native->getParameterTypes()) {

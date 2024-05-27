@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway;
 
-use sad_spirit\pg_wrapper\ResultSet;
+use sad_spirit\pg_wrapper\Result;
 use sad_spirit\pg_wrapper\Connection;
 use sad_spirit\pg_builder\NativeStatement;
 use sad_spirit\pg_builder\SelectCommon;
@@ -70,7 +70,7 @@ abstract class SelectTransformer implements SelectProxy
         return $this->wrapped->executeCount();
     }
 
-    public function getIterator(): ResultSet
+    public function getIterator(): Result
     {
         $native = $this->createSelectStatement();
         return [] === $native->getParameterTypes()

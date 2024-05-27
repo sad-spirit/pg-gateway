@@ -36,14 +36,14 @@ use sad_spirit\pg_builder\nodes\{
     lists\SetClauseList,
     range\InsertTarget,
 };
-use sad_spirit\pg_wrapper\ResultSet;
+use sad_spirit\pg_wrapper\Result;
 
 /**
  * Table gateway implementation for tables that have a primary key defined
  */
 class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAccess
 {
-    public function deleteByPrimaryKey($primaryKey): ResultSet
+    public function deleteByPrimaryKey($primaryKey): Result
     {
         $list = new FragmentList($this->primaryKey($primaryKey));
 
@@ -58,7 +58,7 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
         return new TableSelect($this->tableLocator, $this, $condition, $condition->normalizeValue($primaryKey));
     }
 
-    public function updateByPrimaryKey($primaryKey, array $set): ResultSet
+    public function updateByPrimaryKey($primaryKey, array $set): Result
     {
         $list = new FragmentList(
             new SetClauseFragment($this->getColumns(), $this->tableLocator, $set),

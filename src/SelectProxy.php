@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway;
 
 use sad_spirit\pg_builder\SelectCommon;
-use sad_spirit\pg_wrapper\ResultSet;
+use sad_spirit\pg_wrapper\Result;
 
 /**
  * Interface for classes executing SELECT queries on demand
@@ -23,7 +23,7 @@ use sad_spirit\pg_wrapper\ResultSet;
  * to execute "SELECT" (and "SELECT COUNT(*)"), with actual queries executed only when
  * calling getIterator() and executeCount(), respectively.
  *
- * Unlike delete() / insert() / update() methods that immediately execute the built query and return ResultSet,
+ * Unlike delete() / insert() / update() methods that immediately execute the built query and return Result,
  * TableGateway::select() returns an object implementing this interface:
  *   - it is frequently needed to additionally execute the query that returns the total number of rows
  *     that satisfy the given conditions (e.g. for pagination)
@@ -56,9 +56,9 @@ interface SelectProxy extends KeyEquatable, Parametrized, TableDefinition, \Iter
     /**
      * Executes the "SELECT [target list]" query with current fragments and returns its result
      *
-     * @return ResultSet
+     * @return Result
      */
-    public function getIterator(): ResultSet;
+    public function getIterator(): Result;
 
     /**
      * Returns the AST representing this SELECT statement

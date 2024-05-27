@@ -73,7 +73,7 @@ use sad_spirit\pg_builder\nodes\{
 };
 use sad_spirit\pg_wrapper\{
     Connection,
-    ResultSet
+    Result
 };
 
 /**
@@ -146,7 +146,7 @@ class GenericTableGateway implements TableGateway
         return $this->references ??= new TableReferences($this->getConnection(), $this->name);
     }
 
-    public function delete($fragments = null, array $parameters = []): ResultSet
+    public function delete($fragments = null, array $parameters = []): Result
     {
         $fragmentList = FragmentList::normalize($fragments)
             ->mergeParameters($parameters);
@@ -158,7 +158,7 @@ class GenericTableGateway implements TableGateway
      * {@inheritDoc}
      * @psalm-suppress RedundantConditionGivenDocblockType
      */
-    public function insert($values, $fragments = null, array $parameters = []): ResultSet
+    public function insert($values, $fragments = null, array $parameters = []): Result
     {
         $fragmentList = FragmentList::normalize($fragments)
             ->mergeParameters($parameters);
@@ -195,7 +195,7 @@ class GenericTableGateway implements TableGateway
         return new TableSelect($this->tableLocator, $this, $fragments, $parameters);
     }
 
-    public function update(array $set, $fragments = null, array $parameters = []): ResultSet
+    public function update(array $set, $fragments = null, array $parameters = []): Result
     {
         $native = $this->createUpdateStatement($list = new FragmentList(
             new SetClauseFragment($this->getColumns(), $this->tableLocator, $set),
@@ -211,9 +211,9 @@ class GenericTableGateway implements TableGateway
      *
      * @param NativeStatement $statement
      * @param FragmentList $fragments
-     * @return ResultSet
+     * @return Result
      */
-    private function execute(NativeStatement $statement, FragmentList $fragments): ResultSet
+    private function execute(NativeStatement $statement, FragmentList $fragments): Result
     {
         return [] === $statement->getParameterTypes()
             ? $this->getConnection()->execute($statement->getSql())

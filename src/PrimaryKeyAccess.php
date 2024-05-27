@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway;
 
-use sad_spirit\pg_wrapper\ResultSet;
+use sad_spirit\pg_wrapper\Result;
 
 /**
  * Interface for gateways to tables that have a primary key defined
@@ -24,9 +24,9 @@ interface PrimaryKeyAccess
      * Deletes a row with the given primary key
      *
      * @param mixed $primaryKey
-     * @return ResultSet
+     * @return Result
      */
-    public function deleteByPrimaryKey($primaryKey): ResultSet;
+    public function deleteByPrimaryKey($primaryKey): Result;
 
     /**
      * Returns an object that can SELECT a row with the given primary key
@@ -41,9 +41,9 @@ interface PrimaryKeyAccess
      *
      * @param mixed $primaryKey
      * @param array $set
-     * @return ResultSet
+     * @return Result
      */
-    public function updateByPrimaryKey($primaryKey, array $set): ResultSet;
+    public function updateByPrimaryKey($primaryKey, array $set): Result;
 
     /**
      * Executes an "UPSERT" (INSERT ... ON CONFLICT DO UPDATE ...) query with the given values

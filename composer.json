@@ -17,8 +17,8 @@
   "require": {
     "php":                    ">=7.4.0",
     "ext-pgsql":              "*",
-    "sad_spirit/pg_builder":  "^2.2",
-    "sad_spirit/pg_wrapper":  "^2.2"
+    "sad_spirit/pg_builder":  "^2.4",
+    "sad_spirit/pg_wrapper":  "^2.4"
   },
   "require-dev":  {
     "psr/cache":              "^1.0",

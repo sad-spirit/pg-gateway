@@ -8,14 +8,14 @@ four methods corresponding to SQL statements:
 namespace sad_spirit\pg_gateway;
 
 use sad_spirit\pg_builder\SelectCommon;
-use sad_spirit\pg_wrapper\ResultSet;
+use sad_spirit\pg_wrapper\Result;
 
 interface TableGateway extends TableDefinition
 {
-    public function delete($fragments = null, array $parameters = []) : ResultSet;
-    public function insert(array<string, mixed>|SelectCommon|SelectProxy $values, $fragments = null, array $parameters = []) : ResultSet;
+    public function delete($fragments = null, array $parameters = []) : Result;
+    public function insert(array<string, mixed>|SelectCommon|SelectProxy $values, $fragments = null, array $parameters = []) : Result;
     public function select($fragments = null, array $parameters = []) : SelectProxy;
-    public function update(array $set, $fragments = null, array $parameters = []): ResultSet;
+    public function update(array $set, $fragments = null, array $parameters = []): Result;
 }
 ```
 
@@ -37,7 +37,7 @@ $documentsGateway->insert([
 Literals will not be embedded into the generated SQL, parameter placeholders will be inserted and their values
 eventually passed to `Connection::executeParams()`.
 
-Note also that while `delete()` / `insert()` / `update()` methods immediately return `ResultSet` objects,
+Note also that while `delete()` / `insert()` / `update()` methods immediately return `Result` objects,
 `select()` returns a `SelectProxy` instance.
 
 ### Ad-hoc queries
@@ -65,12 +65,12 @@ but will return a proxy object implementing `SelectProxy` interface:
 namespace sad_spirit\pg_gateway;
 
 use sad_spirit\pg_builder\SelectCommon;
-use sad_spirit\pg_wrapper\ResultSet;
+use sad_spirit\pg_wrapper\Result;
 
 interface SelectProxy extends KeyEquatable, Parametrized, TableDefinition, \IteratorAggregate
 {
     public function executeCount() : int|numeric-string;
-    public function getIterator() : ResultSet;
+    public function getIterator() : Result;
     public function createSelectAST() : SelectCommon;
 }
 ```
@@ -82,7 +82,7 @@ An implementation of `SelectProxy` should contain all the data needed to execute
 `SELECT` (and `SELECT COUNT(*)`), with actual queries executed only when `getIterator()` or `executeCount()` is called, 
 respectively.
 
-The most common case still looks the same way as if `select()` did return `ResultSet`:
+The most common case still looks the same way as if `select()` did return `Result`:
 ```PHP
 foreach ($gateway->select($fragments) as $row) {
     // process the row
@@ -178,13 +178,13 @@ will be returned. It implements an additional `PrimaryKeyAccess` interface with 
 ```PHP
 namespace sad_spirit\pg_gateway;
 
-use sad_spirit\pg_wrapper\ResultSet;
+use sad_spirit\pg_wrapper\Result;
 
 interface PrimaryKeyAccess
 {
-    public function deleteByPrimaryKey(mixed $primaryKey) : ResultSet;
+    public function deleteByPrimaryKey(mixed $primaryKey) : Result;
     public function selectByPrimaryKey(mixed $primaryKey) : SelectProxy;
-    public function updateByPrimaryKey(mixed $primaryKey, array $set): ResultSet;
+    public function updateByPrimaryKey(mixed $primaryKey, array $set): Result;
 
     public function upsert(array $values): array;
 }
