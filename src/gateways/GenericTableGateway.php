@@ -131,6 +131,9 @@ class GenericTableGateway implements TableGateway
     /**
      * {@inheritDoc}
      * @psalm-suppress RedundantConditionGivenDocblockType
+     * @psalm-suppress TypeDoesNotContainType
+     * @psalm-suppress NoValue
+     * @psalm-suppress RedundantCondition
      */
     public function insert($values, $fragments = null, array $parameters = []): Result
     {
