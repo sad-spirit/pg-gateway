@@ -17,6 +17,7 @@ use sad_spirit\pg_gateway\{
     Condition,
     FragmentList,
     SelectProxy,
+    TableDefinition,
     TableGateway,
     TableLocator,
     TableSelect,
@@ -24,14 +25,7 @@ use sad_spirit\pg_gateway\{
     builders\ExistsBuilder,
     builders\JoinBuilder,
     builders\ScalarSubqueryBuilder,
-    exceptions\InvalidArgumentException,
-    metadata\Columns,
-    metadata\PrimaryKey,
-    metadata\References,
-    metadata\TableColumns,
-    metadata\TableName,
-    metadata\TablePrimaryKey,
-    metadata\TableReferences
+    exceptions\InvalidArgumentException
 };
 use sad_spirit\pg_gateway\conditions\{
     NotCondition,
@@ -81,49 +75,38 @@ use sad_spirit\pg_wrapper\{
  */
 class GenericTableGateway implements TableGateway
 {
-    private TableName $name;
     protected TableLocator $tableLocator;
-    private ?TableColumns $columns = null;
-    private ?TablePrimaryKey $primaryKey = null;
-    private ?TableReferences $references = null;
+    protected TableDefinition $definition;
 
     /**
      * Creates an instance of GenericTableGateway or its subclass based on table's primary key
      *
-     * @param TableName $name
+     * @param TableDefinition $definition
      * @param TableLocator $tableLocator
      * @return self
      */
-    public static function create(TableName $name, TableLocator $tableLocator): self
+    public static function create(TableDefinition $definition, TableLocator $tableLocator): self
     {
-        $primaryKey = new TablePrimaryKey($tableLocator->getConnection(), $name);
-
-        switch (\count($primaryKey)) {
+        switch (\count($definition->getPrimaryKey())) {
             case 0:
-                $gateway = new self($name, $tableLocator);
+                $gateway = new self($definition, $tableLocator);
                 break;
 
             case 1:
-                $gateway = new PrimaryKeyTableGateway($name, $tableLocator);
+                $gateway = new PrimaryKeyTableGateway($definition, $tableLocator);
                 break;
 
             default:
-                $gateway = new CompositePrimaryKeyTableGateway($name, $tableLocator);
+                $gateway = new CompositePrimaryKeyTableGateway($definition, $tableLocator);
         }
 
-        $gateway->primaryKey = $primaryKey;
         return $gateway;
     }
 
-    public function __construct(TableName $name, TableLocator $tableLocator)
+    public function __construct(TableDefinition $definition, TableLocator $tableLocator)
     {
-        $this->name = $name;
+        $this->definition   = $definition;
         $this->tableLocator = $tableLocator;
-    }
-
-    public function getName(): TableName
-    {
-        return $this->name;
     }
 
     public function getConnection(): Connection
@@ -131,20 +114,11 @@ class GenericTableGateway implements TableGateway
         return $this->tableLocator->getConnection();
     }
 
-    public function getColumns(): Columns
+    public function getDefinition(): TableDefinition
     {
-        return $this->columns ??= new TableColumns($this->getConnection(), $this->name);
+        return $this->definition;
     }
 
-    public function getPrimaryKey(): PrimaryKey
-    {
-        return $this->primaryKey ??= new TablePrimaryKey($this->getConnection(), $this->name);
-    }
-
-    public function getReferences(): References
-    {
-        return $this->references ??= new TableReferences($this->getConnection(), $this->name);
-    }
 
     public function delete($fragments = null, array $parameters = []): Result
     {
@@ -174,7 +148,7 @@ class GenericTableGateway implements TableGateway
         } elseif (\is_array($values)) {
             if ([] !== $values) {
                 $fragmentList->add(new SetClauseFragment(
-                    $this->getColumns(),
+                    $this->definition->getColumns(),
                     $this->tableLocator,
                     $values
                 ));
@@ -198,7 +172,7 @@ class GenericTableGateway implements TableGateway
     public function update(array $set, $fragments = null, array $parameters = []): Result
     {
         $native = $this->createUpdateStatement($list = new FragmentList(
-            new SetClauseFragment($this->getColumns(), $this->tableLocator, $set),
+            new SetClauseFragment($this->definition->getColumns(), $this->tableLocator, $set),
             FragmentList::normalize($fragments)
                 ->mergeParameters($parameters)
         ));
@@ -231,7 +205,7 @@ class GenericTableGateway implements TableGateway
         return $this->tableLocator->createNativeStatementUsingCache(
             function () use ($fragments): Delete {
                 $delete = $this->tableLocator->getStatementFactory()->delete(new UpdateOrDeleteTarget(
-                    $this->getName()->createNode(),
+                    $this->definition->getName()->createNode(),
                     new Identifier(self::ALIAS_SELF)
                 ));
                 $fragments->applyTo($delete);
@@ -253,7 +227,7 @@ class GenericTableGateway implements TableGateway
         return $this->tableLocator->createNativeStatementUsingCache(
             function () use ($fragments): Insert {
                 $insert = $this->tableLocator->getStatementFactory()->insert(new InsertTarget(
-                    $this->getName()->createNode(),
+                    $this->definition->getName()->createNode(),
                     new Identifier(TableGateway::ALIAS_SELF)
                 ));
                 $fragments->applyTo($insert);
@@ -275,7 +249,7 @@ class GenericTableGateway implements TableGateway
             function () use ($fragments): Update {
                 $update = $this->tableLocator->getStatementFactory()->update(
                     new UpdateOrDeleteTarget(
-                        $this->getName()->createNode(),
+                        $this->definition->getName()->createNode(),
                         new Identifier(TableGateway::ALIAS_SELF)
                     ),
                     new SetClauseList()
@@ -299,7 +273,7 @@ class GenericTableGateway implements TableGateway
             '%s.%s.%s.%s',
             $this->getConnection()->getConnectionId(),
             $statementType,
-            TableLocator::hash($this->getName()),
+            TableLocator::hash($this->definition->getName()),
             $fragmentKey
         );
     }
@@ -317,7 +291,7 @@ class GenericTableGateway implements TableGateway
     {
         return new ParametrizedCondition(
             new AnyCondition(
-                $this->getColumns()->get($column),
+                $this->definition->getColumns()->get($column),
                 $this->tableLocator->getTypeConverterFactory()
             ),
             [$column => $values]
@@ -332,7 +306,7 @@ class GenericTableGateway implements TableGateway
      */
     public function column(string $column): BoolCondition
     {
-        return new BoolCondition($this->getColumns()->get($column));
+        return new BoolCondition($this->definition->getColumns()->get($column));
     }
 
     /**
@@ -354,7 +328,7 @@ class GenericTableGateway implements TableGateway
      */
     public function isNull(string $column): IsNullCondition
     {
-        return new IsNullCondition($this->getColumns()->get($column));
+        return new IsNullCondition($this->definition->getColumns()->get($column));
     }
 
     /**
@@ -381,7 +355,7 @@ class GenericTableGateway implements TableGateway
     {
         return new ParametrizedCondition(
             new NotAllCondition(
-                $this->getColumns()->get($column),
+                $this->definition->getColumns()->get($column),
                 $this->tableLocator->getTypeConverterFactory()
             ),
             [$column => $values]
@@ -402,7 +376,7 @@ class GenericTableGateway implements TableGateway
     {
         return new ParametrizedCondition(
             new OperatorCondition(
-                $this->getColumns()->get($column),
+                $this->definition->getColumns()->get($column),
                 $this->tableLocator->getTypeConverterFactory(),
                 $operator
             ),
@@ -446,7 +420,7 @@ class GenericTableGateway implements TableGateway
      */
     public function outputColumns(): ColumnsBuilder
     {
-        return new ColumnsBuilder($this, false);
+        return new ColumnsBuilder($this->definition, false);
     }
 
     /**
@@ -456,7 +430,7 @@ class GenericTableGateway implements TableGateway
      */
     public function returningColumns(): ColumnsBuilder
     {
-        return new ColumnsBuilder($this, true);
+        return new ColumnsBuilder($this->definition, true);
     }
 
     /**
@@ -469,7 +443,7 @@ class GenericTableGateway implements TableGateway
      */
     public function outputSubquery(SelectProxy $select): ScalarSubqueryBuilder
     {
-        return new ScalarSubqueryBuilder($this, $select);
+        return new ScalarSubqueryBuilder($this->definition, $select);
     }
 
     /**
@@ -527,7 +501,7 @@ class GenericTableGateway implements TableGateway
      */
     public function join($joined): JoinBuilder
     {
-        return new JoinBuilder($this, $this->normalizeSelect($joined));
+        return new JoinBuilder($this->definition, $this->normalizeSelect($joined));
     }
 
     /**
@@ -538,7 +512,7 @@ class GenericTableGateway implements TableGateway
      */
     public function exists($select): ExistsBuilder
     {
-        return new ExistsBuilder($this, $this->normalizeSelect($select));
+        return new ExistsBuilder($this->definition, $this->normalizeSelect($select));
     }
 
     /**

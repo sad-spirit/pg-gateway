@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\assets;
 
 use sad_spirit\pg_gateway\{
+    OrdinaryTableDefinition,
     TableLocator,
     gateways\GenericTableGateway,
     metadata\TableName
@@ -23,6 +24,12 @@ class SpecificTableGateway extends GenericTableGateway
 {
     public function __construct(TableLocator $tableLocator)
     {
-        parent::__construct(new TableName('public', 'unconditional'), $tableLocator);
+        parent::__construct(
+            new OrdinaryTableDefinition(
+                $tableLocator->getConnection(),
+                new TableName('public', 'unconditional')
+            ),
+            $tableLocator
+        );
     }
 }

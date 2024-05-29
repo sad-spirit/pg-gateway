@@ -17,6 +17,7 @@ use sad_spirit\pg_gateway\tests\assets\ConditionImplementation;
 use sad_spirit\pg_gateway\tests\DatabaseBackedTest;
 use sad_spirit\pg_gateway\{
     Fragment,
+    OrdinaryTableDefinition,
     TableLocator,
     conditions\ParametrizedCondition,
     conditions\SqlStringCondition,
@@ -46,7 +47,10 @@ class JoinFragmentTest extends DatabaseBackedTest
     {
         parent::setUpBeforeClass();
         self::$gateway = new GenericTableGateway(
-            new TableName('pg_catalog', 'pg_class'),
+            new OrdinaryTableDefinition(
+                self::$connection,
+                new TableName('pg_catalog', 'pg_class')
+            ),
             new TableLocator(self::$connection)
         );
     }

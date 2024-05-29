@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests;
 
 use sad_spirit\pg_gateway\{
+    OrdinaryTableDefinition,
     SelectProxy,
     TableLocator,
     gateways\GenericTableGateway,
@@ -89,21 +90,24 @@ class SelectTransformerTest extends DatabaseBackedTest
 
     public function testDelegatesToWrapped(): void
     {
-        $gateway     = new GenericTableGateway(new TableName('victim'), self::$tableLocator);
+        $gateway     = new GenericTableGateway(
+            new OrdinaryTableDefinition(self::$connection, new TableName('victim')),
+            self::$tableLocator
+        );
         $select      = $gateway->select(null, ['foo' => 'bar']);
         $transformer = new SelectTransformerImplementation($select, self::$tableLocator);
 
         $this::assertSame($select->getConnection(), $transformer->getConnection());
-        $this::assertEquals($select->getName(), $transformer->getName());
-        $this::assertSame($select->getColumns(), $transformer->getColumns());
-        $this::assertSame($select->getPrimaryKey(), $transformer->getPrimaryKey());
-        $this::assertSame($select->getReferences(), $transformer->getReferences());
+        $this::assertSame($select->getDefinition(), $transformer->getDefinition());
         $this::assertEquals($select->getParameterHolder(), $transformer->getParameterHolder());
     }
 
     public function testSelectCountIsNotTransformed(): void
     {
-        $gateway     = new GenericTableGateway(new TableName('victim'), self::$tableLocator);
+        $gateway     = new GenericTableGateway(
+            new OrdinaryTableDefinition(self::$connection, new TableName('victim')),
+            self::$tableLocator
+        );
         $transformer = new SelectTransformerImplementation($gateway->select(), self::$tableLocator);
 
         $this::assertEquals(4, $transformer->executeCount());
@@ -111,7 +115,10 @@ class SelectTransformerTest extends DatabaseBackedTest
 
     public function testTransformSelect(): void
     {
-        $gateway     = new GenericTableGateway(new TableName('victim'), self::$tableLocator);
+        $gateway     = new GenericTableGateway(
+            new OrdinaryTableDefinition(self::$connection, new TableName('victim')),
+            self::$tableLocator
+        );
         $transformer = new SelectTransformerImplementation($gateway->select(), self::$tableLocator, 'a key');
 
         $this::assertStringEqualsStringNormalizingWhitespace(

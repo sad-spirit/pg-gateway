@@ -21,7 +21,7 @@ use sad_spirit\pg_wrapper\Result;
  *
  * @psalm-type FragmentsInput = null|\Closure|Fragment|FragmentBuilder|iterable<Fragment|FragmentBuilder>
  */
-interface TableGateway extends TableDefinition
+interface TableGateway extends TableAccessor
 {
     /**
      * Default alias for table accessed via TableGateway

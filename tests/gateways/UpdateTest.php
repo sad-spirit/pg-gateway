@@ -26,6 +26,7 @@ use sad_spirit\pg_builder\nodes\{
     expressions\OperatorExpression
 };
 use sad_spirit\pg_gateway\{
+    OrdinaryTableDefinition,
     TableLocator,
     exceptions\UnexpectedValueException,
     gateways\GenericTableGateway,
@@ -50,7 +51,7 @@ class UpdateTest extends DatabaseBackedTest
         self::$tableLocator = new TableLocator(self::$connection);
         self::executeSqlFromFile(self::$connection, 'update-drop.sql', 'update-create.sql');
         self::$gateway = new GenericTableGateway(
-            new TableName('update_test'),
+            new OrdinaryTableDefinition(self::$connection, new TableName('update_test')),
             self::$tableLocator
         );
     }
@@ -65,7 +66,10 @@ class UpdateTest extends DatabaseBackedTest
 
     public function testUpdateWithoutFragments(): void
     {
-        $gateway = new GenericTableGateway(new TableName('unconditional'), self::$tableLocator);
+        $gateway = new GenericTableGateway(
+            new OrdinaryTableDefinition(self::$connection, new TableName('unconditional')),
+            self::$tableLocator
+        );
         $result  = $gateway->update(['title' => 'Only one']);
 
         $this::assertEquals(2, $result->getAffectedRows());

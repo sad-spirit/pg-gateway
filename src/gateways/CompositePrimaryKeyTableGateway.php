@@ -99,7 +99,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
      */
     private function getAdditionalPrimaryKeyColumns(array $keyPart): array
     {
-        $pkeyColumns = \array_flip($this->getPrimaryKey()->getNames());
+        $pkeyColumns = \array_flip($this->definition->getPrimaryKey()->getNames());
         foreach (\array_keys($keyPart) as $column) {
             if (!isset($pkeyColumns[$column])) {
                 throw new InvalidArgumentException("Column '$column' is not a part of primary key");
@@ -135,12 +135,12 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
     {
         $native = $this->createDeleteStatement(new FragmentList(new WhereClauseFragment(Condition::and(
             new NotAllCondition(
-                $this->getColumns()->get($otherPart),
+                $this->definition->getColumns()->get($otherPart),
                 $this->tableLocator->getTypeConverterFactory()
             ),
             ...\array_map(
                 fn(string $column) => new OperatorCondition(
-                    $this->getColumns()->get($column),
+                    $this->definition->getColumns()->get($column),
                     $this->tableLocator->getTypeConverterFactory(),
                     '='
                 ),
@@ -169,7 +169,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
                 $unnestArgs = new FunctionArgumentList();
                 foreach ($otherParts as $column) {
                     $typeName = $this->tableLocator->createTypeNameNodeForOID(
-                        $this->getColumns()->get($column)->getTypeOID()
+                        $this->definition->getColumns()->get($column)->getTypeOID()
                     );
                     $typeName->bounds = [-1];
 
@@ -192,7 +192,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
 
         $fragments->add(new WhereClauseFragment(Condition::and(...\array_map(
             fn(string $column) => new OperatorCondition(
-                $this->getColumns()->get($column),
+                $this->definition->getColumns()->get($column),
                 $this->tableLocator->getTypeConverterFactory(),
                 '='
             ),

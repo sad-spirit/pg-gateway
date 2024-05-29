@@ -13,20 +13,11 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway;
 
-use sad_spirit\pg_wrapper\Connection;
-
 /**
  * Interface for classes that have information about the properties of a specific table
  */
 interface TableDefinition
 {
-    /**
-     * Returns the DB connection object
-     *
-     * @return Connection
-     */
-    public function getConnection(): Connection;
-
     /**
      * Returns table name
      *

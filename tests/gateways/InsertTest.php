@@ -20,6 +20,7 @@ namespace sad_spirit\pg_gateway\tests\gateways;
 
 use sad_spirit\pg_gateway\tests\DatabaseBackedTest;
 use sad_spirit\pg_gateway\{
+    OrdinaryTableDefinition,
     TableLocator,
     exceptions\InvalidArgumentException,
     exceptions\UnexpectedValueException,
@@ -46,7 +47,7 @@ class InsertTest extends DatabaseBackedTest
         self::$tableLocator = new TableLocator(self::$connection);
         self::executeSqlFromFile(self::$connection, 'insert-drop.sql', 'insert-create.sql');
         self::$gateway = new GenericTableGateway(
-            new TableName('insert_test'),
+            new OrdinaryTableDefinition(self::$connection, new TableName('insert_test')),
             self::$tableLocator
         );
     }
@@ -118,7 +119,10 @@ class InsertTest extends DatabaseBackedTest
 
     public function testInsertWithSelectProxy(): void
     {
-        $sourceGateway = new GenericTableGateway(new TableName('source_test'), self::$tableLocator);
+        $sourceGateway = new GenericTableGateway(
+            new OrdinaryTableDefinition(self::$connection, new TableName('source_test')),
+            self::$tableLocator
+        );
 
         $result = self::$gateway->insert(
             $sourceGateway->select(

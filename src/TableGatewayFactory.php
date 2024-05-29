@@ -20,10 +20,10 @@ interface TableGatewayFactory
      *
      * Should return null if it cannot find a specific gateway so that TableLocator can fall back to a generic one
      *
-     * @param metadata\TableName $name
+     * @param TableDefinition $definition
      * @param TableLocator $tableLocator
      *
      * @return null|TableGateway
      */
-    public function create(metadata\TableName $name, TableLocator $tableLocator): ?TableGateway;
+    public function create(TableDefinition $definition, TableLocator $tableLocator): ?TableGateway;
 }

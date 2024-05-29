@@ -38,7 +38,7 @@ use sad_spirit\pg_wrapper\Result;
  *
  * @extends \IteratorAggregate<int, array>
  */
-interface SelectProxy extends KeyEquatable, Parametrized, TableDefinition, \IteratorAggregate
+interface SelectProxy extends KeyEquatable, Parametrized, TableAccessor, \IteratorAggregate
 {
     /**
      * Executes the "SELECT COUNT(*)" query with current fragments and returns the resultant value

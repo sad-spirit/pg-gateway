@@ -54,7 +54,7 @@ class JoinBuilderTest extends DatabaseBackedTest
     {
         $gateway = self::$tableLocator->get('fkey_test.documents');
         $select  = $gateway->select();
-        $builder = new JoinBuilder($gateway, $select);
+        $builder = new JoinBuilder($gateway->getDefinition(), $select);
 
         $this::assertEquals(new JoinFragment($select), $builder->getFragment());
     }
@@ -66,7 +66,7 @@ class JoinBuilderTest extends DatabaseBackedTest
     {
         $gateway   = self::$tableLocator->get('fkey_test.documents');
         $select  = $gateway->select();
-        $builder = (new JoinBuilder($gateway, $select))
+        $builder = (new JoinBuilder($gateway->getDefinition(), $select))
             ->$method();
 
         $this::assertEquals(
@@ -80,14 +80,16 @@ class JoinBuilderTest extends DatabaseBackedTest
         $base    = self::$tableLocator->get('fkey_test.documents_tags');
         $joined  = self::$tableLocator->get('fkey_test.documents')
             ->select();
-        $builder = (new JoinBuilder($base, $joined))
+        $builder = (new JoinBuilder($base->getDefinition(), $joined))
             ->onForeignKey();
 
         $this::assertEquals(
             new JoinFragment(
                 $joined,
                 new ForeignKeyCondition(
-                    $base->getReferences()->get(new TableName('fkey_test', 'documents')),
+                    $base->getDefinition()
+                        ->getReferences()
+                        ->get(new TableName('fkey_test', 'documents')),
                     true
                 )
             ),
@@ -100,14 +102,16 @@ class JoinBuilderTest extends DatabaseBackedTest
         $base    = self::$tableLocator->get('fkey_test.documents');
         $joined  = self::$tableLocator->get('fkey_test.documents_tags')
             ->select();
-        $builder = (new JoinBuilder($base, $joined))
+        $builder = (new JoinBuilder($base->getDefinition(), $joined))
             ->onForeignKey();
 
         $this::assertEquals(
             new JoinFragment(
                 $joined,
                 new ForeignKeyCondition(
-                    $base->getReferences()->get(new TableName('fkey_test', 'documents_tags')),
+                    $base->getDefinition()
+                        ->getReferences()
+                        ->get(new TableName('fkey_test', 'documents_tags')),
                     false
                 )
             ),
@@ -120,14 +124,16 @@ class JoinBuilderTest extends DatabaseBackedTest
         $base    = self::$tableLocator->get('fkey_test.documents');
         $joined  = self::$tableLocator->get('public.employees')
             ->select();
-        $builder = (new JoinBuilder($base, $joined))
+        $builder = (new JoinBuilder($base->getDefinition(), $joined))
             ->onForeignKey(['boss_id']);
 
         $this::assertEquals(
             new JoinFragment(
                 $joined,
                 new ForeignKeyCondition(
-                    $base->getReferences()->get(new TableName('public', 'employees'), ['boss_id']),
+                    $base->getDefinition()
+                        ->getReferences()
+                        ->get(new TableName('public', 'employees'), ['boss_id']),
                     true
                 )
             ),
@@ -143,14 +149,16 @@ class JoinBuilderTest extends DatabaseBackedTest
     {
         $base    = self::$tableLocator->get('fkey_test.documents');
         $joined  = $base->select();
-        $builder = (new JoinBuilder($base, $joined))
+        $builder = (new JoinBuilder($base->getDefinition(), $joined))
             ->onRecursiveForeignKey(false);
 
         $this::assertEquals(
             new JoinFragment(
                 $joined,
                 new ForeignKeyCondition(
-                    $base->getReferences()->get(new TableName('fkey_test', 'documents')),
+                    $base->getDefinition()
+                        ->getReferences()
+                        ->get(new TableName('fkey_test', 'documents')),
                     false
                 )
             ),
@@ -166,7 +174,7 @@ class JoinBuilderTest extends DatabaseBackedTest
     {
         $gateway = self::$tableLocator->get('fkey_test.documents');
         $select  = $gateway->select();
-        $builder = (new JoinBuilder($gateway, $select))->priority(Fragment::PRIORITY_LOWEST);
+        $builder = (new JoinBuilder($gateway->getDefinition(), $select))->priority(Fragment::PRIORITY_LOWEST);
 
         $this::assertEquals(
             new JoinFragment($select, null, null, true, Fragment::PRIORITY_LOWEST),
@@ -178,7 +186,7 @@ class JoinBuilderTest extends DatabaseBackedTest
     {
         $gateway = self::$tableLocator->get('fkey_test.documents');
         $select  = $gateway->select();
-        $builder = (new JoinBuilder($gateway, $select))->useForCount(false);
+        $builder = (new JoinBuilder($gateway->getDefinition(), $select))->useForCount(false);
 
         $this::assertEquals(
             new JoinFragment($select, null, null, false),
@@ -190,7 +198,7 @@ class JoinBuilderTest extends DatabaseBackedTest
     {
         $gateway = self::$tableLocator->get('fkey_test.documents');
         $select  = $gateway->select();
-        $builder = (new JoinBuilder($gateway, $select))->alias('foo');
+        $builder = (new JoinBuilder($gateway->getDefinition(), $select))->alias('foo');
 
         $this::assertEquals(
             new JoinFragment($select, null, null, true, Fragment::PRIORITY_DEFAULT, 'foo'),

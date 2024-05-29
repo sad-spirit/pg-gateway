@@ -41,7 +41,7 @@ class ScalarSubqueryBuilderTest extends DatabaseBackedTest
     {
         $gateway = self::$tableLocator->get('fkey_test.documents');
         $select  = $gateway->select();
-        $builder = new ScalarSubqueryBuilder($gateway, $select);
+        $builder = new ScalarSubqueryBuilder($gateway->getDefinition(), $select);
 
         $this::assertEquals(new SubqueryAppender($select), $builder->getManipulator());
         $this::assertEquals(
@@ -54,7 +54,7 @@ class ScalarSubqueryBuilderTest extends DatabaseBackedTest
     {
         $gateway = self::$tableLocator->get('fkey_test.documents');
         $select  = $gateway->select();
-        $builder = (new ScalarSubqueryBuilder($gateway, $select))
+        $builder = (new ScalarSubqueryBuilder($gateway->getDefinition(), $select))
             ->tableAlias('custom');
 
         $this::assertEquals(
@@ -67,7 +67,7 @@ class ScalarSubqueryBuilderTest extends DatabaseBackedTest
     {
         $gateway = self::$tableLocator->get('fkey_test.documents');
         $select  = $gateway->select();
-        $builder = (new ScalarSubqueryBuilder($gateway, $select))
+        $builder = (new ScalarSubqueryBuilder($gateway->getDefinition(), $select))
             ->columnAlias('klmn');
 
         $this::assertEquals(

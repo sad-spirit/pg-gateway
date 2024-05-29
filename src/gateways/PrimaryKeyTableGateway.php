@@ -53,7 +53,10 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
 
     public function selectByPrimaryKey($primaryKey): SelectProxy
     {
-        $condition = new PrimaryKeyCondition($this->getPrimaryKey(), $this->tableLocator->getTypeConverterFactory());
+        $condition = new PrimaryKeyCondition(
+            $this->definition->getPrimaryKey(),
+            $this->tableLocator->getTypeConverterFactory()
+        );
 
         return new TableSelect($this->tableLocator, $this, $condition, $condition->normalizeValue($primaryKey));
     }
@@ -61,7 +64,7 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
     public function updateByPrimaryKey($primaryKey, array $set): Result
     {
         $list = new FragmentList(
-            new SetClauseFragment($this->getColumns(), $this->tableLocator, $set),
+            new SetClauseFragment($this->definition->getColumns(), $this->tableLocator, $set),
             $this->primaryKey($primaryKey)
         );
 
@@ -77,13 +80,16 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
      */
     public function primaryKey($value): ParametrizedCondition
     {
-        $condition = new PrimaryKeyCondition($this->getPrimaryKey(), $this->tableLocator->getTypeConverterFactory());
+        $condition = new PrimaryKeyCondition(
+            $this->definition->getPrimaryKey(),
+            $this->tableLocator->getTypeConverterFactory()
+        );
         return new ParametrizedCondition($condition, $condition->normalizeValue($value));
     }
 
     public function upsert(array $values): array
     {
-        $valuesClause = new SetClauseFragment($this->getColumns(), $this->tableLocator, $values);
+        $valuesClause = new SetClauseFragment($this->definition->getColumns(), $this->tableLocator, $values);
         $native       = $this->createUpsertStatement(new FragmentList($valuesClause));
         if ([] === $native->getParameterTypes()) {
             return $this->getConnection()->execute($native->getSql())->current();
@@ -121,14 +127,14 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
     protected function createBaseUpsertAST(): Insert
     {
         $insert = $this->tableLocator->getStatementFactory()->insert(new InsertTarget(
-            $this->getName()->createNode(),
+            $this->definition->getName()->createNode(),
             new Identifier(self::ALIAS_SELF)
         ));
 
         $target            = new IndexParameters();
         $set               = new SetClauseList();
-        $primaryKeyColumns = $this->getPrimaryKey()->getNames();
-        $nonPrimaryKey     = \array_diff($this->getColumns()->getNames(), $primaryKeyColumns);
+        $primaryKeyColumns = $this->definition->getPrimaryKey()->getNames();
+        $nonPrimaryKey     = \array_diff($this->definition->getColumns()->getNames(), $primaryKeyColumns);
 
         foreach ($primaryKeyColumns as $pk) {
             $target[]            = new IndexElement(new Identifier($pk));

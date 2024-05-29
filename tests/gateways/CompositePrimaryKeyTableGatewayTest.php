@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\gateways;
 
 use sad_spirit\pg_gateway\{
+    OrdinaryTableDefinition,
     TableLocator,
     exceptions\InvalidArgumentException,
     gateways\CompositePrimaryKeyTableGateway,
@@ -33,7 +34,7 @@ class CompositePrimaryKeyTableGatewayTest extends DatabaseBackedTest
     {
         parent::setUpBeforeClass();
         self::$gateway = new CompositePrimaryKeyTableGateway(
-            new TableName('pkey_test', 'composite'),
+            new OrdinaryTableDefinition(self::$connection, new TableName('pkey_test', 'composite')),
             new TableLocator(self::$connection)
         );
         self::executeSqlFromFile(self::$connection, 'primary-key-drop.sql', 'composite-primary-key-create.sql');

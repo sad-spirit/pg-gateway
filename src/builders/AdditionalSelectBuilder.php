@@ -47,10 +47,11 @@ abstract class AdditionalSelectBuilder implements FragmentBuilder
      */
     protected function createForeignKeyCondition(array $keyColumns = [], bool $fromChild = null): ForeignKeyCondition
     {
-        $foreignKey = $this->base->getReferences()->get($this->additional->getName(), $keyColumns);
+        $foreignKey = $this->base->getReferences()
+            ->get($this->additional->getDefinition()->getName(), $keyColumns);
         if (!$foreignKey->isRecursive()) {
             $fromChild = true;
-            foreach ($this->base->getReferences()->from($this->additional->getName()) as $to) {
+            foreach ($this->base->getReferences()->from($this->additional->getDefinition()->getName()) as $to) {
                 if ($to === $foreignKey) {
                     $fromChild = false;
                     break;

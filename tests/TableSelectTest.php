@@ -18,6 +18,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests;
 
 use sad_spirit\pg_gateway\{
+    OrdinaryTableDefinition,
     TableSelect,
     TableLocator,
     gateways\GenericTableGateway,
@@ -57,9 +58,17 @@ class TableSelectTest extends DatabaseBackedTest
         self::$connection = null;
     }
 
+    private function createTableGateway(string ...$nameParts): GenericTableGateway
+    {
+        return new GenericTableGateway(
+            new OrdinaryTableDefinition(self::$connection, new TableName(...$nameParts)),
+            self::$tableLocator
+        );
+    }
+
     public function testGetIteratorNoFragments(): void
     {
-        $gateway = new GenericTableGateway(new TableName('victim'), self::$tableLocator);
+        $gateway = $this->createTableGateway('victim');
 
         $this::assertEqualsCanonicalizing(
             [1, 2, 3, 10],
@@ -69,14 +78,14 @@ class TableSelectTest extends DatabaseBackedTest
 
     public function testExecuteCountNoFragments(): void
     {
-        $gateway = new GenericTableGateway(new TableName('foo'), self::$tableLocator);
+        $gateway = $this->createTableGateway('foo');
 
         $this::assertEquals(3, $gateway->select()->executeCount());
     }
 
     public function testSelectWithClosure(): void
     {
-        $gateway     = new GenericTableGateway(new TableName('foo'), self::$tableLocator);
+        $gateway     = $this->createTableGateway('foo');
         $tableSelect = $gateway->select(function (Select $select) {
             $select->where->and('id = 2');
         });
@@ -90,7 +99,7 @@ class TableSelectTest extends DatabaseBackedTest
 
     public function testSelectWithClosureAndParameters(): void
     {
-        $gateway = new GenericTableGateway(new TableName('bar'), self::$tableLocator);
+        $gateway     = $this->createTableGateway('bar');
         $tableSelect = $gateway->select(
             fn (Select $select) => $select->where->and('foo_id = :foo_id and id > :id'),
             ['foo_id' => 2, 'id' => 2]
@@ -105,7 +114,7 @@ class TableSelectTest extends DatabaseBackedTest
 
     public function testIgnoredFragmentsOnSelectCount(): void
     {
-        $gateway     = new GenericTableGateway(new TableName('victim'), self::$tableLocator);
+        $gateway     = $this->createTableGateway('victim');
         $tableSelect = $gateway->select(
             [
                 new SelectFragmentImplementation(
@@ -132,7 +141,7 @@ class TableSelectTest extends DatabaseBackedTest
 
     public function testSelectWithParameterHolder(): void
     {
-        $gateway = new GenericTableGateway(new TableName('foo'), self::$tableLocator);
+        $gateway = $this->createTableGateway('foo');
         $select  = $gateway->select(new ParametrizedFragmentImplementation(
             new OperatorExpression(
                 '<',
@@ -151,7 +160,7 @@ class TableSelectTest extends DatabaseBackedTest
 
     public function testSelectCountWithParameterHolder(): void
     {
-        $gateway = new GenericTableGateway(new TableName('foo'), self::$tableLocator);
+        $gateway = $this->createTableGateway('foo');
         $select  = $gateway->select(new ParametrizedFragmentImplementation(
             new OperatorExpression(
                 '>=',
@@ -167,7 +176,7 @@ class TableSelectTest extends DatabaseBackedTest
 
     public function testSelectWithCustomBaseAST(): void
     {
-        $gateway = new GenericTableGateway(new TableName('foo'), self::$tableLocator);
+        $gateway = $this->createTableGateway('foo');
         $select  = new TableSelect(
             self::$tableLocator,
             $gateway,

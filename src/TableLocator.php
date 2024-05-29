@@ -278,9 +278,10 @@ class TableLocator
      */
     private function createGateway(TableName $name): TableGateway
     {
-        if (null !== $this->gatewayFactory && ($gateway = $this->gatewayFactory->create($name, $this))) {
+        $definition = new OrdinaryTableDefinition($this->connection, $name);
+        if (null !== $this->gatewayFactory && ($gateway = $this->gatewayFactory->create($definition, $this))) {
             return $gateway;
         }
-        return GenericTableGateway::create($name, $this);
+        return GenericTableGateway::create($definition, $this);
     }
 }

@@ -72,7 +72,7 @@ final class TableSelect implements SelectProxy
             ->mergeParameters($parameters);
 
         $this->baseSelectAST = $baseSelectAST ?? function (): Select {
-            $from = new RelationReference($this->getName()->createNode());
+            $from = new RelationReference($this->getDefinition()->getName()->createNode());
             $from->setAlias(new Identifier(TableGateway::ALIAS_SELF));
             return $this->tableLocator->getStatementFactory()->select(
                 [new TargetElement(new ColumnReference(TableGateway::ALIAS_SELF, '*'))],
@@ -81,7 +81,7 @@ final class TableSelect implements SelectProxy
         };
 
         $this->baseCountAST  = $baseCountAST ?? function (): Select {
-            $from = new RelationReference($this->getName()->createNode());
+            $from = new RelationReference($this->getDefinition()->getName()->createNode());
             $from->setAlias(new Identifier(TableGateway::ALIAS_SELF));
 
             return $this->tableLocator->getStatementFactory()->select(
@@ -101,24 +101,9 @@ final class TableSelect implements SelectProxy
         return $this->gateway->getConnection();
     }
 
-    public function getName(): metadata\TableName
+    public function getDefinition(): TableDefinition
     {
-        return $this->gateway->getName();
-    }
-
-    public function getColumns(): metadata\Columns
-    {
-        return $this->gateway->getColumns();
-    }
-
-    public function getPrimaryKey(): metadata\PrimaryKey
-    {
-        return $this->gateway->getPrimaryKey();
-    }
-
-    public function getReferences(): metadata\References
-    {
-        return $this->gateway->getReferences();
+        return $this->gateway->getDefinition();
     }
 
     public function getParameterHolder(): ParameterHolder
@@ -136,7 +121,7 @@ final class TableSelect implements SelectProxy
             (string)(new \ReflectionFunction($this->baseSelectAST)),
             (string)(new \ReflectionFunction($this->baseCountAST)),
             $this->getConnection()->getConnectionId(),
-            $this->getName(),
+            $this->getDefinition()->getName(),
             $fragmentKey
         ]);
     }
@@ -184,7 +169,7 @@ final class TableSelect implements SelectProxy
             $this->getConnection()->getConnectionId(),
             $statementType,
             TableLocator::hash([
-                $this->getName(),
+                $this->getDefinition()->getName(),
                 (string)(new \ReflectionFunction($baseAST))
             ]),
             $fragmentKey

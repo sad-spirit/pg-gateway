@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\gateways;
 
 use sad_spirit\pg_gateway\{
+    OrdinaryTableDefinition,
     TableLocator,
     conditions\ParametrizedCondition,
     exceptions\LogicException,
@@ -44,7 +45,10 @@ class BuildersTest extends DatabaseBackedTest
         parent::setUpBeforeClass();
         self::executeSqlFromFile(self::$connection, 'update-drop.sql', 'update-create.sql');
         self::$tableLocator = new TableLocator(self::$connection);
-        self::$gateway      = new GenericTableGateway(new TableName('update_test'), self::$tableLocator);
+        self::$gateway      = new GenericTableGateway(
+            new OrdinaryTableDefinition(self::$connection, new TableName('update_test')),
+            self::$tableLocator
+        );
     }
 
     public static function tearDownAfterClass(): void

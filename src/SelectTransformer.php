@@ -91,7 +91,7 @@ abstract class SelectTransformer implements SelectProxy
                 $this->getConnection()->getConnectionId(),
                 TableGateway::STATEMENT_SELECT,
                 TableLocator::hash([
-                    $this->getName(),
+                    $this->getDefinition()->getName(),
                     $this->key
                 ]),
                 $wrappedKey
@@ -114,24 +114,9 @@ abstract class SelectTransformer implements SelectProxy
         return $this->wrapped->getConnection();
     }
 
-    public function getName(): metadata\TableName
+    public function getDefinition(): TableDefinition
     {
-        return $this->wrapped->getName();
-    }
-
-    public function getColumns(): metadata\Columns
-    {
-        return $this->wrapped->getColumns();
-    }
-
-    public function getPrimaryKey(): metadata\PrimaryKey
-    {
-        return $this->wrapped->getPrimaryKey();
-    }
-
-    public function getReferences(): metadata\References
-    {
-        return $this->wrapped->getReferences();
+        return $this->wrapped->getDefinition();
     }
 
     /**

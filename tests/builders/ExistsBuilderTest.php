@@ -44,7 +44,7 @@ class ExistsBuilderTest extends DatabaseBackedTest
     {
         $gateway = self::$tableLocator->get('fkey_test.documents');
         $select  = $gateway->select();
-        $builder = new ExistsBuilder($gateway, $select);
+        $builder = new ExistsBuilder($gateway->getDefinition(), $select);
 
         $this::assertEquals(new ExistsCondition($select), $builder->getCondition());
         $this::assertEquals(
@@ -57,7 +57,7 @@ class ExistsBuilderTest extends DatabaseBackedTest
     {
         $gateway = self::$tableLocator->get('fkey_test.documents');
         $select  = $gateway->select();
-        $builder = (new ExistsBuilder($gateway, $select))
+        $builder = (new ExistsBuilder($gateway->getDefinition(), $select))
             ->not();
 
         $this::assertEquals(

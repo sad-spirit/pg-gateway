@@ -22,6 +22,7 @@ use sad_spirit\pg_builder\nodes\{
     expressions\OperatorExpression
 };
 use sad_spirit\pg_gateway\{
+    OrdinaryTableDefinition,
     TableLocator,
     conditions\SqlStringCondition,
     gateways\GenericTableGateway,
@@ -54,9 +55,17 @@ class DeleteTest extends DatabaseBackedTest
         self::$connection = null;
     }
 
+    private function createTableGateway(string ...$nameParts): GenericTableGateway
+    {
+        return new GenericTableGateway(
+            new OrdinaryTableDefinition(self::$connection, new TableName(...$nameParts)),
+            self::$tableLocator
+        );
+    }
+
     public function testDeleteWithoutFragments(): void
     {
-        $gateway = new GenericTableGateway(new TableName('victim'), self::$tableLocator);
+        $gateway = $this->createTableGateway('victim');
         $result  = $gateway->delete();
 
         $this::assertEquals(4, $result->getAffectedRows());
@@ -64,7 +73,7 @@ class DeleteTest extends DatabaseBackedTest
 
     public function testDeleteWithClosure(): void
     {
-        $gateway = new GenericTableGateway(new TableName('bar'), self::$tableLocator);
+        $gateway = $this->createTableGateway('bar');
         $result  = $gateway->delete(function (Delete $delete) {
             $delete->where->and('id = 1');
             $delete->returning[] = new Star();
@@ -76,7 +85,7 @@ class DeleteTest extends DatabaseBackedTest
 
     public function testDeleteWithClosureAndParameters(): void
     {
-        $gateway = new GenericTableGateway(new TableName('foo'), self::$tableLocator);
+        $gateway = $this->createTableGateway('foo');
         $result  = $gateway->delete(
             function (Delete $delete) {
                 $delete->where->and('id = :param');
@@ -91,7 +100,7 @@ class DeleteTest extends DatabaseBackedTest
 
     public function testDeleteWithFragment(): void
     {
-        $gateway = new GenericTableGateway(new TableName('foo'), self::$tableLocator);
+        $gateway = $this->createTableGateway('foo');
         $result  = $gateway->delete(new FragmentImplementation(
             new KeywordConstant(KeywordConstant::FALSE),
             'falsy'
@@ -102,7 +111,7 @@ class DeleteTest extends DatabaseBackedTest
 
     public function testDeleteWithMultipleFragments(): void
     {
-        $gateway = new GenericTableGateway(new TableName('bar'), self::$tableLocator);
+        $gateway = $this->createTableGateway('bar');
         $result  = $gateway->delete(
             [
                 new SqlStringCondition(self::$tableLocator->getParser(), 'id = :id'),
@@ -119,7 +128,7 @@ class DeleteTest extends DatabaseBackedTest
 
     public function testDeleteWithParameterHolder(): void
     {
-        $gateway = new GenericTableGateway(new TableName('foo'), self::$tableLocator);
+        $gateway = $this->createTableGateway('foo');
         $result  = $gateway->delete(new ParametrizedFragmentImplementation(
             new OperatorExpression(
                 '=',
