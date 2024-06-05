@@ -20,6 +20,7 @@
             <errorLevel type="suppress">
                 <!-- Doesn't like catching \Psr\Cache\InvalidArgumentException that does not extend \Throwable -->
                 <file name="src/metadata/CachedMetadataLoader.php"/>
+                <file name="src/metadata/CachedTableOIDMapper.php"/>
                 <file name="src/TableLocator.php"/>
                 <referencedClass name="\Psr\Cache\InvalidArgumentException"/>
             </errorLevel>
