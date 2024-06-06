@@ -39,7 +39,9 @@ use sad_spirit\pg_gateway\{
     TableGatewayFactory,
     TableLocator,
     exceptions\UnexpectedValueException,
+    gateways\CompositePrimaryKeyTableGateway,
     gateways\GenericTableGateway,
+    gateways\PrimaryKeyTableGateway,
     metadata\TableName
 };
 use sad_spirit\pg_gateway\tests\assets\{
@@ -61,12 +63,19 @@ class TableLocatorTest extends DatabaseBackedTest
     {
         parent::setUpBeforeClass();
 
-        self::executeSqlFromFile(self::$connection, 'columns-drop.sql', 'columns-create.sql');
+        self::executeSqlFromFile(
+            self::$connection,
+            'columns-drop.sql',
+            'columns-create.sql',
+            'primary-key-drop.sql',
+            'primary-key-create.sql',
+            'composite-primary-key-create.sql'
+        );
     }
 
     public static function tearDownAfterClass(): void
     {
-        self::executeSqlFromFile(self::$connection, 'columns-drop.sql');
+        self::executeSqlFromFile(self::$connection, 'columns-drop.sql', 'primary-key-drop.sql');
         self::$connection = null;
     }
 
@@ -151,6 +160,32 @@ class TableLocatorTest extends DatabaseBackedTest
         $this->createDeleteStatement($tableLocator, $definition, $fragment);
     }
 
+    public function testCreateDefaultGatewayForNoPrimaryKeyTable(): void
+    {
+        $tableLocator = new TableLocator(self::$connection);
+        $gateway      = $tableLocator->get(new TableName('pkey_test', 'nokey'));
+
+        $this::assertInstanceOf(GenericTableGateway::class, $gateway);
+        $this::assertNotInstanceOf(PrimaryKeyTableGateway::class, $gateway);
+    }
+
+    public function testCreateDefaultGatewayForSingleColumnPrimaryKey(): void
+    {
+        $tableLocator = new TableLocator(self::$connection);
+        $gateway      = $tableLocator->get(new TableName('haskey'));
+
+        $this::assertInstanceOf(PrimaryKeyTableGateway::class, $gateway);
+        $this::assertNotInstanceOf(CompositePrimaryKeyTableGateway::class, $gateway);
+    }
+
+    public function testCreateDefaultGatewayForCompositePrimaryKey(): void
+    {
+        $tableLocator = new TableLocator(self::$connection);
+        $gateway      = $tableLocator->get(new TableName('pkey_test', 'composite'));
+
+        $this::assertInstanceOf(CompositePrimaryKeyTableGateway::class, $gateway);
+    }
+
 
     public function testGetGatewayNoFactory(): void
     {
@@ -172,7 +207,7 @@ class TableLocatorTest extends DatabaseBackedTest
             new class implements TableGatewayFactory {
                 public function create(TableDefinition $definition, TableLocator $tableLocator): ?TableGateway
                 {
-                    if ('unconditional' === $definition->getName()->getRelation()) {
+                    if ('zerocolumns' === $definition->getName()->getRelation()) {
                         return new SpecificTableGateway($tableLocator);
                     }
                     return null;
@@ -180,7 +215,7 @@ class TableLocatorTest extends DatabaseBackedTest
             }
         );
 
-        $specific = $tableLocator->get('unconditional');
+        $specific = $tableLocator->get('cols_test.zerocolumns');
         $this::assertInstanceOf(SpecificTableGateway::class, $specific);
 
         $generic  = $tableLocator->get('public.cols');

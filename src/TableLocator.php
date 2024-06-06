@@ -16,7 +16,10 @@ namespace sad_spirit\pg_gateway;
 use sad_spirit\pg_gateway\{
     exceptions\InvalidArgumentException,
     exceptions\UnexpectedValueException,
+    gateways\CompositePrimaryKeyTableGateway,
     gateways\GenericTableGateway,
+    gateways\PrimaryKeyTableGateway,
+    metadata\CachedTableOIDMapper,
     metadata\TableName
 };
 use sad_spirit\pg_wrapper\{
@@ -50,10 +53,14 @@ class TableLocator
     private TypeNameNodeHandler $typeConverterFactory;
     private ?CacheItemPoolInterface $statementCache;
 
+    private ?TableDefinitionFactory $definitionFactory = null;
+
     /** @var array<string,TableName> */
     private array $names = [];
     /** @var array<string,TableGateway> */
     private array $gateways = [];
+    /** @var array<string,TableDefinition> */
+    private array $definitions = [];
 
     /**
      * Computes a reasonably unique hash of a value.
@@ -109,6 +116,36 @@ class TableLocator
                 . " for handling of type information extracted from SQL and for generating type names."
             );
         }
+    }
+
+    /**
+     * Returns a Factory for TableDefinition implementations
+     *
+     * If a factory was not set with {@see setTableDefinitionFactory()}, then an instance of
+     * OrdinaryTableDefinitionFactory will be created and returned
+     *
+     * @return TableDefinitionFactory
+     */
+    public function getTableDefinitionFactory(): TableDefinitionFactory
+    {
+        return $this->definitionFactory ??= new OrdinaryTableDefinitionFactory(
+            $this->connection,
+            new CachedTableOIDMapper($this->connection)
+        );
+    }
+
+    /**
+     * Sets a Factory for TableDefinition implementations
+     *
+     * @param TableDefinitionFactory $factory
+     * @return $this
+     */
+    public function setTableDefinitionFactory(TableDefinitionFactory $factory): self
+    {
+        $this->definitionFactory = $factory;
+        $this->definitions       = [];
+
+        return $this;
     }
 
     /**
@@ -240,31 +277,45 @@ class TableLocator
      */
     public function get($name): TableGateway
     {
-        if (\is_string($name)) {
-            $name = $this->getTableName($name);
-        } elseif ($name instanceof QualifiedName) {
-            $name = TableName::createFromNode($name);
-        } elseif (!$name instanceof TableName) {
-            /** @psalm-suppress RedundantConditionGivenDocblockType, DocblockTypeContradiction */
-            throw new InvalidArgumentException(\sprintf(
-                "%s() expects either a string, an instance of QualifiedName, or an instance of TableName"
-                . " for a table name, %s given",
-                __METHOD__,
-                \is_object($name) ? 'object(' . \get_class($name) . ')' : \gettype($name)
-            ));
-        }
-        return $this->gateways[(string)$name] ??= $this->createGateway($name);
+        $normalized = $this->normalizeName($name);
+        return $this->gateways[(string)$normalized] ??= $this->createGateway($this->getTableDefinition($normalized));
     }
 
     /**
-     * Either parses a table name or returns a previously parsed one as a TableName instance
+     * Converts the given name to a TableName instance if possible, throws an exception otherwise
      *
-     * @param string $name
+     * @param string|TableName|QualifiedName $name
      * @return TableName
+     * @psalm-suppress RedundantConditionGivenDocblockType
      */
-    private function getTableName(string $name): TableName
+    private function normalizeName($name): TableName
     {
-        return $this->names[$name] ??= TableName::createFromNode($this->getParser()->parseQualifiedName($name));
+        if (\is_string($name)) {
+            return $this->names[$name] ??= TableName::createFromNode($this->getParser()->parseQualifiedName($name));
+        } elseif ($name instanceof QualifiedName) {
+            return TableName::createFromNode($name);
+        } elseif ($name instanceof TableName) {
+            return $name;
+        }
+        /** @psalm-suppress RedundantConditionGivenDocblockType, DocblockTypeContradiction */
+        throw new InvalidArgumentException(\sprintf(
+            "%s() expects either a string, an instance of QualifiedName, or an instance of TableName"
+            . " for a table name, %s given",
+            __METHOD__,
+            \is_object($name) ? 'object(' . \get_class($name) . ')' : \gettype($name)
+        ));
+    }
+
+    /**
+     * Returns a TableDefinition for a table with the given name
+     *
+     * @param TableName $name
+     * @return TableDefinition
+     */
+    private function getTableDefinition(TableName $name): TableDefinition
+    {
+        return $this->definitions[(string)$name] ??= $this->getTableDefinitionFactory()
+            ->create($name);
     }
 
     /**
@@ -273,15 +324,21 @@ class TableLocator
      * Will use an implementation of TableGatewayFactory if available, falling back to using
      * GenericTableGateway
      *
-     * @param TableName $name
+     * @param TableDefinition $definition
      * @return TableGateway
      */
-    private function createGateway(TableName $name): TableGateway
+    private function createGateway(TableDefinition $definition): TableGateway
     {
-        $definition = new OrdinaryTableDefinition($this->connection, $name);
         if (null !== $this->gatewayFactory && ($gateway = $this->gatewayFactory->create($definition, $this))) {
             return $gateway;
         }
-        return GenericTableGateway::create($definition, $this);
+        switch (\count($definition->getPrimaryKey())) {
+            case 0:
+                return new GenericTableGateway($definition, $this);
+            case 1:
+                return new PrimaryKeyTableGateway($definition, $this);
+            default:
+                return new CompositePrimaryKeyTableGateway($definition, $this);
+        }
     }
 }

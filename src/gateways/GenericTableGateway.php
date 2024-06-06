@@ -78,31 +78,6 @@ class GenericTableGateway implements TableGateway
     protected TableLocator $tableLocator;
     protected TableDefinition $definition;
 
-    /**
-     * Creates an instance of GenericTableGateway or its subclass based on table's primary key
-     *
-     * @param TableDefinition $definition
-     * @param TableLocator $tableLocator
-     * @return self
-     */
-    public static function create(TableDefinition $definition, TableLocator $tableLocator): self
-    {
-        switch (\count($definition->getPrimaryKey())) {
-            case 0:
-                $gateway = new self($definition, $tableLocator);
-                break;
-
-            case 1:
-                $gateway = new PrimaryKeyTableGateway($definition, $tableLocator);
-                break;
-
-            default:
-                $gateway = new CompositePrimaryKeyTableGateway($definition, $tableLocator);
-        }
-
-        return $gateway;
-    }
-
     public function __construct(TableDefinition $definition, TableLocator $tableLocator)
     {
         $this->definition   = $definition;
