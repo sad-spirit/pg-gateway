@@ -57,8 +57,6 @@ class TableLocator
 
     /** @var array<string,TableName> */
     private array $names = [];
-    /** @var array<string,TableGateway> */
-    private array $gateways = [];
     /** @var array<string,TableDefinition> */
     private array $definitions = [];
 
@@ -272,13 +270,27 @@ class TableLocator
     /**
      * Returns a TableGateway implementation for a given table name
      *
+     * Will use an implementation of TableGatewayFactory if available, falling back to returning
+     * GenericTableGateway or its subclass based on table's primary key
+     *
      * @param string|TableName|QualifiedName $name
      * @return TableGateway
      */
-    public function get($name): TableGateway
+    public function createGateway($name): TableGateway
     {
-        $normalized = $this->normalizeName($name);
-        return $this->gateways[(string)$normalized] ??= $this->createGateway($this->getTableDefinition($normalized));
+        $definition = $this->getTableDefinition($this->normalizeName($name));
+
+        if (null !== $this->gatewayFactory && ($gateway = $this->gatewayFactory->create($definition, $this))) {
+            return $gateway;
+        }
+        switch (\count($definition->getPrimaryKey())) {
+            case 0:
+                return new GenericTableGateway($definition, $this);
+            case 1:
+                return new PrimaryKeyTableGateway($definition, $this);
+            default:
+                return new CompositePrimaryKeyTableGateway($definition, $this);
+        }
     }
 
     /**
@@ -316,29 +328,5 @@ class TableLocator
     {
         return $this->definitions[(string)$name] ??= $this->getTableDefinitionFactory()
             ->create($name);
-    }
-
-    /**
-     * Creates a TableGateway for a given table name
-     *
-     * Will use an implementation of TableGatewayFactory if available, falling back to using
-     * GenericTableGateway
-     *
-     * @param TableDefinition $definition
-     * @return TableGateway
-     */
-    private function createGateway(TableDefinition $definition): TableGateway
-    {
-        if (null !== $this->gatewayFactory && ($gateway = $this->gatewayFactory->create($definition, $this))) {
-            return $gateway;
-        }
-        switch (\count($definition->getPrimaryKey())) {
-            case 0:
-                return new GenericTableGateway($definition, $this);
-            case 1:
-                return new PrimaryKeyTableGateway($definition, $this);
-            default:
-                return new CompositePrimaryKeyTableGateway($definition, $this);
-        }
     }
 }

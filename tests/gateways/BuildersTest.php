@@ -256,7 +256,7 @@ class BuildersTest extends DatabaseBackedTest
     public function testOutputSubquery(): void
     {
         /** @var GenericTableGateway $unconditional */
-        $unconditional = self::$tableLocator->get('unconditional');
+        $unconditional = self::$tableLocator->createGateway('unconditional');
 
         $select = self::$gateway->select(
             self::$gateway->outputSubquery(

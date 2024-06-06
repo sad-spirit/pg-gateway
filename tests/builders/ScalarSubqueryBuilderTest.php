@@ -39,7 +39,7 @@ class ScalarSubqueryBuilderTest extends DatabaseBackedTest
 
     public function testDefaultFragment(): void
     {
-        $gateway = self::$tableLocator->get('fkey_test.documents');
+        $gateway = self::$tableLocator->createGateway('fkey_test.documents');
         $select  = $gateway->select();
         $builder = new ScalarSubqueryBuilder($gateway->getDefinition(), $select);
 
@@ -52,7 +52,7 @@ class ScalarSubqueryBuilderTest extends DatabaseBackedTest
 
     public function testTableAlias(): void
     {
-        $gateway = self::$tableLocator->get('fkey_test.documents');
+        $gateway = self::$tableLocator->createGateway('fkey_test.documents');
         $select  = $gateway->select();
         $builder = (new ScalarSubqueryBuilder($gateway->getDefinition(), $select))
             ->tableAlias('custom');
@@ -65,7 +65,7 @@ class ScalarSubqueryBuilderTest extends DatabaseBackedTest
 
     public function testColumnAlias(): void
     {
-        $gateway = self::$tableLocator->get('fkey_test.documents');
+        $gateway = self::$tableLocator->createGateway('fkey_test.documents');
         $select  = $gateway->select();
         $builder = (new ScalarSubqueryBuilder($gateway->getDefinition(), $select))
             ->columnAlias('klmn');

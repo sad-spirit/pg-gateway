@@ -56,7 +56,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
 
     public function testStarIsANoOpForSelect(): void
     {
-        $gateway = self::$tableLocator->get(new TableName('fkey_test', 'documents'));
+        $gateway = self::$tableLocator->createGateway(new TableName('fkey_test', 'documents'));
         $fragmentDefault = (new ColumnsBuilder($gateway->getDefinition(), false))
             ->getFragment();
         $fragmentStar = (new ColumnsBuilder($gateway->getDefinition(), false))
@@ -76,7 +76,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
     public function testNoneIsANoOpForReturningClause(): void
     {
         /** @var GenericTableGateway $gateway */
-        $gateway = self::$tableLocator->get(new TableName('fkey_test', 'documents'));
+        $gateway = self::$tableLocator->createGateway(new TableName('fkey_test', 'documents'));
         $fragmentDefault = (new ColumnsBuilder($gateway->getDefinition(), true))
             ->getFragment();
         $fragmentNone = (new ColumnsBuilder($gateway->getDefinition(), true))
@@ -95,7 +95,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
 
     public function testNoColumns(): void
     {
-        $gateway = self::$tableLocator->get('employees');
+        $gateway = self::$tableLocator->createGateway('employees');
         $select  = $gateway->select(
             (new ColumnsBuilder($gateway->getDefinition(), false))
                 ->none()
@@ -109,7 +109,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
 
     public function testAllColumns(): void
     {
-        $gateway = self::$tableLocator->get('employees');
+        $gateway = self::$tableLocator->createGateway('employees');
         $select  = $gateway->select(
             (new ColumnsBuilder($gateway->getDefinition(), false))
                 ->all()
@@ -127,7 +127,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
         $this::expectException(InvalidArgumentException::class);
         $this::expectExceptionMessage('should not be empty');
 
-        (new ColumnsBuilder(self::$tableLocator->get('employees')->getDefinition(), false))
+        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition(), false))
             ->only([]);
     }
 
@@ -136,7 +136,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
         $this::expectException(OutOfBoundsException::class);
         $this::expectExceptionMessage('unknown value');
 
-        (new ColumnsBuilder(self::$tableLocator->get('employees')->getDefinition(), false))
+        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition(), false))
             ->only(['id', 'fcuk']);
     }
 
@@ -145,7 +145,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
         $this::expectException(InvalidArgumentException::class);
         $this::expectExceptionMessage('should not be empty');
 
-        (new ColumnsBuilder(self::$tableLocator->get('employees')->getDefinition(), false))
+        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition(), false))
             ->except([]);
     }
 
@@ -154,7 +154,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
         $this::expectException(InvalidArgumentException::class);
         $this::expectExceptionMessage('only a subset');
 
-        (new ColumnsBuilder(self::$tableLocator->get('employees')->getDefinition(), false))
+        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition(), false))
             ->except(['id', 'name']);
     }
 
@@ -163,13 +163,13 @@ class ColumnsBuilderTest extends DatabaseBackedTest
         $this::expectException(OutOfBoundsException::class);
         $this::expectExceptionMessage('unknown value');
 
-        (new ColumnsBuilder(self::$tableLocator->get('employees')->getDefinition(), false))
+        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition(), false))
             ->except(['id', 'fcuk']);
     }
 
     public function testExceptColumns(): void
     {
-        $gateway = self::$tableLocator->get(new TableName('fkey_test', 'documents'));
+        $gateway = self::$tableLocator->createGateway(new TableName('fkey_test', 'documents'));
         $select  = $gateway->select(
             (new ColumnsBuilder($gateway->getDefinition(), false))
                 ->except(['contents'])
@@ -187,7 +187,7 @@ class ColumnsBuilderTest extends DatabaseBackedTest
         $this::expectExceptionMessage('No columns');
 
         (new ColumnsBuilder(
-            self::$tableLocator->get(new TableName('fkey_test', 'documents_tags'))->getDefinition(),
+            self::$tableLocator->createGateway(new TableName('fkey_test', 'documents_tags'))->getDefinition(),
             false
         ))
             ->primaryKey();

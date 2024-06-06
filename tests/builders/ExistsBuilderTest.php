@@ -42,7 +42,7 @@ class ExistsBuilderTest extends DatabaseBackedTest
 
     public function testDefaultFragment(): void
     {
-        $gateway = self::$tableLocator->get('fkey_test.documents');
+        $gateway = self::$tableLocator->createGateway('fkey_test.documents');
         $select  = $gateway->select();
         $builder = new ExistsBuilder($gateway->getDefinition(), $select);
 
@@ -55,7 +55,7 @@ class ExistsBuilderTest extends DatabaseBackedTest
 
     public function testNotExists(): void
     {
-        $gateway = self::$tableLocator->get('fkey_test.documents');
+        $gateway = self::$tableLocator->createGateway('fkey_test.documents');
         $select  = $gateway->select();
         $builder = (new ExistsBuilder($gateway->getDefinition(), $select))
             ->not();

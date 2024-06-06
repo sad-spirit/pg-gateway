@@ -59,6 +59,7 @@ create table example.users_roles (
 ```
 
 we can set up default gateways to the above tables
+
 ```PHP
 use sad_spirit\pg_gateway\{
     TableLocator,
@@ -71,11 +72,11 @@ $connection = new Connection('...');
 $locator    = new TableLocator($connection);
 
 /** @var PrimaryKeyTableGateway $gwUsers */
-$gwUsers    = $locator->get('example.users');
+$gwUsers    = $locator->createGateway('example.users');
 /** @var PrimaryKeyTableGateway $gwRoles */
-$gwRoles    = $locator->get('example.roles');
+$gwRoles    = $locator->createGateway('example.roles');
 /** @var CompositePrimaryKeyTableGateway $gwLink */
-$gwLink     = $locator->get('example.users_roles');
+$gwLink     = $locator->createGateway('example.users_roles');
 ```
 
 and use these to perform a non-trivial query

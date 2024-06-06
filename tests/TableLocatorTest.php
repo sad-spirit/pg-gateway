@@ -163,7 +163,7 @@ class TableLocatorTest extends DatabaseBackedTest
     public function testCreateDefaultGatewayForNoPrimaryKeyTable(): void
     {
         $tableLocator = new TableLocator(self::$connection);
-        $gateway      = $tableLocator->get(new TableName('pkey_test', 'nokey'));
+        $gateway      = $tableLocator->createGateway(new TableName('pkey_test', 'nokey'));
 
         $this::assertInstanceOf(GenericTableGateway::class, $gateway);
         $this::assertNotInstanceOf(PrimaryKeyTableGateway::class, $gateway);
@@ -172,7 +172,7 @@ class TableLocatorTest extends DatabaseBackedTest
     public function testCreateDefaultGatewayForSingleColumnPrimaryKey(): void
     {
         $tableLocator = new TableLocator(self::$connection);
-        $gateway      = $tableLocator->get(new TableName('haskey'));
+        $gateway      = $tableLocator->createGateway(new TableName('haskey'));
 
         $this::assertInstanceOf(PrimaryKeyTableGateway::class, $gateway);
         $this::assertNotInstanceOf(CompositePrimaryKeyTableGateway::class, $gateway);
@@ -181,23 +181,20 @@ class TableLocatorTest extends DatabaseBackedTest
     public function testCreateDefaultGatewayForCompositePrimaryKey(): void
     {
         $tableLocator = new TableLocator(self::$connection);
-        $gateway      = $tableLocator->get(new TableName('pkey_test', 'composite'));
+        $gateway      = $tableLocator->createGateway(new TableName('pkey_test', 'composite'));
 
         $this::assertInstanceOf(CompositePrimaryKeyTableGateway::class, $gateway);
     }
 
 
-    public function testGetGatewayNoFactory(): void
+    public function testSameDefinitionForSameName(): void
     {
         $tableLocator = new TableLocator(self::$connection);
 
-        $gateway = $tableLocator->get(new TableName('public', 'cols'));
-        $this::assertSame(GenericTableGateway::class, \get_class($gateway));
-
-        $another = $tableLocator->get(' "public" . "cols"  ');
-        $this::assertSame($gateway, $another);
-
-        $this::assertEquals(new TableName('public', 'cols'), $gateway->getDefinition()->getName());
+        $gateway = $tableLocator->createGateway(new TableName('public', 'cols'));
+        $another = $tableLocator->createGateway(' "public" . "cols"  ');
+        $this::assertNotSame($gateway, $another);
+        $this::assertSame($gateway->getDefinition(), $another->getDefinition());
     }
 
     public function testGetGatewayUsingFactory(): void
@@ -215,10 +212,10 @@ class TableLocatorTest extends DatabaseBackedTest
             }
         );
 
-        $specific = $tableLocator->get('cols_test.zerocolumns');
+        $specific = $tableLocator->createGateway('cols_test.zerocolumns');
         $this::assertInstanceOf(SpecificTableGateway::class, $specific);
 
-        $generic  = $tableLocator->get('public.cols');
+        $generic  = $tableLocator->createGateway('public.cols');
         $this::assertSame(GenericTableGateway::class, \get_class($generic));
     }
 

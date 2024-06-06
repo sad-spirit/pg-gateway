@@ -52,7 +52,7 @@ class JoinBuilderTest extends DatabaseBackedTest
 
     public function testDefaultFragment(): void
     {
-        $gateway = self::$tableLocator->get('fkey_test.documents');
+        $gateway = self::$tableLocator->createGateway('fkey_test.documents');
         $select  = $gateway->select();
         $builder = new JoinBuilder($gateway->getDefinition(), $select);
 
@@ -64,7 +64,7 @@ class JoinBuilderTest extends DatabaseBackedTest
      */
     public function testStrategies(string $method, ?JoinStrategy $strategy): void
     {
-        $gateway   = self::$tableLocator->get('fkey_test.documents');
+        $gateway   = self::$tableLocator->createGateway('fkey_test.documents');
         $select  = $gateway->select();
         $builder = (new JoinBuilder($gateway->getDefinition(), $select))
             ->$method();
@@ -77,8 +77,8 @@ class JoinBuilderTest extends DatabaseBackedTest
 
     public function testForeignKeyFromChildSide(): void
     {
-        $base    = self::$tableLocator->get('fkey_test.documents_tags');
-        $joined  = self::$tableLocator->get('fkey_test.documents')
+        $base    = self::$tableLocator->createGateway('fkey_test.documents_tags');
+        $joined  = self::$tableLocator->createGateway('fkey_test.documents')
             ->select();
         $builder = (new JoinBuilder($base->getDefinition(), $joined))
             ->onForeignKey();
@@ -99,8 +99,8 @@ class JoinBuilderTest extends DatabaseBackedTest
 
     public function testForeignKeyFromReferencedSite(): void
     {
-        $base    = self::$tableLocator->get('fkey_test.documents');
-        $joined  = self::$tableLocator->get('fkey_test.documents_tags')
+        $base    = self::$tableLocator->createGateway('fkey_test.documents');
+        $joined  = self::$tableLocator->createGateway('fkey_test.documents_tags')
             ->select();
         $builder = (new JoinBuilder($base->getDefinition(), $joined))
             ->onForeignKey();
@@ -121,8 +121,8 @@ class JoinBuilderTest extends DatabaseBackedTest
 
     public function testMultipleForeignKeys(): void
     {
-        $base    = self::$tableLocator->get('fkey_test.documents');
-        $joined  = self::$tableLocator->get('public.employees')
+        $base    = self::$tableLocator->createGateway('fkey_test.documents');
+        $joined  = self::$tableLocator->createGateway('public.employees')
             ->select();
         $builder = (new JoinBuilder($base->getDefinition(), $joined))
             ->onForeignKey(['boss_id']);
@@ -147,7 +147,7 @@ class JoinBuilderTest extends DatabaseBackedTest
 
     public function testRecursiveForeignKey(): void
     {
-        $base    = self::$tableLocator->get('fkey_test.documents');
+        $base    = self::$tableLocator->createGateway('fkey_test.documents');
         $joined  = $base->select();
         $builder = (new JoinBuilder($base->getDefinition(), $joined))
             ->onRecursiveForeignKey(false);
@@ -172,7 +172,7 @@ class JoinBuilderTest extends DatabaseBackedTest
 
     public function testPriority(): void
     {
-        $gateway = self::$tableLocator->get('fkey_test.documents');
+        $gateway = self::$tableLocator->createGateway('fkey_test.documents');
         $select  = $gateway->select();
         $builder = (new JoinBuilder($gateway->getDefinition(), $select))->priority(Fragment::PRIORITY_LOWEST);
 
@@ -184,7 +184,7 @@ class JoinBuilderTest extends DatabaseBackedTest
 
     public function testUseForCount(): void
     {
-        $gateway = self::$tableLocator->get('fkey_test.documents');
+        $gateway = self::$tableLocator->createGateway('fkey_test.documents');
         $select  = $gateway->select();
         $builder = (new JoinBuilder($gateway->getDefinition(), $select))->useForCount(false);
 
@@ -196,7 +196,7 @@ class JoinBuilderTest extends DatabaseBackedTest
 
     public function testAlias(): void
     {
-        $gateway = self::$tableLocator->get('fkey_test.documents');
+        $gateway = self::$tableLocator->createGateway('fkey_test.documents');
         $select  = $gateway->select();
         $builder = (new JoinBuilder($gateway->getDefinition(), $select))->alias('foo');
 

@@ -504,7 +504,7 @@ class GenericTableGateway implements TableGateway
     private function normalizeSelect($select): SelectProxy
     {
         if (\is_string($select) || $select instanceof QualifiedName) {
-            $realSelect = $this->tableLocator->get($select)
+            $realSelect = $this->tableLocator->createGateway($select)
                 ->select();
         } elseif ($select instanceof TableGateway) {
             $realSelect = $select->select();
