@@ -58,54 +58,48 @@ create table example.users_roles (
 );
 ```
 
-we can set up default gateways to the above tables
+we can use default gateways and default builders to perform a non-trivial query to the above tables
 
 ```PHP
 use sad_spirit\pg_gateway\{
     TableLocator,
-    gateways\CompositePrimaryKeyTableGateway,
-    gateways\PrimaryKeyTableGateway
+    builders\ColumnsBuilder,
+    builders\JoinBuilder
 };
 use sad_spirit\pg_wrapper\Connection;
 
 $connection = new Connection('...');
 $locator    = new TableLocator($connection);
 
-/** @var PrimaryKeyTableGateway $gwUsers */
-$gwUsers    = $locator->createGateway('example.users');
-/** @var PrimaryKeyTableGateway $gwRoles */
-$gwRoles    = $locator->createGateway('example.roles');
-/** @var CompositePrimaryKeyTableGateway $gwLink */
-$gwLink     = $locator->createGateway('example.users_roles');
-```
+$adminRoles = $locator->createGateway('example.roles')
+    ->select(
+        $locator->createBuilder('example.roles')
+            ->outputColumns(
+                fn(ColumnsBuilder $cb) => $cb->except(['description'])
+                    ->replace('/^/', 'role_')
+            )
+            ->operatorCondition('name', '~*', 'admin')
+    );
 
-and use these to perform a non-trivial query
+$activeAdminRoles = $locator->createGateway('example.users_roles')
+    ->select(
+        $locator->createBuilder('example.users_roles')
+            ->outputColumns(fn(ColumnsBuilder $cb) => $cb->only(['valid_from', 'valid_to']))
+            ->join($adminRoles, fn(JoinBuilder $jb) => $jb->onForeignKey())
+            ->sqlCondition("current_date between coalesce(self.valid_from, 'yesterday') and coalesce(self.valid_to, 'tomorrow')")
+    );
 
-```PHP
-$adminRoles = $gwRoles->select([
-    $gwRoles->outputColumns()
-        ->except(['description'])
-        ->replace('/^/', 'role_'),
-    $gwRoles->operatorCondition('name', '~*', 'admin')
-]);
-
-$activeAdminRoles = $gwLink->select([
-    $gwLink->outputColumns()
-        ->only(['valid_from', 'valid_to']),
-    $gwLink->join($adminRoles)
-        ->onForeignKey(),
-    $gwLink->sqlCondition("current_date between coalesce(self.valid_from, 'yesterday') and coalesce(self.valid_to, 'tomorrow')")
-]);
-
-$activeAdminUsers = $gwUsers->select([
-    $gwUsers->outputColumns()
-        ->except(['password_hash'])
-        ->replace('/^/', 'user_'),
-    $gwUsers->join($activeAdminRoles)
-        ->onForeignKey(),
-    $gwUsers->orderBy('user_login, role_name'),
-    $gwUsers->limit(5)
-]);
+$activeAdminUsers = $locator->createGateway('example.users')
+    ->select(
+        $locator->createBuilder('example.users')
+            ->outputColumns(
+                fn(ColumnsBuilder $cb) => $cb->except(['password_hash'])
+                    ->replace('/^/', 'user_')
+            )
+            ->join($activeAdminRoles, fn(JoinBuilder $jb) => $jb->onForeignKey())
+            ->orderBy('user_login, role_name')
+            ->limit(5)
+    );
 
 // Let's assume we want to output that list with pagination
 echo "Total users with active admin roles: " . $activeAdminUsers->executeCount() . "\n\n";

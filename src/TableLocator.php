@@ -14,6 +14,8 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway;
 
 use sad_spirit\pg_gateway\{
+    builders\FluentBuilder,
+    builders\FragmentListBuilder,
     exceptions\InvalidArgumentException,
     exceptions\UnexpectedValueException,
     gateways\CompositePrimaryKeyTableGateway,
@@ -291,6 +293,19 @@ class TableLocator
             default:
                 return new CompositePrimaryKeyTableGateway($definition, $this);
         }
+    }
+
+    /**
+     * Returns a fluent builder for a given table name
+     *
+     * @param string|TableName|QualifiedName $name
+     * @return FragmentListBuilder
+     */
+    public function createBuilder($name): FragmentListBuilder
+    {
+        $definition = $this->getTableDefinition($this->normalizeName($name));
+
+        return new FluentBuilder($definition, $this);
     }
 
     /**

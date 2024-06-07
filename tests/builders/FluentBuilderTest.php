@@ -13,55 +13,60 @@
 
 declare(strict_types=1);
 
-namespace sad_spirit\pg_gateway\tests\gateways;
+namespace sad_spirit\pg_gateway\tests\builders;
 
 use sad_spirit\pg_gateway\{
+    FragmentList,
     OrdinaryTableDefinition,
     TableLocator,
+    builders\ColumnsBuilder,
+    builders\FluentBuilder,
+    builders\JoinBuilder,
+    builders\ScalarSubqueryBuilder,
     conditions\ParametrizedCondition,
     exceptions\LogicException,
     exceptions\OutOfBoundsException,
     exceptions\UnexpectedValueException,
     fragments\LimitClauseFragment,
     fragments\OffsetClauseFragment,
-    gateways\GenericTableGateway,
     metadata\TableName,
     tests\DatabaseBackedTest,
     tests\NormalizeWhitespace
 };
+use sad_spirit\pg_builder\nodes\QualifiedName;
 
-/**
- * Tests for methods of GenericTableGateway creating Fragments / FragmentBuilders
- */
-class BuildersTest extends DatabaseBackedTest
+class FluentBuilderTest extends DatabaseBackedTest
 {
     use NormalizeWhitespace;
 
     protected static ?TableLocator $tableLocator;
-    protected static ?GenericTableGateway $gateway;
+    private FluentBuilder $builder;
 
     public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         self::executeSqlFromFile(self::$connection, 'update-drop.sql', 'update-create.sql');
         self::$tableLocator = new TableLocator(self::$connection);
-        self::$gateway      = new GenericTableGateway(
-            new OrdinaryTableDefinition(self::$connection, new TableName('update_test')),
-            self::$tableLocator
-        );
     }
 
     public static function tearDownAfterClass(): void
     {
         self::executeSqlFromFile(self::$connection, 'update-drop.sql');
-        self::$gateway      = null;
         self::$tableLocator = null;
         self::$connection   = null;
     }
 
-    public function testAny(): void
+    protected function setUp(): void
     {
-        $condition = self::$gateway->any('id', [1, 2]);
+        $this->builder = new FluentBuilder(
+            new OrdinaryTableDefinition(self::$connection, new TableName('update_test')),
+            self::$tableLocator
+        );
+    }
+
+    public function testCreateAny(): void
+    {
+        $condition = $this->builder->createAny('id', [1, 2]);
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'self.id = any(:id::int4[])',
@@ -76,12 +81,12 @@ class BuildersTest extends DatabaseBackedTest
 
         $this::expectException(OutOfBoundsException::class);
         $this::expectExceptionMessage('does not exist');
-        self::$gateway->any('missing', ['foo', 'bar']);
+        $this->builder->createAny('missing', ['foo', 'bar']);
     }
 
-    public function testBoolColumn(): void
+    public function testCreateBoolColumn(): void
     {
-        $condition = self::$gateway->column('flag');
+        $condition = $this->builder->createBoolColumn('flag');
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'self.flag',
@@ -93,12 +98,12 @@ class BuildersTest extends DatabaseBackedTest
 
         $this::expectException(OutOfBoundsException::class);
         $this::expectExceptionMessage('does not exist');
-        self::$gateway->column('missing');
+        $this->builder->createBoolColumn('missing');
     }
 
-    public function testNotBoolColumn(): void
+    public function testCreateNotBoolColumn(): void
     {
-        $condition = self::$gateway->notColumn('flag');
+        $condition = $this->builder->createNotBoolColumn('flag');
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'not self.flag',
@@ -109,16 +114,16 @@ class BuildersTest extends DatabaseBackedTest
         $this::assertNotInstanceOf(ParametrizedCondition::class, $condition);
     }
 
-    public function testColumnConditionRequiresBoolColumn(): void
+    public function testBoolColumnConditionRequiresBoolType(): void
     {
         $this::expectException(LogicException::class);
         $this::expectExceptionMessage("is not of type 'bool'");
-        self::$gateway->column('id');
+        $this->builder->createBoolColumn('id');
     }
 
-    public function testIsNull(): void
+    public function testCreateIsNull(): void
     {
-        $condition = self::$gateway->isNull('title');
+        $condition = $this->builder->createIsNull('title');
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'self.title is null',
@@ -130,12 +135,12 @@ class BuildersTest extends DatabaseBackedTest
 
         $this::expectException(OutOfBoundsException::class);
         $this::expectExceptionMessage('does not exist');
-        self::$gateway->column('missing');
+        $this->builder->createIsNull('missing');
     }
 
-    public function testIsNotNull(): void
+    public function testCreateIsNotNull(): void
     {
-        $condition = self::$gateway->isNotNull('title');
+        $condition = $this->builder->createIsNotNull('title');
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'self.title is not null',
@@ -146,9 +151,9 @@ class BuildersTest extends DatabaseBackedTest
         $this::assertNotInstanceOf(ParametrizedCondition::class, $condition);
     }
 
-    public function testNotAll(): void
+    public function testCreateNotAll(): void
     {
-        $condition = self::$gateway->notAll('id', [3, 4]);
+        $condition = $this->builder->createNotAll('id', [3, 4]);
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'self.id <> all(:id::int4[])',
@@ -163,12 +168,12 @@ class BuildersTest extends DatabaseBackedTest
 
         $this::expectException(OutOfBoundsException::class);
         $this::expectExceptionMessage('does not exist');
-        self::$gateway->notAll('missing', ['baz', 'quux']);
+        $this->builder->createNotAll('missing', ['baz', 'quux']);
     }
 
-    public function testOperator(): void
+    public function testCreateOperatorCondition(): void
     {
-        $condition = self::$gateway->operatorCondition('title', '~*', 'gateway');
+        $condition = $this->builder->createOperatorCondition('title', '~*', 'gateway');
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'self.title ~* :title::"text"',
@@ -180,12 +185,12 @@ class BuildersTest extends DatabaseBackedTest
 
         $this::expectException(OutOfBoundsException::class);
         $this::expectExceptionMessage('does not exist');
-        self::$gateway->operatorCondition('missing', '!~*', 'gateway');
+        $this->builder->createOperatorCondition('missing', '!~*', 'gateway');
     }
 
-    public function testEqual(): void
+    public function testCreateEqual(): void
     {
-        $condition = self::$gateway->equal('id', 5);
+        $condition = $this->builder->createEqual('id', 5);
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'self.id = :id::int4',
@@ -196,9 +201,9 @@ class BuildersTest extends DatabaseBackedTest
         $this::assertEquals(['id' => 5], $condition->getParameterHolder()->getParameters());
     }
 
-    public function testSqlCondition(): void
+    public function testCreateSqlCondition(): void
     {
-        $condition = self::$gateway->sqlCondition(
+        $condition = $this->builder->createSqlCondition(
             "added between :cutoff and current_date",
             ['cutoff' => '2023-08-07']
         );
@@ -212,11 +217,94 @@ class BuildersTest extends DatabaseBackedTest
         $this::assertEquals(['cutoff' => '2023-08-07'], $condition->getParameterHolder()->getParameters());
     }
 
-    public function testJoinUsingTableName(): void
+    public function testAny(): void
     {
-        $select = self::$gateway->select(
-            self::$gateway->join('update_test')
-                ->alias('custom')
+        $this::assertEquals(
+            new FragmentList($this->builder->createAny('id', [1, 2])),
+            $this->builder->any('id', [1, 2])->getFragment()
+        );
+    }
+
+    public function testBoolColumn(): void
+    {
+        $this::assertEquals(
+            new FragmentList($this->builder->createBoolColumn('flag')),
+            $this->builder->boolColumn('flag')->getFragment()
+        );
+    }
+
+    public function testNotBoolColumn(): void
+    {
+        $this::assertEquals(
+            new FragmentList($this->builder->createNotBoolColumn('flag')),
+            $this->builder->notBoolColumn('flag')->getFragment()
+        );
+    }
+
+    public function testIsNull(): void
+    {
+        $this::assertEquals(
+            new FragmentList($this->builder->createIsNull('title')),
+            $this->builder->isNull('title')->getFragment()
+        );
+    }
+
+    public function testIsNotNull(): void
+    {
+        $this::assertEquals(
+            new FragmentList($this->builder->createIsNotNull('title')),
+            $this->builder->isNotNull('title')->getFragment()
+        );
+    }
+
+    public function testNotAll(): void
+    {
+        $this::assertEquals(
+            new FragmentList($this->builder->createNotAll('id', [3, 4])),
+            $this->builder->notAll('id', [3, 4])->getFragment()
+        );
+    }
+
+    public function testOperatorCondition(): void
+    {
+        $this::assertEquals(
+            new FragmentList($this->builder->createOperatorCondition('title', '~*', 'gateway')),
+            $this->builder->operatorCondition('title', '~*', 'gateway')->getFragment()
+        );
+    }
+
+    public function testEqual(): void
+    {
+        $this::assertEquals(
+            new FragmentList($this->builder->createEqual('id', 5)),
+            $this->builder->equal('id', 5)->getFragment()
+        );
+    }
+
+    public function testSqlCondition(): void
+    {
+        $this::assertEquals(
+            new FragmentList($this->builder->createSqlCondition(
+                "added between :cutoff and current_date",
+                ['cutoff' => '2023-08-07']
+            )),
+            $this->builder->sqlCondition(
+                "added between :cutoff and current_date",
+                ['cutoff' => '2023-08-07']
+            )
+                ->getFragment()
+        );
+    }
+
+    /**
+     * @dataProvider tableNameProvider
+     */
+    public function testJoinUsingTableName($name): void
+    {
+        $gateway = self::$tableLocator->createGateway('update_test');
+
+        $select = $gateway->select(
+            $this->builder->join($name, fn(JoinBuilder $jb) => $jb->alias('custom'))
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
@@ -225,11 +313,21 @@ class BuildersTest extends DatabaseBackedTest
         );
     }
 
+    public function tableNameProvider(): array
+    {
+        return [
+            ['update_test'],
+            [new TableName('update_test')],
+            [new QualifiedName('update_test')]
+        ];
+    }
+
     public function testJoinUsingGateway(): void
     {
-        $select = self::$gateway->select(
-            self::$gateway->join(self::$gateway)
-                ->alias('custom')
+        $gateway = self::$tableLocator->createGateway('update_test');
+
+        $select = $gateway->select(
+            $this->builder->join($gateway, fn(JoinBuilder $jb) => $jb->alias('custom'))
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
@@ -240,11 +338,13 @@ class BuildersTest extends DatabaseBackedTest
 
     public function testJoinUsingSelectProxy(): void
     {
-        $select = self::$gateway->select(
-            self::$gateway->join(
-                self::$gateway->select(self::$gateway->column('flag'))
+        $gateway = self::$tableLocator->createGateway('update_test');
+
+        $select = $gateway->select(
+            $this->builder->join(
+                $gateway->select($this->builder->createBoolColumn('flag')),
+                fn(JoinBuilder $jb) => $jb->alias('custom')
             )
-                ->alias('custom')
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
@@ -255,18 +355,19 @@ class BuildersTest extends DatabaseBackedTest
 
     public function testOutputSubquery(): void
     {
-        /** @var GenericTableGateway $unconditional */
+        $gateway       = self::$tableLocator->createGateway('update_test');
         $unconditional = self::$tableLocator->createGateway('unconditional');
+        $ucBuilder     = new FluentBuilder($unconditional->getDefinition(), self::$tableLocator);
 
-        $select = self::$gateway->select(
-            self::$gateway->outputSubquery(
-                $unconditional->select($unconditional->outputColumns()->only(['id']))
+        $select = $gateway->select(
+            $this->builder->outputSubquery(
+                $unconditional->select(
+                    $ucBuilder->outputColumns(fn (ColumnsBuilder $cb) => $cb->only(['id']))
+                ),
+                fn(ScalarSubqueryBuilder $sb) => $sb->alias('custom')
+                    ->columnAlias('klmn')
+                    ->joinOn($this->builder->createSqlCondition('self.title = joined.title'))
             )
-                ->alias('custom')
-                ->columnAlias('klmn')
-                ->joinOn(
-                    self::$gateway->sqlCondition('self.title = joined.title')
-                )
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
@@ -278,8 +379,9 @@ class BuildersTest extends DatabaseBackedTest
 
     public function testOutputExpressionUsingString(): void
     {
-        $select = self::$gateway->select(
-            self::$gateway->outputExpression('upper(self.title) as upper_title')
+        $gateway = self::$tableLocator->createGateway('update_test');
+        $select  = $gateway->select(
+            $this->builder->outputExpression('upper(self.title) as upper_title')
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
@@ -290,8 +392,9 @@ class BuildersTest extends DatabaseBackedTest
 
     public function testOutputExpressionUsingCondition(): void
     {
-        $select = self::$gateway->select(
-            self::$gateway->outputExpression(self::$gateway->isNull('title'), 'null_title')
+        $gateway = self::$tableLocator->createGateway('update_test');
+        $select  = $gateway->select(
+            $this->builder->outputExpression($this->builder->createIsNull('title'), 'null_title')
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
@@ -302,9 +405,8 @@ class BuildersTest extends DatabaseBackedTest
 
     public function testOrderBy(): void
     {
-        $select = self::$gateway->select(
-            self::$gateway->orderBy('added')
-        );
+        $select = self::$tableLocator->createGateway('update_test')
+            ->select($this->builder->orderBy('added'));
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'select self.* from public.update_test as self order by added',
@@ -313,15 +415,15 @@ class BuildersTest extends DatabaseBackedTest
 
         $this::expectException(UnexpectedValueException::class);
         $this::expectExceptionMessage('column names or ordinal numbers');
-        self::$gateway->select(self::$gateway->orderBy('upper(title)'))
+        self::$tableLocator->createGateway('update_test')
+            ->select($this->builder->orderBy('upper(title)'))
             ->createSelectStatement();
     }
 
     public function testOrderByUnsafe(): void
     {
-        $select = self::$gateway->select(
-            self::$gateway->orderByUnsafe('upper(title)')
-        );
+        $select = self::$tableLocator->createGateway('update_test')
+            ->select($this->builder->orderByUnsafe('upper(title)'));
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'select self.* from public.update_test as self order by upper(title)',
@@ -332,16 +434,16 @@ class BuildersTest extends DatabaseBackedTest
     public function testLimit(): void
     {
         $this::assertEquals(
-            new LimitClauseFragment(5),
-            self::$gateway->limit(5)
+            new FragmentList(new LimitClauseFragment(5)),
+            $this->builder->limit(5)->getFragment()
         );
     }
 
     public function testOffset(): void
     {
         $this::assertEquals(
-            new OffsetClauseFragment(5),
-            self::$gateway->offset(5)
+            new FragmentList(new OffsetClauseFragment(5)),
+            $this->builder->offset(5)->getFragment()
         );
     }
 }
