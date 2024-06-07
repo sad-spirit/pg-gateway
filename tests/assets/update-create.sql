@@ -4,7 +4,9 @@ create table update_test (
     id integer not null,
     title text default 'A string',
     added timestamp with time zone default now(),
-    flag bool default false
+    flag bool default false,
+
+    constraint update_test_pkey primary key (id)
 );
 
 insert into update_test (id, title) values (1, 'One');

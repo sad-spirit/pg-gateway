@@ -217,6 +217,19 @@ class FluentBuilderTest extends DatabaseBackedTest
         $this::assertEquals(['cutoff' => '2023-08-07'], $condition->getParameterHolder()->getParameters());
     }
 
+    public function testCreatePrimaryKey(): void
+    {
+        $condition = $this->builder->createPrimaryKey(1);
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'self.id = :id::int4',
+            $condition->generateExpression()->dispatch(
+                self::$tableLocator->getStatementFactory()->getBuilder()
+            )
+        );
+        $this::assertEquals(['id' => 1], $condition->getParameterHolder()->getParameters());
+    }
+
     public function testAny(): void
     {
         $this::assertEquals(
@@ -293,6 +306,14 @@ class FluentBuilderTest extends DatabaseBackedTest
                 ['cutoff' => '2023-08-07']
             )
                 ->getFragment()
+        );
+    }
+
+    public function testPrimaryKey(): void
+    {
+        $this::assertEquals(
+            new FragmentList($this->builder->createPrimaryKey(1)),
+            $this->builder->primaryKey(1)->getFragment()
         );
     }
 

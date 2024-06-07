@@ -14,11 +14,11 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\gateways;
 
 use sad_spirit\pg_gateway\{
-    conditions\ParametrizedCondition,
     FragmentList,
     PrimaryKeyAccess,
     SelectProxy,
     TableSelect,
+    builders\PrimaryKeyBuilder,
     conditions\PrimaryKeyCondition,
     fragments\SetClauseFragment
 };
@@ -43,9 +43,11 @@ use sad_spirit\pg_wrapper\Result;
  */
 class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAccess
 {
+    use PrimaryKeyBuilder;
+
     public function deleteByPrimaryKey($primaryKey): Result
     {
-        $list = new FragmentList($this->primaryKey($primaryKey));
+        $list = new FragmentList($this->createPrimaryKey($primaryKey));
 
         return $this->createDeleteStatement($list)
             ->executeParams($this->getConnection(), $list->getParameters());
@@ -65,26 +67,11 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
     {
         $list = new FragmentList(
             new SetClauseFragment($this->definition->getColumns(), $this->tableLocator, $set),
-            $this->primaryKey($primaryKey)
+            $this->createPrimaryKey($primaryKey)
         );
 
         return $this->createUpdateStatement($list)
             ->executeParams($this->getConnection(), $list->getParameters());
-    }
-
-    /**
-     * Creates a condition on a primary key, can be used to combine with other Fragments
-     *
-     * @param mixed $value
-     * @return ParametrizedCondition
-     */
-    public function primaryKey($value): ParametrizedCondition
-    {
-        $condition = new PrimaryKeyCondition(
-            $this->definition->getPrimaryKey(),
-            $this->tableLocator->getTypeConverterFactory()
-        );
-        return new ParametrizedCondition($condition, $condition->normalizeValue($value));
     }
 
     public function upsert(array $values): array

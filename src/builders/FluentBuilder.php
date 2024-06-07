@@ -54,6 +54,8 @@ use sad_spirit\pg_builder\nodes\{
  */
 class FluentBuilder extends FragmentListBuilder
 {
+    use PrimaryKeyBuilder;
+
     /**
      * A non-fluent version of {@see any()}
      *
@@ -323,6 +325,17 @@ class FluentBuilder extends FragmentListBuilder
     public function sqlCondition(string $sql, array $parameters = []): self
     {
         return $this->add($this->createSqlCondition($sql, $parameters));
+    }
+
+    /**
+     * Adds a condition on a primary key
+     *
+     * @param mixed $value
+     * @return $this
+     */
+    public function primaryKey($value): self
+    {
+        return $this->add($this->createPrimaryKey($value));
     }
 
     /**
