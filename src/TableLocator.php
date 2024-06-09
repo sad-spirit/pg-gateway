@@ -50,7 +50,8 @@ class TableLocator
     private static int $aliasIndex = 0;
 
     private Connection $connection;
-    private ?TableGatewayFactory $gatewayFactory;
+    /** @var array<TableGatewayFactory>  */
+    private array $gatewayFactories = [];
     private StatementFactory $statementFactory;
     private TypeNameNodeHandler $typeConverterFactory;
     private ?CacheItemPoolInterface $statementCache;
@@ -87,16 +88,27 @@ class TableLocator
         return 'gw_' . ++self::$aliasIndex;
     }
 
+
+    /**
+     * Constructor, sets up factories
+     *
+     * @param Connection $connection
+     * @param array<TableGatewayFactory> $gatewayFactories
+     * @param StatementFactory|null $statementFactory
+     * @param CacheItemPoolInterface|null $statementCache
+     */
     public function __construct(
         Connection $connection,
-        ?TableGatewayFactory $gatewayFactory = null,
+        array $gatewayFactories = [],
         ?StatementFactory $statementFactory = null,
         ?CacheItemPoolInterface $statementCache = null
     ) {
         $this->connection       = $connection;
-        $this->gatewayFactory   = $gatewayFactory;
         $this->statementFactory = $statementFactory ?? StatementFactory::forConnection($connection);
         $this->statementCache   = $statementCache;
+        foreach ($gatewayFactories as $factory) {
+            $this->addTableGatewayFactory($factory);
+        }
 
         $converterFactory = $this->connection->getTypeConverterFactory();
         if ($converterFactory instanceof TypeNameNodeHandler) {
@@ -144,6 +156,19 @@ class TableLocator
     {
         $this->definitionFactory = $factory;
         $this->definitions       = [];
+
+        return $this;
+    }
+
+    /**
+     * Adds a factory for TableGateway (and FragmentListBuilder) implementations
+     *
+     * @param TableGatewayFactory $factory
+     * @return $this
+     */
+    public function addTableGatewayFactory(TableGatewayFactory $factory): self
+    {
+        $this->gatewayFactories[] = $factory;
 
         return $this;
     }
@@ -282,8 +307,10 @@ class TableLocator
     {
         $definition = $this->getTableDefinition($this->normalizeName($name));
 
-        if (null !== $this->gatewayFactory && ($gateway = $this->gatewayFactory->create($definition, $this))) {
-            return $gateway;
+        foreach ($this->gatewayFactories as $factory) {
+            if (null !== ($gateway = $factory->createGateway($definition, $this))) {
+                return $gateway;
+            }
         }
         switch (\count($definition->getPrimaryKey())) {
             case 0:
@@ -305,6 +332,11 @@ class TableLocator
     {
         $definition = $this->getTableDefinition($this->normalizeName($name));
 
+        foreach ($this->gatewayFactories as $factory) {
+            if (null !== ($builder = $factory->createBuilder($definition, $this))) {
+                return $builder;
+            }
+        }
         return new FluentBuilder($definition, $this);
     }
 

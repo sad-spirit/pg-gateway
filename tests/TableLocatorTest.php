@@ -38,6 +38,7 @@ use sad_spirit\pg_gateway\{
     TableGateway,
     TableGatewayFactory,
     TableLocator,
+    builders\FragmentListBuilder,
     exceptions\UnexpectedValueException,
     gateways\CompositePrimaryKeyTableGateway,
     gateways\GenericTableGateway,
@@ -130,7 +131,7 @@ class TableLocatorTest extends DatabaseBackedTest
         $tableLocatorNoCache = new TableLocator(self::$connection);
         $stmt = $this->createDeleteStatement($tableLocatorNoCache, $definition, $fragment);
 
-        $tableLocatorCacheMiss = new TableLocator(self::$connection, null, null, $this->getMockForCacheMiss($stmt));
+        $tableLocatorCacheMiss = new TableLocator(self::$connection, [], null, $this->getMockForCacheMiss($stmt));
         $this->createDeleteStatement($tableLocatorCacheMiss, $definition, $fragment);
     }
 
@@ -142,7 +143,7 @@ class TableLocatorTest extends DatabaseBackedTest
         ));
 
         $definition   = new OrdinaryTableDefinition(self::$connection, new TableName('update_test'));
-        $tableLocator = new TableLocator(self::$connection, null, null, $this->getMockForCacheHit($stmt));
+        $tableLocator = new TableLocator(self::$connection, [], null, $this->getMockForCacheHit($stmt));
         $fragment     = new FragmentImplementation(new KeywordConstant(KeywordConstant::FALSE), 'a key');
 
         $this::assertSame(
@@ -156,7 +157,7 @@ class TableLocatorTest extends DatabaseBackedTest
         $definition    = new OrdinaryTableDefinition(self::$connection, new TableName('foo'));
         $fragment      = new FragmentImplementation(new KeywordConstant(KeywordConstant::NULL), null);
 
-        $tableLocator = new TableLocator(self::$connection, null, null, $this->getMockForNoCache());
+        $tableLocator = new TableLocator(self::$connection, [], null, $this->getMockForNoCache());
         $this->createDeleteStatement($tableLocator, $definition, $fragment);
     }
 
@@ -186,7 +187,6 @@ class TableLocatorTest extends DatabaseBackedTest
         $this::assertInstanceOf(CompositePrimaryKeyTableGateway::class, $gateway);
     }
 
-
     public function testSameDefinitionForSameName(): void
     {
         $tableLocator = new TableLocator(self::$connection);
@@ -197,28 +197,79 @@ class TableLocatorTest extends DatabaseBackedTest
         $this::assertSame($gateway->getDefinition(), $another->getDefinition());
     }
 
-    public function testGetGatewayUsingFactory(): void
+    public function testAddTableGatewayFactory(): void
     {
-        $tableLocator = new TableLocator(
-            self::$connection,
-            new class implements TableGatewayFactory {
-                public function create(TableDefinition $definition, TableLocator $tableLocator): ?TableGateway
-                {
-                    if ('zerocolumns' === $definition->getName()->getRelation()) {
-                        return new SpecificTableGateway($tableLocator);
-                    }
-                    return null;
-                }
-            }
-        );
+        $tableLocator = new TableLocator(self::$connection);
 
-        $specific = $tableLocator->createGateway('cols_test.zerocolumns');
-        $this::assertInstanceOf(SpecificTableGateway::class, $specific);
+        $this::assertInstanceOf(GenericTableGateway::class, $tableLocator->createGateway('public.cols'));
 
-        $generic  = $tableLocator->createGateway('public.cols');
-        $this::assertSame(GenericTableGateway::class, \get_class($generic));
+        $specific    = new SpecificTableGateway($tableLocator);
+        $mockFactory = $this->getMockBuilder(TableGatewayFactory::class)
+            ->onlyMethods(['createGateway'])
+            ->getMockForAbstractClass();
+        $mockFactory->expects($this::once())
+            ->method('createGateway')
+            ->will($this::returnValue($specific));
+
+        $tableLocator->addTableGatewayFactory($mockFactory);
+        $this::assertSame($specific, $tableLocator->createGateway('public.cols'));
     }
 
+    public function testFirstApplicableFactoryCreatesGateway(): void
+    {
+        $gatewayOne = $this->getMockBuilder(TableGateway::class)
+            ->getMockForAbstractClass();
+        $gatewayTwo = $this->getMockBuilder(TableGateway::class)
+            ->getMockForAbstractClass();
+
+        $factoryOne = $this->getMockBuilder(TableGatewayFactory::class)
+            ->onlyMethods(['createGateway'])
+            ->getMockForAbstractClass();
+        $factoryOne->expects($this::once())
+            ->method('createGateway')
+            ->will($this::returnValue($gatewayOne));
+        $factoryTwo = $this->getMockBuilder(TableGatewayFactory::class)
+            ->onlyMethods(['createGateway'])
+            ->getMockForAbstractClass();
+        $factoryTwo->expects($this::once())
+            ->method('createGateway')
+            ->will($this::returnValue($gatewayTwo));
+
+        $locatorOne = new TableLocator(self::$connection, [$factoryOne, $factoryTwo]);
+        $locatorTwo = new TableLocator(self::$connection, [$factoryTwo, $factoryOne]);
+
+        $this::assertSame($gatewayOne, $locatorOne->createGateway('public.cols'));
+        $this::assertSame($gatewayTwo, $locatorTwo->createGateway('public.cols'));
+    }
+
+    public function testFirstApplicableFactoryCreatesBuilder(): void
+    {
+        $builderOne = $this->getMockBuilder(FragmentListBuilder::class)
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
+        $builderTwo = $this->getMockBuilder(FragmentListBuilder::class)
+            ->disableOriginalConstructor()
+            ->getMockForAbstractClass();
+
+        $factoryOne = $this->getMockBuilder(TableGatewayFactory::class)
+            ->onlyMethods(['createBuilder'])
+            ->getMockForAbstractClass();
+        $factoryOne->expects($this::once())
+            ->method('createBuilder')
+            ->will($this::returnValue($builderOne));
+        $factoryTwo = $this->getMockBuilder(TableGatewayFactory::class)
+            ->onlyMethods(['createBuilder'])
+            ->getMockForAbstractClass();
+        $factoryTwo->expects($this::once())
+            ->method('createBuilder')
+            ->will($this::returnValue($builderTwo));
+
+        $locatorOne = new TableLocator(self::$connection, [$factoryOne, $factoryTwo]);
+        $locatorTwo = new TableLocator(self::$connection, [$factoryTwo, $factoryOne]);
+
+        $this::assertSame($builderOne, $locatorOne->createBuilder('public.cols'));
+        $this::assertSame($builderTwo, $locatorTwo->createBuilder('public.cols'));
+    }
 
     private function createDeleteStatement(
         TableLocator $tableLocator,

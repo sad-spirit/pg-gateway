@@ -46,7 +46,7 @@ class SelectTransformerTest extends DatabaseBackedTest
 
     public function testKeyIsNullIfOwnKeyIsNull(): void
     {
-        $tableLocator = new TableLocator(self::$connection, null, null, $this->getMockForNoCache());
+        $tableLocator = new TableLocator(self::$connection, [], null, $this->getMockForNoCache());
 
         $mockSelect = $this::getMockBuilder(SelectProxy::class)
             ->onlyMethods(['getKey', 'createSelectAST'])
@@ -68,7 +68,7 @@ class SelectTransformerTest extends DatabaseBackedTest
 
     public function testKeyIsNullIfSelectKeyIsNull(): void
     {
-        $tableLocator = new TableLocator(self::$connection, null, null, $this->getMockForNoCache());
+        $tableLocator = new TableLocator(self::$connection, [], null, $this->getMockForNoCache());
 
         $mockSelect = $this::getMockBuilder(SelectProxy::class)
             ->onlyMethods(['getKey', 'createSelectAST'])
