@@ -24,7 +24,7 @@ use sad_spirit\pg_gateway\exceptions\InvalidArgumentException;
  *
  * @since 0.2.0
  */
-class TableName
+final class TableName
 {
     private string $schema = 'public';
     private string $relation;
