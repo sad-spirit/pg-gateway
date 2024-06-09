@@ -1,7 +1,7 @@
 # TableLocator class
 
 This class serves as a facade to features of `pg_gateway` and the packages it depends on. It is also used
-to create table gateways.
+to create table gateways and builders.
 
 It is recommended to pass an instance of this class as a dependency instead of individual gateway objects.
 
@@ -25,10 +25,17 @@ class TableLocator
 {
     public function __construct(
         Connection $connection,
-        ?TableGatewayFactory $gatewayFactory = null,
+        array<TableGatewayFactory> $gatewayFactories = [],
         ?StatementFactory $statementFactory = null,
         ?CacheItemPoolInterface $statementCache = null
     );
+
+    // factory for TableDefinition implementations
+    public function getTableDefinitionFactory() : TableDefinitionFactory;
+    public function setTableDefinitionFactory(TableDefinitionFactory $factory) : $this;
+    
+    // factory for gateways and builders
+    public function addTableGatewayFactory(TableGatewayFactory $factory) : $this;
 
     // getters for constructor dependencies
     public function getConnection() : Connection;
@@ -45,8 +52,12 @@ class TableLocator
     // creating statements
     public function createNativeStatementUsingCache(\Closure $factoryMethod, ?string $cacheKey) : NativeStatement;
 
-    // creating gateways
-    public function get(string|QualifiedName $name) : TableGateway
+    // creating objects containing tables' metadata
+    public function getTableDefinition(string|metadata\TableName|QualifiedName $name) : TableDefinition;
+
+    // creating gateways and builders
+    public function createGateway(string|metadata\TableName|QualifiedName $name) : TableGateway;
+    public function createBuilder(string|metadata\TableName|QualifiedName $name) : builders\FragmentListBuilder;
 }
 ```
 
@@ -57,8 +68,9 @@ As you can see, the only required argument is the `Connection` object:
 $locator = new TableLocator(new Connection('...connection string...'));
 ```
 
-If `$gatewayFactory` is given, it will be used when calling `get()` method, otherwise `get()` will
-return an instance of a [default gateway](./gateways.md).
+`$gatewayFactories`, if given, will be used for `createGateway()` and `createBuilder()` methods. Otherwise,
+these will return instances of [default gateways](./gateways.md) and [default builder](./builders-methods.md),
+respectively.
 
 If `$statementFactory` is omitted, a factory for the given `Connection` will be created
 via `StatementFactory::forConnection()` method.
@@ -108,10 +120,28 @@ public function createInsertStatement(FragmentList $fragments): NativeStatement
 }
 ```
 
-## Creating gateways (the `Locator` part)
+## Getting metadata and creating gateways (the `Locator` part)
 
-`TableGatewayFactory` interface, an implementation of which can be passed to `TableLocator`
-constructor, defines one method:
+`getTableDefinition()` method is used for getting [metadata for a specific database table](./metadata.md).
+It uses an implementation of `TableDefinitionFactory` interface under the hood:
+```PHP
+namespace sad_spirit\pg_gateway;
+
+use sad_spirit\pg_gateway\metadata\TableName;
+
+interface TableDefinitionFactory
+{
+    public function create(TableName $name): TableDefinition;
+}
+```
+
+That implementation can be set with `setTableDefinitionFactory()` and is returned by `getTableDefinitionFactory()`.
+The latter method will set up and return a default instance of `OrdinaryTableDefinitionFactory` if a specific instance
+was not configured. That default implementation, as its name implies, only returns metadata for ordinary tables,
+using it with views / foreign tables / etc. will cause an exception.
+
+Implementations of `TableDefinition` are then used for creating gateways and builders using implementations
+of `TableGatewayFactory` interface, provided to `TableLocator` constructor and `addTableGatewayFactory()`:
 ```PHP
 namespace sad_spirit\pg_gateway;
 
@@ -119,15 +149,15 @@ use sad_spirit\pg_builder\nodes\QualifiedName;
 
 interface TableGatewayFactory
 {
-    public function create(QualifiedName $name, TableLocator $tableLocator) : ?TableGateway;
+    public function createGateway(TableDefinition $definition, TableLocator $tableLocator): ?TableGateway;
+    public function createBuilder(TableDefinition $definition, TableLocator $tableLocator): ?builders\FragmentListBuilder;
 }
 ```
 
-When `get()` method of `TableLocator` is called, it calls `create()` method
-of `TableGatewayFactory` implementation and falls back to 
-`GenericTableGateway::create()` if there is either no factory or its `create()` method returned `null`.
-
-If a gateway was already created for the given table name, the existing instance will be returned.
+`createGateway()` and `createBuilder()` methods of `TableLocator` will call relevant methods of available
+`TableGatwewayFactory` implementations in the order these were added until one returns a non-null value.
+If no factories are available or if all available returned `null`, default gateway / builder implementations
+are created and returned.
 
 It is recommended to *always* provide a qualified name (`schema_name.table_name`) for a table: the package does not try 
 to process `search_path` and will just assume that an unqualified name belongs to the `public` schema.
