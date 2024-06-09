@@ -305,7 +305,7 @@ class TableLocator
      */
     public function createGateway($name): TableGateway
     {
-        $definition = $this->getTableDefinition($this->normalizeName($name));
+        $definition = $this->getTableDefinition($name);
 
         foreach ($this->gatewayFactories as $factory) {
             if (null !== ($gateway = $factory->createGateway($definition, $this))) {
@@ -330,7 +330,7 @@ class TableLocator
      */
     public function createBuilder($name): FragmentListBuilder
     {
-        $definition = $this->getTableDefinition($this->normalizeName($name));
+        $definition = $this->getTableDefinition($name);
 
         foreach ($this->gatewayFactories as $factory) {
             if (null !== ($builder = $factory->createBuilder($definition, $this))) {
@@ -368,12 +368,14 @@ class TableLocator
     /**
      * Returns a TableDefinition for a table with the given name
      *
-     * @param TableName $name
+     * @param string|TableName|QualifiedName $name
      * @return TableDefinition
      */
-    private function getTableDefinition(TableName $name): TableDefinition
+    public function getTableDefinition($name): TableDefinition
     {
-        return $this->definitions[(string)$name] ??= $this->getTableDefinitionFactory()
-            ->create($name);
+        $normalized = $this->normalizeName($name);
+
+        return $this->definitions[(string)$normalized] ??= $this->getTableDefinitionFactory()
+            ->create($normalized);
     }
 }

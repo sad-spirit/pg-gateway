@@ -28,12 +28,14 @@ use sad_spirit\pg_builder\{
 };
 use sad_spirit\pg_builder\nodes\{
     Identifier,
+    QualifiedName,
     expressions\KeywordConstant,
     range\UpdateOrDeleteTarget
 };
 use sad_spirit\pg_gateway\{
     Fragment,
     OrdinaryTableDefinition,
+    OrdinaryTableDefinitionFactory,
     TableDefinition,
     TableGateway,
     TableGatewayFactory,
@@ -121,6 +123,12 @@ class TableLocatorTest extends DatabaseBackedTest
         new TableLocator($connection);
     }
 
+    public function testDefaultTableDefinitionFactory(): void
+    {
+        $locator = new TableLocator(self::$connection);
+        $this::assertInstanceOf(OrdinaryTableDefinitionFactory::class, $locator->getTableDefinitionFactory());
+    }
+
     public function testGeneratedSqlIsStoredInCache(): void
     {
         $definition = new OrdinaryTableDefinition(self::$connection, new TableName('cols_test', 'simple'));
@@ -191,10 +199,14 @@ class TableLocatorTest extends DatabaseBackedTest
     {
         $tableLocator = new TableLocator(self::$connection);
 
-        $gateway = $tableLocator->createGateway(new TableName('public', 'cols'));
-        $another = $tableLocator->createGateway(' "public" . "cols"  ');
-        $this::assertNotSame($gateway, $another);
-        $this::assertSame($gateway->getDefinition(), $another->getDefinition());
+        $definitionOne   = $tableLocator->getTableDefinition('cols');
+        $definitionTwo   = $tableLocator->getTableDefinition(' "public" . "cols"  ');
+        $definitionThree = $tableLocator->getTableDefinition(new TableName('public', 'cols'));
+        $definitionFour  = $tableLocator->getTableDefinition(new QualifiedName('cols'));
+
+        $this::assertSame($definitionOne, $definitionTwo);
+        $this::assertSame($definitionTwo, $definitionThree);
+        $this::assertSame($definitionThree, $definitionFour);
     }
 
     public function testAddTableGatewayFactory(): void
