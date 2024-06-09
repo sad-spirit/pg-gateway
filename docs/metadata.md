@@ -1,53 +1,96 @@
 # Table metadata
 
 The package loads and uses the following table metadata: 
- * List of table columns, represented by `metadata\Columns` class. It is used for configuring the list of columns returned
-   by the query, for setting of column values in `INSERT` and `UPDATE` queries, and for Conditions
-   on specific columns;
- * `PRIMARY KEY` constraint, represented by `metadata\PrimaryKey` class. It allows accessing table rows by primary key 
-   and performing `upsert()` and `replaceRelated()` operations;
- * `FOREIGN KEY` constraints, represented by `metadata\References` class. These are used to perform joins in all the
-   relevant Fragments.
+ * List of table columns, represented by an implementation of `metadata\Columns` interface. 
+   It is used for configuring the list of columns returned by the query, for setting of column values
+   in `INSERT` and `UPDATE` queries, and for Conditions on specific columns;
+ * `PRIMARY KEY` constraint, represented by an implementation of `metadata\PrimaryKey` interface.
+   It allows accessing table rows by primary key and performing `upsert()` and `replaceRelated()` operations;
+ * `FOREIGN KEY` constraints, represented by an implementaion of `metadata\References` interface. 
+   These are used to perform joins in all the relevant Fragments.
 
-All of the above classes extend `CachedMetadataLoader`: that class tries to use metadata cache from `Connection` object
-if that cache is available before loading metadata from database.
+The default implementations of the above interfaces are named `metadata\TableColumns`, `metadata\TablePrimaryKey`, and
+`metadata\TableReferences`, respectively. These will work with ordinary tables, but not other relations like views
+or foreign tables. All of these extend base `CachedMetadataLoader` class, which tries to use metadata cache from 
+`Connection` object if that cache is available before loading metadata from database.
 
 Of course, it is highly recommended to use metadata cache in production.
 
+## `TableName` class
+
+The class represents an always-qualified name of a table (or possibly another relation). Unlike `QualifiedName` from
+`pg_builder` package it always has two parts: schema (defaulting to `public`) and relation name. It also does not need
+to be cloned. The API is the following:
+```PHP
+namespace sad_spirit\pg_gateway\metadata;
+
+use sad_spirit\pg_builder\nodes\QualifiedName;
+
+final class TableName
+{
+    public function __construct(string ...$nameParts);
+
+    // Converting to QualifiedName and back
+    public static function createFromNode(QualifiedName $qualifiedName) : self;
+    public function createNode() : QualifiedName;
+
+    // These return name parts
+    public function getRelation() : string;
+    public function getSchema(): string;
+
+    // Checks whether the two names are equal
+    public function equals(self $other) : bool;
+
+    // Returns the string representation, this uses QualifiedName internally
+    public function __toString();
+}
+```
+
 ## `TableDefinition` interface
 
-The interface defines access to metadata of a particular table:
+The interface aggregates metadata of a particular table:
 ```PHP
 
 namespace sad_spirit\pg_gateway;
 
-use sad_spirit\pg_builder\nodes\QualifiedName;
-use sad_spirit\pg_wrapper\Connection;
-
 interface TableDefinition
 {
-    public function getConnection() : Connection;
-    public function getName() : QualifiedName;
+    public function getName() : metadata\TableName;
     public function getColumns() : metadata\Columns;
     public function getPrimaryKey() : metadata\PrimaryKey;
     public function getReferences() : metadata\References;
 }
 ```
-The `Connection` object returned by `getConnection()` represents the database the table is in.
 
-Due to specifics of `pg_builder`'s `Node` classes `getName()` should always return a clone of 
-the original object, so it is not a good idea to check the return value with `===`.
+The package contains a default implementation of this interface, `OrdinaryTableDefinition` class.
+It represents metadata of an ordinary table with its methods returning the default `Table*` implementations of metadata
+interfaces mentioned above.
 
-`TableDefinition` is extended by `TableGateway` and `SelectProxy`, these have default implementations in the package.
+## `TableAccessor` interface
 
-## `Columns` class
+This interface should be implemented by classes that perform queries to a specific table:
+```PHP
+namespace sad_spirit\pg_gateway;
 
-This class serves as a container for `Column` value objects, allowing iteration over these and providing some
-additional methods:
+use sad_spirit\pg_wrapper\Connection;
+
+interface TableAccessor
+{
+    public function getConnection(): Connection;
+    public function getDefinition(): TableDefinition;
+}
+```
+
+it is extended by `TableGateway` and `SelectProxy`, these have default implementations in the package.
+
+## `Columns` interface
+
+Implementations of `Columns` serve as containers for `Column` value objects, allowing iteration over these 
+and providing some additional methods:
 ```PHP
 namespace sad_spirit\pg_gateway\metadata;
 
-class Columns extends CachedMetadataLoader implements \IteratorAggregate, \Countable
+interface Columns extends \IteratorAggregate, \Countable
 {
     public function getAll() : Column[];
     public function getNames() : string[];
@@ -58,7 +101,7 @@ class Columns extends CachedMetadataLoader implements \IteratorAggregate, \Count
 
 `get()` will throw an `OutOfBoundsException` if a column with the given name was not found.
 
-As the class implements `IteratorAggregate` and `Countable` interfaces, the following is possible:
+As the interface extends `IteratorAggregate` and `Countable`, the following is possible:
 ```PHP
 $columns = $definition->getColumns();
 
@@ -72,7 +115,7 @@ The `Column` class has the following accessors:
 ```PHP
 namespace sad_spirit\pg_gateway\metadata;
 
-class Column
+final class Column
 {
     public function getName() : string;
     public function isNullable() : bool;
@@ -80,13 +123,13 @@ class Column
 }
 ```
 
-## `PrimaryKey` class
+## `PrimaryKey` interface
 
 This is also a container for `Column` objects, representing columns that form the table's primary key:
 ```PHP
 namespace sad_spirit\pg_gateway\metadata;
 
-class PrimaryKey extends CachedMetadataLoader implements \IteratorAggregate, \Countable
+interface PrimaryKey extends \IteratorAggregate, \Countable
 {
     public function getAll() : Column[];
     public function getNames() : string[];
@@ -98,20 +141,18 @@ class PrimaryKey extends CachedMetadataLoader implements \IteratorAggregate, \Co
 SQL standard `GENERATED` columns, Postgres specific `SERIAL`,
 and those having `nextval('sequence_name')` for a default value.
 
-## `References` class
+## `References` interface
 
-This is a container for `ForeignKey` value objects, representing both `FOREIGN KEY` constraints added to the table
-and those referencing it: 
+Implementations serve as containers for `ForeignKey` value objects,
+representing both `FOREIGN KEY` constraints added to the table and those referencing it: 
 ```PHP
 namespace sad_spirit\pg_gateway\metadata;
 
-use sad_spirit\pg_builder\nodes\QualifiedName;
-
-class References extends CachedMetadataLoader implements \IteratorAggregate, \Countable
+interface References extends \IteratorAggregate, \Countable
 {
-    public function get(QualifiedName $relatedTable, string[] $keyColumns = []) : ForeignKey;
-    public function from(QualifiedName $childTable, string[] $keyColumns = []) : ForeignKey[];
-    public function to(QualifiedName $referencedTable, string[] $keyColumns = []) : ForeignKey[];
+    public function get(TableName $relatedTable, string[] $keyColumns = []) : ForeignKey;
+    public function from(TableName $referencedTable, string[] $keyColumns = []) : ForeignKey[];
+    public function to(TableName $childTable, string[] $keyColumns = []) : ForeignKey[];
 }
 ```
 
@@ -125,12 +166,10 @@ The `ForeignKey` class has the following accessors:
 ```PHP
 namespace sad_spirit\pg_gateway\metadata;
 
-use sad_spirit\pg_builder\nodes\QualifiedName;
-
-class ForeignKey implements \IteratorAggregate
+final class ForeignKey implements \IteratorAggregate
 {
-    public function getChildTable() : QualifiedName;
-    public function getReferencedTable() : QualifiedName;
+    public function getChildTable() : TableName;
+    public function getReferencedTable() : TableName;
     public function getChildColumns() : string[];
     public function getReferencedColumns() : string[];
     public function getConstraintName() : string;
