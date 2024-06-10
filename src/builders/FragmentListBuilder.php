@@ -39,7 +39,7 @@ abstract class FragmentListBuilder implements FragmentBuilder
         $this->list         = new FragmentList();
     }
 
-    final public function getFragment(): Fragment
+    final public function getFragment(): FragmentList
     {
         return $this->list;
     }

@@ -206,7 +206,7 @@ class FluentBuilder extends FragmentListBuilder
      *
      * The Condition returned by the Builder can be combined with AND / OR before adding to the list
      *
-     * @param string|QualifiedName|TableGateway|SelectProxy $select
+     * @param string|TableName|QualifiedName|TableGateway|SelectProxy $select
      * @return ExistsBuilder
      */
     public function createExists($select): ExistsBuilder
@@ -465,7 +465,7 @@ class FluentBuilder extends FragmentListBuilder
      * $builder->join($table, fn(JoinBuilder $jb) => $jb->left()->onForeignKey());
      * </code>
      *
-     * @param string|QualifiedName|TableGateway|SelectProxy $joined
+     * @param string|TableName|QualifiedName|TableGateway|SelectProxy $joined
      * @param callable(JoinBuilder): mixed|null $callback
      * @return $this
      */
@@ -488,7 +488,7 @@ class FluentBuilder extends FragmentListBuilder
      * $builder->join($table, fn(ExistsBuilder $eb) => $eb->not()->joinOnForeignKey());
      * </code>
      *
-     * @param string|QualifiedName|TableGateway|SelectProxy $select
+     * @param string|TableName|QualifiedName|TableGateway|SelectProxy $select
      * @param callable(ExistsBuilder):mixed|null $callback
      * @return $this
      */
