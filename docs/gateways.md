@@ -2,7 +2,7 @@
 
 ## `TableGateway` interface
 
-This interface extends `TableDefinition` (thus gateways provide [access to table metadata](./metadata.md)) and defines
+This interface extends `TableAccessor` (thus gateways provide [access to table metadata](./metadata.md)) and defines
 four methods corresponding to SQL statements: 
 ```PHP
 namespace sad_spirit\pg_gateway;
@@ -10,7 +10,7 @@ namespace sad_spirit\pg_gateway;
 use sad_spirit\pg_builder\SelectCommon;
 use sad_spirit\pg_wrapper\Result;
 
-interface TableGateway extends TableDefinition
+interface TableGateway extends TableAccessor
 {
     public function delete($fragments = null, array $parameters = []) : Result;
     public function insert(array<string, mixed>|SelectCommon|SelectProxy $values, $fragments = null, array $parameters = []) : Result;
@@ -22,7 +22,19 @@ interface TableGateway extends TableDefinition
 `$fragments` parameter for the above methods can be one of the following
  * `\Closure` - this is used for ad-hoc queries;
  * Implementation of `Fragment` or `FragmentBuilder`;
- * Most commonly, iterable over `Fragment` or `FragmentBuilder` implementations.
+ * Iterable over `Fragment` or `FragmentBuilder` implementations.
+
+Most commonly, `$fragments` will be a fluent builder object created by `TableLocator::createBuilder()`:
+```PHP
+$locator->createGateway('example')
+    ->select(
+        $locator->createBuilder('example')
+            ->outputColumns(fn(ColumnsBuilder $cb) => $cb->only(['id', 'name']))
+            ->notBoolColumn('deleted')
+            ->orderBy('added')
+            ->limit(10)
+    )
+```
 
 `$values` (when an array) / `$set` parameter for `insert()` / `update()` is an associative array of the form
 `'column name' => 'value'`. Here `'value'` may be either a literal or an instance of `Expression` which is used
@@ -67,7 +79,7 @@ namespace sad_spirit\pg_gateway;
 use sad_spirit\pg_builder\SelectCommon;
 use sad_spirit\pg_wrapper\Result;
 
-interface SelectProxy extends KeyEquatable, Parametrized, TableDefinition, \IteratorAggregate
+interface SelectProxy extends KeyEquatable, Parametrized, TableAccessor, \IteratorAggregate
 {
     public function executeCount() : int|numeric-string;
     public function getIterator() : Result;
@@ -127,9 +139,9 @@ Results of `createSelectStatement()` / `createSelectCountStatement()` can be use
 
 ## `TableGateway` implementations
 
-The package contains three implementations of `TableGateway` interface, an instance of one of these will be returned by
-`GenericTableGateway::create()` or `$tableLocator->get()` if the locator was not configured 
-with a custom gateway factory.
+The package contains three implementations of `TableGateway` interface. An instance of one of these will be returned by
+`$tableLocator->createGateway()` if the locator was not configured with custom gateway factories or if none of these
+returned a more specific gateway object.
 
 What exactly will be returned depends on whether `PRIMARY KEY` constraint was defined on the table and the number
 of columns in that key.
@@ -137,24 +149,15 @@ of columns in that key.
 ### `GenericTableGateway`
 
 This is the simplest gateway implementation, an instance of which is returned for tables that do not have a primary key
-defined. In addition to the methods defined in the interface it has the static `create()` method mentioned above 
-and the methods to create statements:
+defined. In addition to the methods defined in the interface it has the methods to create statements:
 ```PHP
 namespace sad_spirit\pg_gateway\gateways;
 
-use sad_spirit\pg_gateway\{
-    FragmentList,
-    TableLocator
-}
-use sad_spirit\pg_builder\{
-    NativeStatement,
-    nodes\QualifiedName
-}
+use sad_spirit\pg_gateway\FragmentList;
+use sad_spirit\pg_builder\NativeStatement;
 
 class GenericTableGateway implements TableGateway
 {
-    public static function create(QualifiedName $name, TableLocator $tableLocator) : self;
-
     public function createDeleteStatement(FragmentList $fragments) : NativeStatement;
     public function createInsertStatement(FragmentList $fragments) : NativeStatement;
     public function createUpdateStatement(FragmentList $fragments) : NativeStatement
@@ -163,13 +166,10 @@ class GenericTableGateway implements TableGateway
 
 The results of those can be used for e.g. `prepare()` / `execute()`. [`FragmentList`](./fragments-implementations.md) 
 is an object that keeps all the fragments used in a query and possibly parameter values for those.
-It is usually created via `FragmentList::normalize()` from whatever can be passed as `$fragments`
-to `TableGateway` methods.
+It is returned by `getFragment()` method of a fluent builder and can also be created via `FragmentList::normalize()`
+from whatever can be passed as `$fragments` to `TableGateway` methods.
 
 Note the lack of `createSelectStatement()`, methods of `TableSelect` can be used for that.
-
-There are also [several builder methods defined](./builders-methods.md), 
-these return `Fragment`s / `FragmentBuilder`s configured for that particular gateway.
 
 ### `PrimaryKeyTableGateway`
 
@@ -200,8 +200,6 @@ $documentsGateway->upsert([
 ```
 will most probably return `['id' => 1]`.
 
-The class also defines [an additional builder method](./builders-methods.md) for a primary key condition.
-
 ### `CompositePrimaryKeyTableGateway`
 
 When the table's `PRIMARY KEY` constraint contains two or more columns, this class will be used. We assume that
@@ -213,10 +211,10 @@ Assuming the schema defined in [README](../README.md) we can use this method to 
 assigned to the user after e.g. editing user's profile:
 ```PHP
 $tableLocator->atomic(function (TableLocator $locator) use ($userData, $roles) {
-    $pkey = $locator->get('example.users')
+    $pkey = $locator->createGateway('example.users')
         ->upsert($userData);
 
-    return $locator->get('example.users_roles')
+    return $locator->createGateway('example.users_roles')
         ->replaceRelated($pkey, $roles);
 });
 ```
