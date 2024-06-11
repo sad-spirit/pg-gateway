@@ -1,4 +1,4 @@
-# Fluent builder objects
+# Fluent Builders
 
 `TableLocator::createBuilder()` returns an object that is a subclass of `builders\FragmentListBuilder`:
 ```PHP
@@ -101,15 +101,15 @@ class FluentBuilder extends FragmentListBuilder
 
 As seen above, there are two groups of methods for `Condition`s: methods in the first group return
 an instance of `Condition` and those in the second group just add that `Condition` to the list (using the
-methods of the first group under the hood).
+methods from the first group under the hood).
 
 The base `Condition` class implements `FragmentBuilder` interface, with its `getFragment()` method returning
-a `WhereClauseFragment`, so adding a `Condition` directly to the list applies it to the `WHERE` clause
+a `WhereClauseFragment`, so adding a `Condition` directly to the list will apply it to the `WHERE` clause
 of the query using `AND`.
 
 Therefore, two main reasons to use `create*()` methods are
  * `Condition` should be used in the `HAVING` clause or as the `JOIN` condition;
- * Several `Conditions` should be combined via `AND` and `OR`.
+ * Several `Conditions` should be combined via `AND` and `OR`:
 
 ```PHP
 use sad_spirit\pg_gateway\Condition;
@@ -164,8 +164,9 @@ to positional one and its type info extracted and used to properly convert the g
 
 ### Methods accepting callbacks
 
-Several of the `FluentBuilder`'s methods accept callbacks, these are used to configure builder objects that are created
-in these methods. E.g. the `exists()` method exposes the `ExistsBuilder` instance:
+Several of the `FluentBuilder`'s methods accept callbacks, these are used to configure
+[builder objects](./builders-classes.md) that are created in these methods.
+E.g. the `exists()` method exposes the `ExistsBuilder` instance:
 ```PHP
 use sad_spirit\pg_gateway\builders\ExistsBuilder;
 
@@ -203,4 +204,4 @@ $builder->join('example.users', fn(JoinBuilder $jb) => $jb->onForeignKey(['edito
    some parameter-like constructs. "Unsafe" in the method name is a huge hint not to pass user input. 
  * `limit()` adds a fragment applying the `LIMIT` clause. Note that the given `$limit` value will not actually
    be embedded in SQL but passed as a parameter value.
- * `offset()` add a fragment applying the `OFFSET` clause. `$offset` parameter is also not embedded in SQL.
+ * `offset()` adds a fragment applying the `OFFSET` clause. `$offset` parameter is also not embedded in SQL.

@@ -4,6 +4,9 @@ While `Condition` and `TargetListManipulator` do implement the `FragmentBuilder`
 their subclasses do not provide means to configure `Fragment`s returned by
 the `getFragment()` method. Only the builders that have special configuration methods are listed below.
 
+Instances of these classes are created in some [`FluentBuilder` methods](./builders-methods.md) and can be configured via callbacks passed
+to these methods.
+
 ### `ColumnsBuilder`
 
 This configures what columns of the table accessed via gateway will be returned in the output list of `SELECT`
@@ -127,22 +130,23 @@ create table example.documents (
 ```
 the following code
 ```PHP
-/** @var PrimaryKeyTableGateway $gwEmployees */
-$gwEmployees = $locator->get('example.employees');
+use sad_spirit\pg_gateway\builders\ExistsBuilder;
+
+$gwEmployees = $locator->createGateway('example.employees');
 
 // selects all employees who authored documents 
-$selectAuthor = $gwEmployees->select([
-    $gwEmployees->exists('example.documents')
-        ->joinOnForeignKey(['author_id'])
-]);
+$selectAuthor = $gwEmployees->select(
+    $locator->createBuilder('example.employees')
+        ->exists('example.documents', fn(ExistsBuilder $eb) => $eb->joinOnForeignKey(['author_id']))
+);
 
 echo $selectAuthor->createSelectStatement()->getSql() . "\n\n";
 
 // selects all employees who approved documents 
-$selectApprover = $gwEmployees->select([
-    $gwEmployees->exists('example.documents')
-        ->joinOnForeignKey(['approver_id'])
-]);
+$selectApprover = $gwEmployees->select(
+    $locator->createBuilder('example.employees')
+        ->exists('example.documents', fn(ExistsBuilder $eb) => $eb->joinOnForeignKey(['approver_id']))
+);
 
 echo $selectApprover->createSelectStatement()->getSql() . "\n\n";
 ```
@@ -182,22 +186,23 @@ create table example.tree (
 ```
 the following code
 ```PHP
-/** @var PrimaryKeyTableGateway $gwTree */
-$gwTree = $locator->get('example.tree');
+use sad_spirit\pg_gateway\builders\ExistsBuilder;
+
+$gwTree = $locator->createGateway('example.tree');
 
 // selects all items having a parent (this is of course achieved easier with `parent_id IS NOT NULL`)
-$selectChild = $gwTree->select([
-    $gwTree->exists($gwTree)
-        ->joinOnRecursiveForeignKey(true)
-]);
+$selectChild = $gwTree->select(
+    $locator->createBuilder('example.tree')
+        ->exists(fn(ExistsBuilder $eb) => $eb->joinOnRecursiveForeignKey(true))
+);
 
 echo $selectChild->createSelectStatement()->getSql() . "\n\n";
 
 // selects all items having children
-$selectParent = $gwTree->select([
-    $gwTree->exists($gwTree)
-        ->joinOnRecursiveForeignKey(false)
-]);
+$selectParent = $gwTree->select(
+    $locator->createBuilder('example.tree')
+        ->exists(fn(ExistsBuilder $eb) => $eb->joinOnRecursiveForeignKey(false))
+);
 
 echo $selectParent->createSelectStatement()->getSql();
 ```
@@ -273,14 +278,19 @@ Actual merging of the `$additional` to the `$base` is performed by an implementa
    (see `fragments\join_strategies\InlineStrategy`). This is the only strategy that works with `UPDATE` and `DELETE`,
    using the `employees` / `documents` schema above, the following code
 ```PHP
-$gwDocuments = $locator->get('example.documents');
-$delete      = $gwDocuments->createDeleteStatement(new FragmentList(
-    $gwDocuments->join(
-        $locator->get('example.employees')
-            ->selectByPrimaryKey(1)
-    )
-        ->inline()
-));
+use sad_spirit\pg_gateway\builders\JoinBuilder;
+
+$delete = $locator->createGateway('example.documents')
+    ->createDeleteStatement(
+        $locator->createBuilder('example.documents')
+            ->join(
+                $locator->createGateway('example.employees')
+                    ->selectByPrimaryKey(1),
+                fn(JoinBuilder $jb) => $jb->onForeignKey()
+                    ->inline()
+            )
+            ->getFragment()
+    );
 
 echo $delete->getSql();
 ```

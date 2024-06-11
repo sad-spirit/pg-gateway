@@ -78,8 +78,9 @@ $condition = new ParametrizedCondition(
 
 ## Other subclasses of `Condition`
 
-It is rarely needed to manually create these classes as they are all supported by builders and builder methods
-of `TableGateway` implementations.
+It is rarely needed to manually create these classes as they are all supported by 
+[custom builder classes](./builders-classes.md) and 
+[builder methods of `FluentBuilder`](./builders-methods.md).
 
 ### `AnyCondition`
 

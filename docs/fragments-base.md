@@ -42,7 +42,7 @@ even if those are passed with the `Fragment`.
 
 If an implementation of `KeyEquatable` has a property that is also an implementation of `KeyEquatable`
 then it should return `null` from `getKey()` if its child returns `null` to prevent caching. In the other case it 
-should generate a key based on the child's string key.
+should generate a key depending on the child's string key.
 E.g. in the case of `WhereClauseFragment` containing a `Condition`:
 ```PHP
  public function getKey(): ?string
@@ -101,11 +101,16 @@ It has two main purposes
 
 The first purpose is easily illustrated with `JoinBuilder`:
 ```PHP
-$documentsGateway->join('employees') // this returns a JoinBuilder instance
-    ->onForeignKey(['author_id'])
-    ->left()
-    ->alias('author')
-    ->useForCount(false);
+use sad_spirit\pg_gateway\builders\JoinBuilder;
+
+// join() method creates a JoinBuilder instance and allows configuring it via callback
+$documentsBuilder->join(
+    'employees',
+    fn (JoinBuilder $jb) => $jb->onForeignKey(['author_id'])
+        ->left()
+        ->alias('author')
+        ->useForCount(false)
+);
 ```
 
 The second one is most obvious with `Condition` that implements `FragmentBuilder`
@@ -164,7 +169,7 @@ There are two specially handled aliases
 
 As seen in the [README](../README.md), above aliases should be used even in custom SQL fragments:
 ```PHP
-$gwLink->sqlCondition("current_date between coalesce(self.valid_from, 'yesterday') and coalesce(self.valid_to, 'tomorrow')");
+$builder->sqlCondition("current_date between coalesce(self.valid_from, 'yesterday') and coalesce(self.valid_to, 'tomorrow')");
 ```
 
 Join-type fragments usually allow specifying an explicit alias for the table being joined. If not given,

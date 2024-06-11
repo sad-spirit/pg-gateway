@@ -51,6 +51,12 @@ This is used by `applyTo()` to apply contained fragments in a defined order.
 You only really need an explicit instance of `FragmentList` when you want to use `create*()` methods 
 of `GenericTableGateway`. Anywhere else the `$fragments` parameter will be normalized to `FragmentList` automatically.
 
+### `FragmentListBuilder`
+
+An instance of `FragmentList` is populated in subclasses of `FragmentListBuilder` and eventually returned by their
+`getFragment()` method. `FragmentListBuilder` is the base class for [fluent builders](./builders-methods.md) 
+created by `TableLocator::createBuilder()`.
+
 ## `ClosureFragment`
 
 Wrapper for a closure passed to a `TableGateway` query method as `$fragments` parameter. Queries using this fragment
@@ -75,7 +81,7 @@ $update = $gateway->createUpdateStatement(new FragmentList(
         $tableLocator,
         ['name' => null] 
     ),
-    // For the sake of example only, using $gateway->primaryKey() is easier 
+    // For the sake of example only, using $gateway->createPrimaryKey() is easier 
     new PrimaryKeyCondition($gateway->getPrimaryKey(), $tableLocator->getTypeConverterFactory())
 ));
 
@@ -101,22 +107,20 @@ a `Statement` being built, respectively.
 the `FragmentBuilder` interface. This will add their expressions to the `WHERE` clause due to their `getFragment()`
 methods returning `WhereClauseFragment`:
 ```PHP
-$gateway->select([
+$gateway->select(
+    $builder->isNotNull('field') // Adds a Condition to FragmentList
     // ...
-    $gateway->isNotNull('field') // Returns a Condition
-    //
-])
+)
 ```
 
 If a `Condition` should be applied to the `HAVING` clause, you should explicitly use `HavingClauseFragment`:
 ```PHP
-$gateway->select([
+$gateway->select(
+    $builder->add(new HavingClauseFragment(
+        $builder->createSqlCondition('count(self.field) > 1')
+    ))
     // ...
-    new HavingClauseFragment(
-        $gateway->sqlCondition('count(self.field) > 1')
-    )
-    // ...
-])
+)
 ```
 
 ## `SelectListFragment` and `ReturningClauseFragment`
@@ -127,16 +131,17 @@ These fragments modify the output list of `SELECT` statement or the `RETURNING` 
 
 It is rarely needed to use these directly as there are builders and builder methods available:
 ```PHP
-$gateway->update([
-    // ...
-    $gateway->returningColumns()
-        ->primaryKey()
-]);
+use sad_spirit\pg_gateway\builders\ColumnsBuilder;
 
-$gateway->select([
+$gateway->update(
+    $builder->returningColumns(fn(ColumnsBuilder $cb) => $cb->primaryKey())
     // ...
-    $gateway->outputExpression("coalesce(self.a, self.b) as ab")
-]);
+);
+
+$gateway->select(
+    $builder->outputExpression("coalesce(self.a, self.b) as ab")
+    // ...
+);
 ```
 
 ## `JoinFragment`
@@ -147,13 +152,17 @@ Can be additionally configured by a join `Condition`.
 It is recommended to use `JoinBuilder` and related `GenericTableGateway::join()` method rather than instantiating
 this class directly:
 ```PHP
-$documentsGateway->select([
+use sad_spirit\pg_gateway\builders\JoinBuilder;
+
+$documentsGateway->select(
+    $documentsBuilder->join(
+        'documents_tags',                          // Creates a SelectProxy for a given table
+        fn(JoinBuilder $jb) => $jb->onForeignKey() // configures join condition
+            ->lateralLeft()                        // configures join strategy (LateralSubselectStrategy)
+            ->useForCount(false)                   // join will not be used by executeCount()
+    )
     // ...
-    $documentsGateway->join('documents_tags') // Creates a SelectProxy for a given table
-        ->onForeignKey()                      // configures join condition
-        ->lateralLeft()                       // configures join strategy (LateralSubselectStrategy)
-        ->useForCount(false)                  // join will not be used by executeCount()
-]);
+);
 ```
 
 ## `LimitClauseFragment` and `OffsetClauseFragment`
@@ -164,10 +173,10 @@ as those implement `Parametrized`.
 
 Builder methods are available for these:
 ```PHP
-$gateway->select([
-    $gateway->limit(5),
-    $gateway->offset(10)
-]);
+$gateway->select(
+    $builder->limit(5)
+        ->offset(10)
+);
 ```
 
 ## `OrderByClauseFragment`
@@ -201,15 +210,15 @@ by default.
 `$merge` toggles whether the new expressions should be added to the existing `ORDER BY` items rather than replace those.
 In that case the order in which fragments are added can be controlled with `$priority`.
 
-There are builder methods that create fragments replace the existing items
+There are builder methods that create fragments replacing the existing items
 ```PHP
-$gateway->select([
-    $gateway->orderBy('foo, bar') // $restricted = true
-]);
+$gateway->select(
+    $builder->orderBy('foo, bar') // $restricted = true
+);
 
-$gateway->select([
-    $gateway->orderByUnsafe('coalesce(foo, bar)') // $restricted = false
-]);
+$gateway->select(
+    $builder->orderByUnsafe('coalesce(foo, bar)') // $restricted = false
+);
 ```
 
 If there is a need to merge items, the class can be instantiated directly:

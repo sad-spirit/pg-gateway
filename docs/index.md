@@ -16,7 +16,7 @@ on the separate pages.
 
 The package does not try to generate database schema based on some classes. Instead, it uses the existing schema 
 to configure the table gateways:
- * List of table columns is used for building Conditions depending on columns and for configuring the output of the query;
+ * List of table columns is used for building `Condition`s depending on columns and for configuring the output of the query;
  * `PRIMARY KEY` constraints allow finding rows by primary key and `upsert()` operations;
  * `FOREIGN KEY` constraints are used to perform joins.
 
@@ -25,8 +25,8 @@ both the output columns and the input parameters. It is sufficient to write
 ```
 field = any(:param::integer[]) 
 ```
-in your Condition and the package will expect an array of integers for a value of `param` parameter
-and properly convert that array for RDBMS's consumption. Output columns are transparently converted to proper PHP types
+in your `Condition` and the package will expect an array of integers for a value of `param` parameter
+and will properly convert that array for RDBMS's consumption. Output columns are transparently converted to proper PHP types
 as well thanks to `pg_wrapper`.
 
 ## Queries are built as ASTs
@@ -53,7 +53,7 @@ As was mentioned above, there is no need to specify parameter types outside of S
 There are also means to pass parameter values alongside query parts that use them.
 
 These feature make it easy to combine a query from several parts having parameter placeholders, instead of
-substituting literals into query. Parametrized queries can be cached and reused later with other parameter values.
+substituting literals into query. Parametrized queries can be cached and reused later with different parameter values.
 
 ## Reusable query parts
 

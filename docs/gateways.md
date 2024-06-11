@@ -140,16 +140,17 @@ Results of `createSelectStatement()` / `createSelectCountStatement()` can be use
 ## `TableGateway` implementations
 
 The package contains three implementations of `TableGateway` interface. An instance of one of these will be returned by
-`$tableLocator->createGateway()` if the locator was not configured with custom gateway factories or if none of these
+`TableLocator::createGateway()` if the locator was not configured with custom gateway factories or if none of these
 returned a more specific gateway object.
 
-What exactly will be returned depends on whether `PRIMARY KEY` constraint was defined on the table and the number
-of columns in that key.
+What exactly will be returned depends on
+ * whether `PRIMARY KEY` constraint was defined on the table and 
+ * the number of columns in that key.
 
 ### `GenericTableGateway`
 
 This is the simplest gateway implementation, an instance of which is returned for tables that do not have a primary key
-defined. In addition to the methods defined in the interface it has the methods to create statements:
+defined. In addition to the methods defined in `TableGateway` it has the methods to create statements:
 ```PHP
 namespace sad_spirit\pg_gateway\gateways;
 

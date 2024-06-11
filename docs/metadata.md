@@ -18,9 +18,10 @@ Of course, it is highly recommended to use metadata cache in production.
 
 ## `TableName` class
 
-The class represents an always-qualified name of a table (or possibly another relation). Unlike `QualifiedName` from
+This class represents an always-qualified name of a table (or possibly another relation). Unlike `QualifiedName` from
 `pg_builder` package it always has two parts: schema (defaulting to `public`) and relation name. It also does not need
-to be cloned. The API is the following:
+to be cloned (`QualifiedName` contains a link to its parent node, so using the same instance in multiple queries
+is impossible). The API is the following:
 ```PHP
 namespace sad_spirit\pg_gateway\metadata;
 
@@ -48,7 +49,7 @@ final class TableName
 
 ## `TableDefinition` interface
 
-The interface aggregates metadata of a particular table:
+This interface aggregates metadata of a particular table:
 ```PHP
 
 namespace sad_spirit\pg_gateway;

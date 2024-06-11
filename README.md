@@ -139,7 +139,7 @@ limit $2;
 * [`TableLocator` class](./docs/locator.md)
 * [Working with table metadata](./docs/metadata.md)
 * [`TableGateway` interface and its implementations](./docs/gateways.md)
-* [Builder methods of default gateways](./docs/builders-methods.md)
+* [Fluent Builders](./docs/builders-methods.md)
 * [`FragmentBuilder` implementations](./docs/builders-classes.md)
 
 * [Query fragments: base interfaces, parameters, aliases](./docs/fragments-base.md)
