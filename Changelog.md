@@ -12,6 +12,11 @@
    contain 'r' (ordinary table) in the `relkind` column.
  * `TableLocator::setTableDefinitionFactory()` and `TableLocator::getTableDefinitionFactory()`. If the factory is not
    explicitly set, the latter will create and return an instance of `OrdinaryTableDefinitionFactory`.
+ * `TableLocator::getTableDefinition()` returning an implementation of `TableDefinition` for the given table.
+   It uses the configured instance of `TableDefinitionFactory`.
+ * `TableGatewayFactory::createBuilder()` method returning a subclass of a new abstract `builders\FragmentListBuilder`
+   class. The method is called by the new `TableLocator::createBuilder()` method which will return 
+   an instance of default `builders\FluentBuilder` implementation if the factories did not create a specific one
 
 ### Changed
  * `metadata\TableName` is used throughout the package in place of `pg_builder`'s `QualifiedName`.
@@ -24,6 +29,12 @@
    of the above metadata classes.
  * `TableGateway` and `SelectProxy` interfaces no longer extend `TableDefinition`, they extend a new `TableAccessor`
    interface with a `getDefinition()` method.
+ * Builder methods of `GenericTableGateway` were moved to `FluentBuilder`. Instances of that class are returned by
+   `TableLocator::createBuilder()` by default, its methods now return `$this` allowing to chain calls.
+   The actual fragments being created are added to the `FragmentList` eventually returned by `getFragment()`
+ * Constructor of `TableLocator` accepts an array of `TableGatewayFactory` implementations rather than a single one.
+   There is also a new `addTableGatewayFactory()` method. The factories will be called in the order added.
+ * `TableGatewayFactory::create()` renamed to `createGateway()`.
  * `TableLocator::get()` is now `TableLocator::createGateway()`. It will no longer return the same instance of
    `TableGateway` for the same table name. It also uses an instance of `TableDefinitionFactory` under the hood,
    so by default only gateways to existing ordinary tables will be created.
