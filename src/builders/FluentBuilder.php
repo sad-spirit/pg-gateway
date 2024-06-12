@@ -15,6 +15,7 @@ namespace sad_spirit\pg_gateway\builders;
 
 use sad_spirit\pg_gateway\{
     Condition,
+    Fragment,
     SelectProxy,
     TableGateway,
     exceptions\InvalidArgumentException,
@@ -38,7 +39,8 @@ use sad_spirit\pg_gateway\fragments\{
     SelectListFragment,
     TargetListManipulator,
     target_list\ConditionAppender,
-    target_list\SqlStringAppender
+    target_list\SqlStringAppender,
+    with\SqlStringFragment
 };
 use sad_spirit\pg_builder\nodes\{
     OrderByElement,
@@ -526,6 +528,56 @@ class FluentBuilder extends FragmentListBuilder
             "A table name, TableGateway or SelectProxy instance expected, %s given",
             \is_object($select) ? 'object(' . \get_class($select) . ')' : \gettype($select)
         ));
+    }
+
+    /**
+     * Adds a [part of] WITH clause represented by an SQL string
+     *
+     * The string may contain either a complete WITH clause `WITH foo AS (...)`, possibly with multiple CTEs,
+     * or a single CTE `foo AS (...)`
+     *
+     * @param string $sql
+     * @param array $parameters
+     * @param int $priority
+     * @return $this
+     */
+    public function withSqlString(string $sql, array $parameters = [], int $priority = Fragment::PRIORITY_DEFAULT): self
+    {
+        return $this->add(new SqlStringFragment(
+            $this->tableLocator->getParser(),
+            $sql,
+            $parameters,
+            $priority
+        ));
+    }
+
+    /**
+     * Adds a SELECT to the WITH clause
+     *
+     * $callback is a function that accepts an instance of WithClauseBuilder and should configure it
+     * <code>
+     * $builder->withSelect(
+     *     $select,
+     *     'foo',
+     *     fn(WithClauseBuilder $wb) => $wb->recursive()
+     *         ->columnAliases(['bar', 'baz'])
+     * );
+     * </code>
+     *
+     * @param SelectProxy $select
+     * @param string $alias
+     * @param callable(WithClauseBuilder):mixed|null $callback
+     * @return $this
+     */
+    public function withSelect(SelectProxy $select, string $alias, callable $callback = null): self
+    {
+        $builder = new WithClauseBuilder($select, $alias);
+
+        if (null !== $callback) {
+            $callback($builder);
+        }
+
+        return $this->add($builder);
     }
 
     /**

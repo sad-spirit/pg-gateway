@@ -16,6 +16,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\builders;
 
 use sad_spirit\pg_gateway\{
+    Fragment,
     FragmentList,
     OrdinaryTableDefinition,
     TableLocator,
@@ -23,6 +24,7 @@ use sad_spirit\pg_gateway\{
     builders\FluentBuilder,
     builders\JoinBuilder,
     builders\ScalarSubqueryBuilder,
+    builders\WithClauseBuilder,
     conditions\ParametrizedCondition,
     exceptions\LogicException,
     exceptions\OutOfBoundsException,
@@ -420,6 +422,38 @@ class FluentBuilderTest extends DatabaseBackedTest
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'select self.*, self.title is null as null_title from public.update_test as self',
+            $select->createSelectStatement()->getSql()
+        );
+    }
+
+    public function testWithClauseUsingSqlStrings(): void
+    {
+        $gateway = self::$tableLocator->createGateway('update_test');
+        $select  = $gateway->select(
+            $this->builder->withSqlString('foo as (select 1)', [], Fragment::PRIORITY_LOWER)
+                ->withSqlString('bar as (select 2)', [], Fragment::PRIORITY_HIGHER)
+        );
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'with bar as ( select 2 ), foo as ( select 1 ) select self.* from public.update_test as self',
+            $select->createSelectStatement()->getSql()
+        );
+    }
+
+    public function testWithClauseUsingSelectProxy(): void
+    {
+        $gateway = self::$tableLocator->createGateway('update_test');
+        $select  = $gateway->select($this->builder->withSelect(
+            $gateway->select(),
+            'aaa',
+            fn(WithClauseBuilder $wb) => $wb->recursive()
+                ->notMaterialized()
+                ->columnAliases(['foo', 'bar'])
+        ));
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'with recursive aaa (foo, bar) as not materialized ( select self.* from public.update_test as self ) '
+            . 'select self.* from public.update_test as self',
             $select->createSelectStatement()->getSql()
         );
     }
