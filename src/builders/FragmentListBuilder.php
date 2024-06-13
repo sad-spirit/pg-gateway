@@ -32,7 +32,7 @@ abstract class FragmentListBuilder implements FragmentBuilder
     protected TableLocator $tableLocator;
     private FragmentList $list;
 
-    public function __construct(TableDefinition $definition, TableLocator $tableLocator)
+    final public function __construct(TableDefinition $definition, TableLocator $tableLocator)
     {
         $this->definition   = $definition;
         $this->tableLocator = $tableLocator;
