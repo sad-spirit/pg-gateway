@@ -28,6 +28,7 @@ final class TableName
 {
     private string $schema = 'public';
     private string $relation;
+    private string $asString;
 
     /**
      * Constructor, requires at least relation name, will set schema to 'public' if not given
@@ -50,6 +51,7 @@ final class TableName
             default:
                 throw new InvalidArgumentException("Too many parts in qualified name: " . \implode('.', $nameParts));
         }
+        $this->asString = $this->createNode()->__toString();
     }
 
     /**
@@ -118,6 +120,23 @@ final class TableName
      */
     public function __toString()
     {
-        return $this->createNode()->__toString();
+        return $this->asString;
+    }
+
+    /**
+     * Serialized representation is [schema, relation]
+     */
+    public function __serialize(): array
+    {
+        return [$this->schema, $this->relation];
+    }
+
+    /**
+     * Sets properties from serialized representation [schema, relation]
+     */
+    public function __unserialize(array $data): void
+    {
+        [$this->schema, $this->relation] = $data;
+        $this->asString = $this->createNode()->__toString();
     }
 }

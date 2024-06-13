@@ -77,4 +77,13 @@ class TableNameTest extends TestCase
         $this::assertFalse($foobar->equals($foobaz));
         $this::assertFalse($foobar->equals($quuxbar));
     }
+
+    public function testSerialize(): void
+    {
+        $foobar  = new TableName('foo', 'bar');
+        $mangled = \unserialize(\serialize($foobar));
+
+        $this::assertEquals((string)$foobar, (string)$mangled);
+        $this::assertTrue($foobar->equals($mangled));
+    }
 }
