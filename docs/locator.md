@@ -122,6 +122,10 @@ public function createInsertStatement(FragmentList $fragments): NativeStatement
 
 ## Getting metadata and creating gateways (the `Locator` part)
 
+It is recommended to *always* provide a qualified name (`schema_name.table_name`) to the `TableLocator` methods: 
+the package does not try to process `search_path` and will just assume that an unqualified name belongs
+to the `public` schema.
+
 `getTableDefinition()` method is used for getting [metadata for a specific database table](./metadata.md).
 It uses an implementation of `TableDefinitionFactory` interface under the hood:
 ```PHP
@@ -159,5 +163,24 @@ interface TableGatewayFactory
 If no factories are available or if all available returned `null`, default gateway / builder implementations
 are created and returned.
 
-It is recommended to *always* provide a qualified name (`schema_name.table_name`) for a table: the package does not try 
-to process `search_path` and will just assume that an unqualified name belongs to the `public` schema.
+### `NameMappingGatewayFactory`
+
+The package contains an implementation of `TableGatewayFactory` that maps database schemas to PHP namespaces
+and converts "snake_case" table names like `foo_bar` to "StudlyCaps" PHP class names like `FooBar`.
+
+The following code
+```PHP
+use sad_spirit\pg_gateway\NameMappingGatewayFactory;
+
+$factory = new NameMappingGatewayFactory(['foo' => '\\app\\modules\\foo\\database']);
+$factory->createGateway('foo.bar_baz');
+```
+will try to load and instantiate `\app\modules\foo\database\BarBazGateway` class. It will return
+`null` if one does not exist. The `setGatewayClassNameTemplate()` and `setBuilderClassNameTemplate()` allow setting
+the templates for class names. Those default to `'%sGateway'` and `'%sBuilder'`, respectively, where `%s` will be
+substituted by a table name converted to "StudlyCaps". Thus, after
+```PHP
+$factory->setGatewayClassNameTemplate('gateways\\%s');
+$factory->createGateway('foo.bar_baz');
+```
+the factory will try the `\app\modules\foo\database\gateways\BarBaz` class instead.
