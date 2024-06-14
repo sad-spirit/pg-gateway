@@ -57,6 +57,41 @@ An instance of `FragmentList` is populated in subclasses of `FragmentListBuilder
 `getFragment()` method. `FragmentListBuilder` is the base class for [fluent builders](./builders-methods.md) 
 created by `TableLocator::createBuilder()`.
 
+## `CustomFragment`, `CustomSelectFragment`
+
+These abstract classes should be extended by `Fragment`s that want a custom `applyTo()` implementation.
+Their constructors accept a custom `$key` that will be returned by `getKey()` methods, so statements using these
+are cacheable, unlike `ClosureFragment` below.
+
+## `ParametrizedFragment`
+
+This is a decorator for instances of `Fragment` that also accepts an array of parameters used by that `Fragment`.
+
+It is recommended to use this with custom `Fragment`s rather than implement `Parametrized`.
+
+```PHP
+use sad_spirit\pg_gateway\fragments\CustomSelectFragment;
+use sad_spirit\pg_gateway\fragments\ParametrizedFragment;
+use sad_spirit\pg_builder\Statement;
+use sad_spirit\pg_builder\Select;
+
+$fragment = new ParametrizedFragment(
+    new class ('limit-ties', false) extends CustomSelectFragment {
+        public function applyTo(Statement $statement, bool $isCount = false): void
+        {
+           /** @var Select $statement */
+           $statement->order->replace('title');
+           $statement->limit = ':ties::integer';
+           $statement->limitWithTies = true;
+        }
+    },
+    ['ties' => 10]
+);
+```
+
+`FragmentListBuilder::addWithParameters()` uses this internally. 
+
+
 ## `ClosureFragment`
 
 Wrapper for a closure passed to a `TableGateway` query method as `$fragments` parameter. Queries using this fragment
@@ -149,7 +184,7 @@ $gateway->select(
 Joins an implementation of `SelectProxy` to the current statement using the given `JoinStrategy` implementation.
 Can be additionally configured by a join `Condition`.
 
-It is recommended to use `JoinBuilder` and related `GenericTableGateway::join()` method rather than instantiating
+It is recommended to use `JoinBuilder` and related `FluentBuilder::join()` method rather than instantiating
 this class directly:
 ```PHP
 use sad_spirit\pg_gateway\builders\JoinBuilder;
@@ -227,3 +262,14 @@ $gateway->select([
     new OrderByClauseFragment($parser, 'foo, bar', true, true, Fragment::PRIORITY_HIGH)
 ]);
 ```
+
+## `WithClauseFragment`
+
+Subclasses of this abstract class add Common Table Expressions to the query's `WITH` clause:
+ * `fragments\with\SqlStringFragment` accepts an SQL string that can be either a complete `WITH` clause (possibly
+   containing several CTEs) or a single CTE: `foo AS (...)`.
+ * `fragments\with\SelectProxyFragment` accepts an implementation of `SelectProxy` returned by `TableGateway::select()`
+   essentially allowing to prepare a CTE with one gateway and use it with the other.
+
+Instances of these are added by `FluentBuilder::withSqlString()` and `FluentBuilder::withSelectProxy()`, respectively.
+`SelectProxyFragment` is configured by `WithClauseBuilder`.

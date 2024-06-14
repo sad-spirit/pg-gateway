@@ -18,6 +18,7 @@ abstract class FragmentListBuilder implements FragmentBuilder
 
     final public function getFragment() : FragmentList;
     final public function add(Fragment|FragmentBuilder $fragment) : $this;
+    final public function addWithParameters(Fragment $fragment, array $parameters) : $this;
 }
 ```
 It is configured with an instance of `TableDefinition` and thus creates fragments suitable for a specific table.
@@ -88,6 +89,10 @@ class FluentBuilder extends FragmentListBuilder
     
     // Adding a join
     public function join(string|TableName|QualifiedName|TableGateway|SelectProxy $joined, callable(JoinBuilder) $callback = null) : $this;
+
+    // Adding CTEs to the query's WITH clause
+    public function withSqlString(string $sql, array $parameters = [], int $priority = Fragment::PRIORITY_DEFAULT) : $this;
+    public function withSelect(SelectProxy $select, string $alias, callable $callback = null) : $this;
 
     // Adding fragments to SELECT statements
     public function orderBy(iterable<OrderByElement|string>|string $orderBy) : $this;
@@ -193,6 +198,26 @@ $builder->exists('example.stuff', fn(ExistsBuilder $eb) => $eb->not()->joinOn('s
 use sad_spirit\pg_gateway\builders\JoinBuilder;
 
 $builder->join('example.users', fn(JoinBuilder $jb) => $jb->onForeignKey(['editor_id'])->left()->alias('editors'))
+```
+
+### Adding Common Table Expressions to the `WITH` clause
+ * `withSqlString()` - the first argument can be either a complete `WITH` clause, possibly with several CTEs, or a
+   single CTE: `foo AS (...)`. The second can contain parameters used in the SQL. The third is priority since
+   order of CTEs is important in non-`RECURSIVE` `WITH` clauses.
+ * `withSelect()` accepts a result of `TableGateway::select()`, a mandatory alias and a callback to configure
+   the `WithClauseBuilder`:
+```PHP
+use sad_spirit\pg_gateway\Fragment;
+use sad_spirit\pg_gateway\builders\WithClauseBuilder;
+
+// this will generate 'WITH RECURSIVE foo (bar, baz) AS (...result of $otherGateway...)'
+$builder->withSelect(
+    $otherGateway->select(/* some conditions */),
+    'foo',
+    fn(WithClauseBuilder $wb) => $wb->priority(Fragment::PRIORITY_HIGHEST)
+        ->columnAliases(['bar', 'baz'])
+        ->recursive()
+);
 ```
 
 ### Fragments for `SELECT` statements

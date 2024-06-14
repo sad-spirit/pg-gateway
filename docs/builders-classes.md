@@ -356,3 +356,35 @@ class ScalarSubqueryBuilder extends AdditionalSelectBuilder
 The somewhat new methods are
  * `tableAlias()` - this is actually a synonym for `alias()`, added to differentiate from `columnAlias()`.
  * `columnAlias()` - sets the alias for subquery expression in the `TargetList`, `(SELECT ...) as $alias`.
+
+### `WithClauseBuilder`
+
+This is actually used only for `with\SelectProxyFragment` subclass of `WithClauseFragment`, its instance
+can be configured by a callback passed to `FragmentBuilder::withSelectProxy()`.
+
+```PHP
+namespace sad_spirit\pg_gateway\builders;
+
+class WithClauseBuilder implements FragmentBuilder
+{
+    public function __construct(SelectProxy $select, string $alias);
+    
+    // defined in FragmentBuilder
+    public function getFragment() : Fragment;
+
+    public function columnAliases(array $aliases) : $this;
+    public function materialized() : $this;
+    public function notMaterialized() : $this;
+    public function recursive() : $this;
+    public function priority(int $priority) : $this;
+}
+```
+
+Note that the package will not generate an alias for a query in `WITH`,
+so an alias should always be passed to constructor. 
+
+ * `recursive()` enables the `RECURSIVE` option for the `WITH` clause;
+ * `materialized()` / `notMaterialized()` enable `[NOT] MATERIALIZED` options for the CTE;
+ * `columnAliases()` sets the column aliases for the CTE;
+ * `priority()` sets the Fragment's priority: without `RECURSIVE` queries in `WITH` can only reference their
+   previous siblings, so priority may be important. 
