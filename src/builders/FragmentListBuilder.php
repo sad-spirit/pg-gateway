@@ -18,7 +18,8 @@ use sad_spirit\pg_gateway\{
     FragmentBuilder,
     FragmentList,
     TableDefinition,
-    TableLocator
+    TableLocator,
+    fragments\ParametrizedFragment
 };
 
 /**
@@ -53,6 +54,20 @@ abstract class FragmentListBuilder implements FragmentBuilder
     final public function add(object $fragment): self
     {
         $this->list->add($fragment);
+
+        return $this;
+    }
+
+    /**
+     * Adds a fragment to the list, wrapping it in a decorator that keeps parameter values
+     *
+     * @param Fragment $fragment
+     * @param array $parameters
+     * @return $this
+     */
+    final public function addWithParameters(Fragment $fragment, array $parameters): self
+    {
+        $this->list->add(new ParametrizedFragment($fragment, $parameters));
 
         return $this;
     }

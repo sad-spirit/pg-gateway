@@ -29,13 +29,18 @@ use sad_spirit\pg_gateway\{
     exceptions\LogicException,
     exceptions\OutOfBoundsException,
     exceptions\UnexpectedValueException,
+    fragments\CustomFragment,
     fragments\LimitClauseFragment,
     fragments\OffsetClauseFragment,
     metadata\TableName,
     tests\DatabaseBackedTest,
     tests\NormalizeWhitespace
 };
-use sad_spirit\pg_builder\nodes\QualifiedName;
+use sad_spirit\pg_builder\{
+    Select,
+    Statement,
+    nodes\QualifiedName
+};
 
 class FluentBuilderTest extends DatabaseBackedTest
 {
@@ -499,6 +504,53 @@ class FluentBuilderTest extends DatabaseBackedTest
         $this::assertEquals(
             new FragmentList(new OffsetClauseFragment(5)),
             $this->builder->offset(5)->getFragment()
+        );
+    }
+
+    public function testAddCustom(): void
+    {
+        $this->builder->add(new class ('custom') extends CustomFragment {
+            public function applyTo(Statement $statement): void
+            {
+                /** @var Select $statement */
+                $statement->group->replace(['foo', 'bar']);
+            }
+        });
+
+        $select = self::$tableLocator->createGateway('update_test')
+            ->select($this->builder);
+
+        $this::assertNotNull($select->getKey());
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'select self.* from public.update_test as self group by foo, bar',
+            $select->createSelectStatement()->getSql()
+        );
+    }
+
+    public function testAddCustomWithParameters(): void
+    {
+        $this->builder->addWithParameters(
+            new class ('custom-params') extends CustomFragment {
+                public function applyTo(Statement $statement): void
+                {
+                    /** @var Select $statement */
+                    $statement->order->replace('title');
+                    $statement->limit = ':foo::integer';
+                    $statement->limitWithTies = true;
+                }
+            },
+            ['foo' => 'bar']
+        );
+
+        $select = self::$tableLocator->createGateway('update_test')
+            ->select($this->builder);
+
+        $this::assertNotNull($select->getKey());
+        $this::assertEquals(['foo' => 'bar'], $select->getParameterHolder()->getParameters());
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'select self.* from public.update_test as self order by title '
+            . 'fetch first ($1::pg_catalog.int4) rows with ties',
+            $select->createSelectStatement()->getSql()
         );
     }
 }
