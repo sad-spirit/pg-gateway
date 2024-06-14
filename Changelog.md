@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.2.0] - 2024-06-14
 
 ### Added
  * `metadata\TableName` class replacing `QualifiedName` from `pg_builder` package.
@@ -57,4 +57,4 @@
 Initial release on GitHub.
 
 [0.1.0]: https://github.com/sad-spirit/pg-gateway/releases/tag/v0.1.0
-[Unreleased]: https://github.com/sad-spirit/pg-gateway/compare/v0.1.0...HEAD
+[0.2.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.1.0...v0.2.0
