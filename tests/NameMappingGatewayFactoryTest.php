@@ -22,7 +22,8 @@ use sad_spirit\pg_gateway\{
 use sad_spirit\pg_gateway\tests\assets\mapping\{
     ExplicitGateway,
     ExplicitSomething,
-    StandardBuilder};
+    StandardBuilder
+};
 
 class NameMappingGatewayFactoryTest extends DatabaseBackedTest
 {
@@ -57,10 +58,7 @@ class NameMappingGatewayFactoryTest extends DatabaseBackedTest
     public function testCreateGateway(): void
     {
         $factory = new NameMappingGatewayFactory([
-            'pkey_test' => [
-                'sad_spirit\pg_gateway\tests\assets\mapping',
-                'sad_spirit\pg_gateway\tests\assets\mapping'
-            ]
+            'pkey_test' => 'sad_spirit\pg_gateway\tests\assets\mapping'
         ]);
         $locator = new TableLocator(self::$connection);
 
@@ -77,11 +75,9 @@ class NameMappingGatewayFactoryTest extends DatabaseBackedTest
     public function testCreateGatewayCustomTemplate(): void
     {
         $factory = new NameMappingGatewayFactory([
-            'pkey_test' => [
-                'sad_spirit\pg_gateway\tests\assets\mapping'
-            ]
+            'pkey_test' => 'sad_spirit\pg_gateway\tests\assets'
         ]);
-        $factory->setGatewayClassNameTemplate('%sSomething');
+        $factory->setGatewayClassNameTemplate('mapping\\%sSomething');
         $locator = new TableLocator(self::$connection);
 
         $this::assertInstanceOf(ExplicitSomething::class, $factory->createGateway(
@@ -93,11 +89,9 @@ class NameMappingGatewayFactoryTest extends DatabaseBackedTest
     public function testCreateBuilder(): void
     {
         $factory = new NameMappingGatewayFactory([
-            'pkey_test' => [
-                'sad_spirit\pg_gateway\tests\assets\mapping',
-                'sad_spirit\pg_gateway\tests\assets\mapping'
-            ]
+            'pkey_test' => 'sad_spirit\pg_gateway\tests\assets'
         ]);
+        $factory->setBuilderClassNameTemplate('mapping\\%sBuilder');
         $locator = new TableLocator(self::$connection);
 
         $this::assertInstanceOf(StandardBuilder::class, $factory->createBuilder(

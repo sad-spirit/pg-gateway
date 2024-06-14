@@ -23,8 +23,8 @@ use sad_spirit\pg_gateway\metadata\TableName;
  */
 class NameMappingGatewayFactory implements TableGatewayFactory
 {
-    /** @var array{array<string,string>,array<string,string>} */
-    private array $schemaMapping = [[], []];
+    /** @var array<string,string> */
+    private array $schemaMapping = [];
     /** @var array<string,?class-string<TableGateway>> */
     private array $gatewayClasses = [];
     /** @var array<string,?class-string<FragmentListBuilder>> */
@@ -35,29 +35,26 @@ class NameMappingGatewayFactory implements TableGatewayFactory
     /**
      * Constructor, sets mappings from database schemas to PHP namespaces
      *
-     * @param array<string,array{?string,?string}> $schemaMapping
+     * @param array<string,string> $schemaMapping
      */
     public function __construct(array $schemaMapping)
     {
-        foreach ($schemaMapping as $schema => $namespaces) {
-            $this->addSchemaMapping($schema, $namespaces[0] ?? null, $namespaces[1] ?? null);
+        foreach ($schemaMapping as $schema => $namespace) {
+            $this->setSchemaMapping($schema, $namespace);
         }
     }
 
     /**
      * Adds a mapping from database schema to gateway and builder namespaces
+     *
+     * Removes mapping if $namespace is null
      */
-    public function addSchemaMapping(string $schema, ?string $gatewayNamespace, ?string $builderNamespace): void
+    public function setSchemaMapping(string $schema, ?string $namespace): void
     {
-        if (null === $gatewayNamespace) {
-            unset($this->schemaMapping[0][$schema]);
+        if (null === $namespace) {
+            unset($this->schemaMapping[$schema]);
         } else {
-            $this->schemaMapping[0][$schema] = $this->normalizeNamespace($gatewayNamespace);
-        }
-        if (null === $builderNamespace) {
-            unset($this->schemaMapping[1][$schema]);
-        } else {
-            $this->schemaMapping[1][$schema] = $this->normalizeNamespace($builderNamespace);
+            $this->schemaMapping[$schema] = $this->normalizeNamespace($namespace);
         }
     }
 
@@ -89,9 +86,9 @@ class NameMappingGatewayFactory implements TableGatewayFactory
     /**
      * Returns namespace for the given schema and index (0 - gateway, 1 - builder), null if not found
      */
-    private function mapSchemaToNamespace(string $schema, int $idx = 0): ?string
+    private function mapSchemaToNamespace(string $schema): ?string
     {
-        return $this->schemaMapping[$idx][$schema] ?? null;
+        return $this->schemaMapping[$schema] ?? null;
     }
 
     /**
@@ -108,18 +105,17 @@ class NameMappingGatewayFactory implements TableGatewayFactory
      * @template T of class-string
      * @param TableName $name
      * @param array<string, ?T> $classMap Existing mapping of table names to class names
-     * @param int $idx                    Index in the $schemaMapping array
      * @param string $template            Template for generated class name, sprintf-style
      * @return ?T
      */
-    private function getClassNameForTable(TableName $name, array &$classMap, int $idx, string $template): ?string
+    private function getClassNameForTable(TableName $name, array &$classMap, string $template): ?string
     {
         $nameAsString = (string)$name;
         if (\array_key_exists($nameAsString, $classMap)) {
             return $classMap[$nameAsString];
         }
         $fqn = null;
-        if (null !== ($namespace = $this->mapSchemaToNamespace($name->getSchema(), $idx))) {
+        if (null !== ($namespace = $this->mapSchemaToNamespace($name->getSchema()))) {
             $className = \sprintf($template, $this->classify($name->getRelation()));
             if (\class_exists($namespace . '\\' . $className, true)) {
                 /** @var T $fqn */
@@ -137,7 +133,7 @@ class NameMappingGatewayFactory implements TableGatewayFactory
      */
     private function getGatewayClassNameForTable(TableName $name): ?string
     {
-        return $this->getClassNameForTable($name, $this->gatewayClasses, 0, $this->gatewayClassNameTemplate);
+        return $this->getClassNameForTable($name, $this->gatewayClasses, $this->gatewayClassNameTemplate);
     }
 
     /**
@@ -146,7 +142,7 @@ class NameMappingGatewayFactory implements TableGatewayFactory
      */
     private function getBuilderClassNameForTable(TableName $name): ?string
     {
-        return $this->getClassNameForTable($name, $this->builderClasses, 1, $this->builderClassNameTemplate);
+        return $this->getClassNameForTable($name, $this->builderClasses, $this->builderClassNameTemplate);
     }
 
     public function createGateway(TableDefinition $definition, TableLocator $tableLocator): ?TableGateway
