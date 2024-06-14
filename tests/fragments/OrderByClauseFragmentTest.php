@@ -137,10 +137,20 @@ class OrderByClauseFragmentTest extends TestCase
         $statement   = self::$statementFactory->createFromString(
             'select self.* from a_table as self order by something'
         );
-        $fragmentOne = (new OrderByClauseFragment(self::$statementFactory->getParser(), 'foo', true, false))
-            ->setPriority(Fragment::PRIORITY_LOW);
-        $fragmentTwo = (new OrderByClauseFragment(self::$statementFactory->getParser(), 'bar', true, false))
-            ->setPriority(Fragment::PRIORITY_HIGH);
+        $fragmentOne = (new OrderByClauseFragment(
+            self::$statementFactory->getParser(),
+            'foo',
+            true,
+            false,
+            Fragment::PRIORITY_LOW
+        ));
+        $fragmentTwo = (new OrderByClauseFragment(
+            self::$statementFactory->getParser(),
+            'bar',
+            true,
+            false,
+            Fragment::PRIORITY_HIGH
+        ));
 
         (new FragmentList($fragmentOne, $fragmentTwo))
             ->applyTo($statement);
@@ -156,10 +166,20 @@ class OrderByClauseFragmentTest extends TestCase
         $statement   = self::$statementFactory->createFromString(
             'select self.* from a_table as self order by something'
         );
-        $fragmentOne = (new OrderByClauseFragment(self::$statementFactory->getParser(), 'foo', true, true))
-            ->setPriority(Fragment::PRIORITY_LOW);
-        $fragmentTwo = (new OrderByClauseFragment(self::$statementFactory->getParser(), 'bar', true, true))
-            ->setPriority(Fragment::PRIORITY_HIGH);
+        $fragmentOne = (new OrderByClauseFragment(
+            self::$statementFactory->getParser(),
+            'foo',
+            true,
+            true,
+            Fragment::PRIORITY_LOW
+        ));
+        $fragmentTwo = (new OrderByClauseFragment(
+            self::$statementFactory->getParser(),
+            'bar',
+            true,
+            true,
+            Fragment::PRIORITY_HIGH
+        ));
 
         (new FragmentList($fragmentOne, $fragmentTwo))
             ->applyTo($statement);
