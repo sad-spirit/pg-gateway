@@ -6,7 +6,7 @@
  * `metadata\TableName` class replacing `QualifiedName` from `pg_builder` package.
  * `metadata\TableOIDMapper` interface and its default `metadata\CachedTableOIDMapper` implementation. This is used
    for checking the relation type when creating an implementation of `TableDefinition` and may be used to ease
-   mapping of result columns when using `Result::getTableOID()`
+   mapping of result columns when using `Result::getTableOID()`.
  * `TableDefinitionFactory` interface and its default `OrdinaryTableDefinitionFactory` implementation. The latter
    will return an instance of `OrdinaryTableDefinition` only for relations that exist in `pg_catalog.pg_class` and
    contain 'r' (ordinary table) in the `relkind` column.
@@ -16,7 +16,13 @@
    It uses the configured instance of `TableDefinitionFactory`.
  * `TableGatewayFactory::createBuilder()` method returning a subclass of a new abstract `builders\FragmentListBuilder`
    class. The method is called by the new `TableLocator::createBuilder()` method which will return 
-   an instance of default `builders\FluentBuilder` implementation if the factories did not create a specific one
+   an instance of default `builders\FluentBuilder` implementation if the factories did not create a specific one.
+ * `NameMappingGatewayFactory` implementation of `TableGatewayFactory` that maps DB schemas to PHP namespaces and
+   "snake-case" `table_name` to "StudlyCaps" `TableName`.
+ * Base abstract `CustomFragment` and `CustomSelectFragment` classes and `ParametrizedFragment` decorator,
+   those can be used to add custom cacheable fragments.
+ * Fragments and builders adding Common Table Expressions to query's `WITH` clause. It is possible to specify those
+   either as an SQL string or as a wrapper for `SelectProxy` (i.e. a result of `TableGateway::select()`).
 
 ### Changed
  * `metadata\TableName` is used throughout the package in place of `pg_builder`'s `QualifiedName`.
@@ -38,6 +44,8 @@
  * `TableLocator::get()` is now `TableLocator::createGateway()`. It will no longer return the same instance of
    `TableGateway` for the same table name. It also uses an instance of `TableDefinitionFactory` under the hood,
    so by default only gateways to existing ordinary tables will be created.
+ * `setPriority()` method of `VariablePriority` trait is now protected rather than public. Previously `Fragment`s
+   using that trait were essentially mutable.
  * Depend on `pg_wrapper` and `pg_builder` 2.4
 
 ### Removed
