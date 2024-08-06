@@ -5,6 +5,16 @@
 ### Changed
  * Changed typehint of `$gatewayFactories` parameter for `TableLocator::__construct()` from `array` to `iterable`,
    allowing to use e.g. `tagged_iterator` from Symfony's DI container in its place.
+ * Implementations of methods defined in `metadata\Columns`, `metadata\PrimaryKey`, and `metadata\References`
+   interfaces were moved from `metadata\Table*` implementations into traits. This separates the code
+   that loads metadata from DB / cache and the code that accesses that metadata, allowing reuse of the latter:
+   * `ArrayOfColumns` trait now contains a `$columns` property and implementations of `Columns` methods working with it.
+   * `ArrayOfPrimaryKeyColumns` trait now contains `$columns` and `$generated` properties and implements methods 
+     of `PrimaryKey` working with these.
+   * `ArrayOfForeignKeys` trait has `$foreignKeys`, `$referencing`, and `$referencedBy` properties as well as 
+     implementations of `References` methods using these.
+ * Additionally, `metadata\TableColumns` defined a new protected `assertCorrectRelkind()` method 
+   that can be easily overridden in child class if working with relations that are not ordinary tables.
 
 ## [0.2.1] - 2024-07-24
 
@@ -70,4 +80,4 @@ Initial release on GitHub.
 [0.1.0]: https://github.com/sad-spirit/pg-gateway/releases/tag/v0.1.0
 [0.2.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.1.0...v0.2.0
 [0.2.1]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.0...v0.2.1
-[0.3.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.1...HEAD
+[0.3.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.1...v0.3.0
