@@ -93,13 +93,13 @@ class TableLocator
      * Constructor, sets up factories
      *
      * @param Connection $connection
-     * @param array<TableGatewayFactory> $gatewayFactories
+     * @param iterable<TableGatewayFactory> $gatewayFactories
      * @param StatementFactory|null $statementFactory
      * @param CacheItemPoolInterface|null $statementCache
      */
     public function __construct(
         Connection $connection,
-        array $gatewayFactories = [],
+        iterable $gatewayFactories = [],
         ?StatementFactory $statementFactory = null,
         ?CacheItemPoolInterface $statementCache = null
     ) {

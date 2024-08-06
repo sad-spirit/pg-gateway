@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.3.0] - 2024-08-06
+
+### Changed
+ * Changed typehint of `$gatewayFactories` parameter for `TableLocator::__construct()` from `array` to `iterable`,
+   allowing to use e.g. `tagged_iterator` from Symfony's DI container in its place.
+
 ## [0.2.1] - 2024-07-24
 
 Fixed package name in `composer.json`: the intended `sad_spirit/pg_gateway` instead of `sad_spirit/pg-gateway`
@@ -64,3 +70,4 @@ Initial release on GitHub.
 [0.1.0]: https://github.com/sad-spirit/pg-gateway/releases/tag/v0.1.0
 [0.2.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.1.0...v0.2.0
 [0.2.1]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.0...v0.2.1
+[0.3.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.1...HEAD
