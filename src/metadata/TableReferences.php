@@ -14,7 +14,6 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\metadata;
 
 use Psr\Cache\CacheItemInterface;
-use sad_spirit\pg_gateway\exceptions\InvalidArgumentException;
 use sad_spirit\pg_wrapper\Connection;
 
 /**
@@ -27,6 +26,8 @@ use sad_spirit\pg_wrapper\Connection;
  */
 class TableReferences extends CachedMetadataLoader implements References
 {
+    use ArrayOfForeignKeys;
+
     /** Query for FOREIGN KEY constraints added to the given table */
     private const QUERY_FROM = <<<'SQL'
         select tc.relname, tn.nspname, co.conname,
@@ -82,14 +83,6 @@ class TableReferences extends CachedMetadataLoader implements References
               tn.nspname      = $2
         SQL;
 
-
-    /** @var ForeignKey[] */
-    private array $foreignKeys  = [];
-    /** @var array<string, array<int, int>> */
-    private array $referencing  = [];
-    /** @var array<string, array<int, int>> */
-    private array $referencedBy = [];
-
     protected function getCacheKey(Connection $connection, TableName $table): string
     {
         return sprintf('%s.references.%x', $connection->getConnectionId(), \crc32((string)$table));
@@ -124,18 +117,10 @@ class TableReferences extends CachedMetadataLoader implements References
                 );
 
                 if ($from) {
-                    if (!isset($this->referencing[$relatedTableStr])) {
-                        $this->referencing[$relatedTableStr]   = [$index];
-                    } else {
-                        $this->referencing[$relatedTableStr][] = $index;
-                    }
+                    $this->addReferencing($relatedTableStr, $index);
                 }
                 if (!$from || $relatedTableStr === $tableStr) {
-                    if (!isset($this->referencedBy[$relatedTableStr])) {
-                        $this->referencedBy[$relatedTableStr]   = [$index];
-                    } else {
-                        $this->referencedBy[$relatedTableStr][] = $index;
-                    }
+                    $this->addReferencedBy($relatedTableStr, $index);
                 }
             }
         }
@@ -149,82 +134,5 @@ class TableReferences extends CachedMetadataLoader implements References
     protected function setCachedData(CacheItemInterface $cacheItem): CacheItemInterface
     {
         return $cacheItem->set([$this->foreignKeys, $this->referencing, $this->referencedBy]);
-    }
-    public function get(TableName $relatedTable, array $keyColumns = []): ForeignKey
-    {
-        $relatedStr = (string)$relatedTable;
-        $keys       = \array_merge(
-            $this->getMatchingKeys($this->referencedBy, $relatedStr, $keyColumns),
-            \array_filter(
-                $this->getMatchingKeys($this->referencing, $relatedStr, $keyColumns),
-                fn(ForeignKey $key) => !$key->isRecursive()
-            )
-        );
-
-        if ([] === $keys) {
-            throw new InvalidArgumentException(\sprintf(
-                "No matching foreign keys for %s%s",
-                $relatedStr,
-                [] === $keyColumns ? '' : ' using (' . \implode(', ', $keyColumns) . ')'
-            ));
-        } elseif (1 < \count($keys)) {
-            throw new InvalidArgumentException(\sprintf(
-                "Several matching foreign keys for %s%s: %s",
-                $relatedStr,
-                [] === $keyColumns ? '' : ' using (' . \implode(', ', $keyColumns) . ')',
-                \implode(', ', \array_map(fn(ForeignKey $key) => $key->getConstraintName(), $keys))
-            ));
-        }
-
-        return \reset($keys);
-    }
-
-    public function to(TableName $referencedTable, array $keyColumns = []): array
-    {
-        return $this->getMatchingKeys($this->referencing, (string)$referencedTable, $keyColumns);
-    }
-
-    public function from(TableName $childTable, array $keyColumns = []): array
-    {
-        return $this->getMatchingKeys($this->referencedBy, (string)$childTable, $keyColumns);
-    }
-
-    /**
-     * Finds matching foreign keys using one of $referencing or $referencedBy arrays
-     *
-     * @param array    $source
-     * @param string   $tableName
-     * @param string[] $keyColumns
-     * @return ForeignKey[]
-     */
-    private function getMatchingKeys(array $source, string $tableName, array $keyColumns = []): array
-    {
-        $result = [];
-        foreach ($source[$tableName] ?? [] as $index) {
-            $foreignKey = $this->foreignKeys[$index];
-            if (
-                [] === $keyColumns
-                || $keyColumns === \array_intersect($keyColumns, $foreignKey->getChildColumns())
-            ) {
-                $result[] = $foreignKey;
-            }
-        }
-        return $result;
-    }
-
-    /**
-     * Method required by IteratorAggregate interface
-     *
-     * {@inheritDoc}
-     * @return \ArrayIterator<int, ForeignKey>
-     */
-    public function getIterator(): \ArrayIterator
-    {
-        return new \ArrayIterator($this->foreignKeys);
-    }
-
-    public function count(): int
-    {
-        return \count($this->foreignKeys);
     }
 }
