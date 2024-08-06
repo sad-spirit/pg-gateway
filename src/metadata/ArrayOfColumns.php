@@ -19,6 +19,7 @@ use sad_spirit\pg_gateway\exceptions\OutOfBoundsException;
  * Implementation of methods defined in Columns using an array of Column instances
  *
  * @psalm-require-implements Columns
+ * @since 0.3.0
  */
 trait ArrayOfColumns
 {

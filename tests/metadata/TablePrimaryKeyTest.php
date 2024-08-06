@@ -50,7 +50,7 @@ class TablePrimaryKeyTest extends DatabaseBackedTest
     public function testFailsOnNonTable(): void
     {
         $this::expectException(UnexpectedValueException::class);
-        $this::expectExceptionMessage('is not a table');
+        $this::expectExceptionMessage('is not an ordinary table');
         new TablePrimaryKey(self::$connection, new TableName('pkey_test', 'explicit_seq'));
     }
 

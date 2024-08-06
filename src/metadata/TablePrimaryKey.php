@@ -27,6 +27,8 @@ use sad_spirit\pg_wrapper\Connection;
  */
 class TablePrimaryKey extends CachedMetadataLoader implements PrimaryKey
 {
+    use ArrayOfPrimaryKeyColumns;
+
     private const QUERY = <<<'SQL'
         select a.attname, a.attnotnull, a.attidentity, c.relkind, pg_get_expr(def.adbin, c.oid) as defexpr,
                case when t.typbasetype <> 0 then t.typbasetype else t.oid end as typeoid
@@ -41,18 +43,6 @@ class TablePrimaryKey extends CachedMetadataLoader implements PrimaryKey
               n.nspname = $2
         order by a.attnum
         SQL;
-
-    /**
-     * Columns of the table's primary key
-     * @var Column[]
-     */
-    protected array $columns = [];
-
-    /**
-     * Whether table's primary key is automatically generated
-     * @var bool
-     */
-    protected bool $generated = false;
 
     protected function getCacheKey(Connection $connection, TableName $table): string
     {
@@ -70,8 +60,11 @@ class TablePrimaryKey extends CachedMetadataLoader implements PrimaryKey
         }
         $generated = false;
         foreach ($result as $row) {
-            if ('r' !== $row['relkind']) {
-                throw new UnexpectedValueException(\sprintf("Relation %s is not a table", $table->__toString()));
+            if (TableOIDMapper::RELKIND_ORDINARY_TABLE !== $row['relkind']) {
+                throw new UnexpectedValueException(\sprintf(
+                    "Relation %s is not an ordinary table",
+                    $table->__toString()
+                ));
             }
             if (null !== $row['attname']) {
                 $this->columns[] = new Column($row['attname'], !$row['attnotnull'], $row['typeoid']);
@@ -92,50 +85,5 @@ class TablePrimaryKey extends CachedMetadataLoader implements PrimaryKey
     protected function setCachedData(CacheItemInterface $cacheItem): CacheItemInterface
     {
         return $cacheItem->set([$this->columns, $this->generated]);
-    }
-
-    public function getIterator(): \ArrayIterator
-    {
-        return new \ArrayIterator($this->columns);
-    }
-
-    /**
-     * Returns the number of columns in table's primary key
-     *
-     * {@inheritDoc}
-     */
-    public function count(): int
-    {
-        return \count($this->columns);
-    }
-
-    /**
-     * Returns the columns of the table's primary key
-     *
-     * @return Column[]
-     */
-    public function getAll(): array
-    {
-        return $this->columns;
-    }
-
-    /**
-     * Returns names of the columns in the table's primary key
-     *
-     * @return string[]
-     */
-    public function getNames(): array
-    {
-        return \array_map(fn(Column $column) => $column->getName(), $this->columns);
-    }
-
-    /**
-     * Returns whether table's primary key is automatically generated
-     *
-     * @return bool
-     */
-    public function isGenerated(): bool
-    {
-        return $this->generated;
     }
 }
