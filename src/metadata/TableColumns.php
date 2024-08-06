@@ -14,19 +14,20 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\metadata;
 
 use Psr\Cache\CacheItemInterface;
-use sad_spirit\pg_gateway\exceptions\OutOfBoundsException;
 use sad_spirit\pg_gateway\exceptions\UnexpectedValueException;
 use sad_spirit\pg_wrapper\Connection;
 
 /**
  * Default implementation of Columns interface
  *
- * This should probably work with views as well
+ * This should probably work with views as well after overriding {@see assertCorrectRelkind()}
  *
  * @since 0.2.0
  */
 class TableColumns extends CachedMetadataLoader implements Columns
 {
+    use ArrayOfColumns;
+
     private const QUERY = <<<'SQL'
         select a.attname, a.attnotnull, c.relkind,
                case when t.typbasetype <> 0 then t.typbasetype else t.oid end as typeoid
@@ -39,12 +40,6 @@ class TableColumns extends CachedMetadataLoader implements Columns
               n.nspname = $2
         order by a.attnum        
         SQL;
-
-    /**
-     * Table columns
-     * @var array<string, Column>
-     */
-    private array $columns = [];
 
     protected function getCacheKey(Connection $connection, TableName $table): string
     {
@@ -60,14 +55,34 @@ class TableColumns extends CachedMetadataLoader implements Columns
         if (0 === \count($result)) {
             throw new UnexpectedValueException(\sprintf("Relation %s does not exist", $table->__toString()));
         }
-        foreach ($result as $row) {
-            if ('r' !== $row['relkind']) {
-                throw new UnexpectedValueException(\sprintf("Relation %s is not a table", $table->__toString()));
-            } elseif (null === $row['attname']) {
-                // Zero-column tables are possible in Postgres, but we won't bother with that
-                throw new UnexpectedValueException(\sprintf("Table %s has zero columns", $table->__toString()));
+        foreach ($result as $index => $row) {
+            if (0 === $index) {
+                $this->assertCorrectRelkind($row['relkind'], $table);
+                if (null === $row['attname']) {
+                    // Zero-column tables are possible in Postgres, but we won't bother with that
+                    throw new UnexpectedValueException(\sprintf("Table %s has zero columns", $table->__toString()));
+                }
             }
             $this->columns[$row['attname']] = new Column($row['attname'], !$row['attnotnull'], $row['typeoid']);
+        }
+    }
+
+    /**
+     * Asserts that the relation we are loading columns for is of the correct kind
+     *
+     * This is an extension point for subclasses supporting something other than ordinary tables
+     *
+     * @param string $relKind
+     * @param TableName $table
+     * @return void
+     */
+    protected function assertCorrectRelkind(string $relKind, TableName $table): void
+    {
+        if ($relKind !== TableOIDMapper::RELKIND_ORDINARY_TABLE) {
+            throw new UnexpectedValueException(\sprintf(
+                "Relation %s is not an ordinary table",
+                $table->__toString()
+            ));
         }
     }
 
@@ -79,61 +94,5 @@ class TableColumns extends CachedMetadataLoader implements Columns
     protected function setCachedData(CacheItemInterface $cacheItem): CacheItemInterface
     {
         return $cacheItem->set($this->columns);
-    }
-
-    public function getIterator(): \ArrayIterator
-    {
-        return new \ArrayIterator($this->columns);
-    }
-
-    public function count(): int
-    {
-        return \count($this->columns);
-    }
-
-    /**
-     * Returns all columns
-     *
-     * @return array<string, Column>
-     */
-    public function getAll(): array
-    {
-        return $this->columns;
-    }
-
-    /**
-     * Returns column names
-     *
-     * @return string[]
-     */
-    public function getNames(): array
-    {
-        return \array_keys($this->columns);
-    }
-
-    /**
-     * Checks whether the column with a given name exists
-     *
-     * @param string $column
-     * @return bool
-     */
-    public function has(string $column): bool
-    {
-        return \array_key_exists($column, $this->columns);
-    }
-
-    /**
-     * Returns the given column's properties
-     *
-     * @param string $column
-     * @return Column
-     * @throws OutOfBoundsException If the column was not found
-     */
-    public function get(string $column): Column
-    {
-        if (!\array_key_exists($column, $this->columns)) {
-            throw new OutOfBoundsException(\sprintf("Column %s does not exist", $column));
-        }
-        return $this->columns[$column];
     }
 }

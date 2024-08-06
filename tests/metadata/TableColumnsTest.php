@@ -45,7 +45,7 @@ class TableColumnsTest extends DatabaseBackedTest
     public function testFailsOnNonTable(): void
     {
         $this::expectException(UnexpectedValueException::class);
-        $this::expectExceptionMessage('is not a table');
+        $this::expectExceptionMessage('is not an ordinary table');
         new TableColumns(self::$connection, new TableName('cols_test', 'notatable'));
     }
 
