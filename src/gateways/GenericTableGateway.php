@@ -14,12 +14,14 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\gateways;
 
 use sad_spirit\pg_gateway\{
+    AdHocStatement,
     FragmentList,
     SelectProxy,
     TableDefinition,
     TableGateway,
     TableLocator,
     TableSelect,
+    builders\FragmentListBuilder,
     exceptions\InvalidArgumentException,
     fragments\ClosureFragment,
     fragments\InsertSelectFragment,
@@ -45,8 +47,10 @@ use sad_spirit\pg_wrapper\{
 
 /**
  * A generic implementation of TableGateway
+ *
+ * @psalm-import-type FragmentsInput from TableGateway
  */
-class GenericTableGateway implements TableGateway
+class GenericTableGateway implements TableGateway, AdHocStatement
 {
     protected TableLocator $tableLocator;
     protected TableDefinition $definition;
@@ -67,11 +71,17 @@ class GenericTableGateway implements TableGateway
         return $this->definition;
     }
 
+    /**
+     * Creates a specific builder for the current table
+     */
+    public function createBuilder(): FragmentListBuilder
+    {
+        return $this->tableLocator->createBuilder($this->definition->getName());
+    }
 
     public function delete($fragments = null, array $parameters = []): Result
     {
-        $fragmentList = FragmentList::normalize($fragments)
-            ->mergeParameters($parameters);
+        $fragmentList = $this->convertFragments($fragments, $parameters);
 
         return $this->execute($this->createDeleteStatement($fragmentList), $fragmentList);
     }
@@ -85,8 +95,7 @@ class GenericTableGateway implements TableGateway
      */
     public function insert($values, $fragments = null, array $parameters = []): Result
     {
-        $fragmentList = FragmentList::normalize($fragments)
-            ->mergeParameters($parameters);
+        $fragmentList = $this->convertFragments($fragments, $parameters);
 
         if ($values instanceof SelectProxy) {
             $fragmentList->add(new InsertSelectFragment($values));
@@ -117,18 +126,54 @@ class GenericTableGateway implements TableGateway
 
     public function select($fragments = null, array $parameters = []): TableSelect
     {
-        return new TableSelect($this->tableLocator, $this, $fragments, $parameters);
+        return new TableSelect($this->tableLocator, $this, $this->convertFragments($fragments, $parameters));
     }
 
     public function update(array $set, $fragments = null, array $parameters = []): Result
     {
         $native = $this->createUpdateStatement($list = new FragmentList(
             new SetClauseFragment($this->definition->getColumns(), $this->tableLocator, $set),
-            FragmentList::normalize($fragments)
-                ->mergeParameters($parameters)
+            $this->convertFragments($fragments, $parameters)
         ));
 
         return $this->execute($native, $list);
+    }
+
+    /**
+     * Converts $fragments and $parameters passed to a method defined in TableGateway to an instance of FragmentList
+     *
+     * @param FragmentsInput $fragments
+     */
+    private function convertFragments($fragments, array $parameters): FragmentList
+    {
+        if (!$fragments instanceof \Closure) {
+            return FragmentList::normalize($fragments)
+                ->mergeParameters($parameters);
+        } else {
+            $fragments($builder = $this->createBuilder());
+            return $builder->getFragment()
+                ->mergeParameters($parameters);
+        }
+    }
+
+    public function deleteWithAST(\Closure $closure, array $parameters = []): Result
+    {
+        return $this->delete(new ClosureFragment($closure), $parameters);
+    }
+
+    public function insertWithAST($values, \Closure $closure, array $parameters = []): Result
+    {
+        return $this->insert($values, new ClosureFragment($closure), $parameters);
+    }
+
+    public function selectWithAST(\Closure $closure, array $parameters = []): SelectProxy
+    {
+        return $this->select(new ClosureFragment($closure), $parameters);
+    }
+
+    public function updateWithAST(array $set, \Closure $closure, array $parameters = []): Result
+    {
+        return $this->update($set, new ClosureFragment($closure), $parameters);
     }
 
     /**

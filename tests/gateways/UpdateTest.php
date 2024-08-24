@@ -28,6 +28,8 @@ use sad_spirit\pg_builder\nodes\{
 use sad_spirit\pg_gateway\{
     OrdinaryTableDefinition,
     TableLocator,
+    builders\ColumnsBuilder,
+    builders\FluentBuilder,
     exceptions\UnexpectedValueException,
     gateways\GenericTableGateway,
     metadata\TableName
@@ -75,9 +77,9 @@ class UpdateTest extends DatabaseBackedTest
         $this::assertEquals(2, $result->getAffectedRows());
     }
 
-    public function testUpdateWithClosure(): void
+    public function testUpdateWithAST(): void
     {
-        $result = self::$gateway->update(['title' => 'New title'], function (Update $update) {
+        $result = self::$gateway->updateWithAST(['title' => 'New title'], function (Update $update) {
             $update->where->and('id = 2');
             $update->returning[] = new Star();
         });
@@ -86,9 +88,9 @@ class UpdateTest extends DatabaseBackedTest
         $this::assertEquals('New title', $row['title']);
     }
 
-    public function testUpdateWithClosureAndParameters(): void
+    public function testUpdateWithASTAndParameters(): void
     {
-        $result = self::$gateway->update(
+        $result = self::$gateway->updateWithAST(
             ['title' => 'Updated title', 'added' => '2022-01-10'],
             function (Update $update) {
                 $update->where->and('id = :id');
@@ -102,12 +104,24 @@ class UpdateTest extends DatabaseBackedTest
         $this::assertEquals('2022-01-10', $row['added']->format('Y-m-d'));
     }
 
+    public function testUpdateWithClosure(): void
+    {
+        $result = self::$gateway->update(
+            ['title' => 'Changed title'],
+            fn(FluentBuilder $fb) => $fb->primaryKey(2)
+                ->returningColumns(fn(ColumnsBuilder $cb) => $cb->all())
+        );
+        $row = $result->current();
+        $this::assertEquals(2, $row['id']);
+        $this::assertEquals('Changed title', $row['title']);
+    }
+
     public function testDisallowColumnNamesInBothSetAndParameters(): void
     {
         $this::expectException(UnexpectedValueException::class);
         $this::expectExceptionMessage('Multiple values');
 
-        self::$gateway->update(
+        self::$gateway->updateWithAST(
             ['id' => 666],
             function (Update $update) {
                 $update->where->and('id = :id');

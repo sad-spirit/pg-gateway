@@ -24,6 +24,8 @@ use sad_spirit\pg_builder\nodes\{
 use sad_spirit\pg_gateway\{
     OrdinaryTableDefinition,
     TableLocator,
+    builders\ColumnsBuilder,
+    builders\FluentBuilder,
     conditions\SqlStringCondition,
     gateways\GenericTableGateway,
     metadata\TableName
@@ -71,10 +73,10 @@ class DeleteTest extends DatabaseBackedTest
         $this::assertEquals(4, $result->getAffectedRows());
     }
 
-    public function testDeleteWithClosure(): void
+    public function testDeleteWithAST(): void
     {
         $gateway = $this->createTableGateway('bar');
-        $result  = $gateway->delete(function (Delete $delete) {
+        $result  = $gateway->deleteWithAST(function (Delete $delete) {
             $delete->where->and('id = 1');
             $delete->returning[] = new Star();
         });
@@ -83,10 +85,10 @@ class DeleteTest extends DatabaseBackedTest
         $this::assertEquals('some stuff', $result[0]['name']);
     }
 
-    public function testDeleteWithClosureAndParameters(): void
+    public function testDeleteWithASTAndParameters(): void
     {
         $gateway = $this->createTableGateway('foo');
-        $result  = $gateway->delete(
+        $result  = $gateway->deleteWithAST(
             function (Delete $delete) {
                 $delete->where->and('id = :param');
                 $delete->returning[] = new Star();
@@ -96,6 +98,18 @@ class DeleteTest extends DatabaseBackedTest
 
         $this::assertEquals(1, $result->getAffectedRows());
         $this::assertEquals('many', $result[0]['name']);
+    }
+
+    public function testDeleteWithClosure(): void
+    {
+        $gateway = $this->createTableGateway('bar');
+        $result  = $gateway->delete(
+            fn(FluentBuilder $fb) => $fb->equal('id', 2)
+                ->returningColumns(fn(ColumnsBuilder $cb) => $cb->primaryKey())
+        );
+
+        $this::assertEquals(1, $result->getAffectedRows());
+        $this::assertEquals(2, $result[0]['id']);
     }
 
     public function testDeleteWithFragment(): void

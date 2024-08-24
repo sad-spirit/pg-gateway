@@ -81,18 +81,6 @@ class FragmentListTest extends TestCase
         );
     }
 
-    public function testNormalizeClosure(): void
-    {
-        $list = FragmentList::normalize(function (Select $select) {
-            $select->limit = 10;
-        });
-
-        $this::assertCount(1, $list);
-        foreach ($list as $item) {
-            $this::assertInstanceOf(ClosureFragment::class, $item);
-        }
-    }
-
     public function testNormalizeIterable(): void
     {
         $fragmentOne = new FragmentImplementation(new KeywordConstant(KeywordConstant::FALSE), 'one');

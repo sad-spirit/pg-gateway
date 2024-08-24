@@ -60,7 +60,11 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
             $this->tableLocator->getTypeConverterFactory()
         );
 
-        return new TableSelect($this->tableLocator, $this, $condition, $condition->normalizeValue($primaryKey));
+        return new TableSelect(
+            $this->tableLocator,
+            $this,
+            (new FragmentList($condition))->mergeParameters($condition->normalizeValue($primaryKey))
+        );
     }
 
     public function updateByPrimaryKey($primaryKey, array $set): Result

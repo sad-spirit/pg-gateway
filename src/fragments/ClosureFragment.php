@@ -17,7 +17,7 @@ use sad_spirit\pg_builder\Statement;
 use sad_spirit\pg_gateway\Fragment;
 
 /**
- * Wrapper around closure passed to a TableGateway method as $fragments parameter
+ * Wrapper around closure passed to a method of AdHocStatement implementation
  */
 class ClosureFragment implements Fragment
 {

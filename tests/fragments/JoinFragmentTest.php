@@ -87,7 +87,7 @@ class JoinFragmentTest extends DatabaseBackedTest
 
     public function testKeyIsNullForNullSelectKey(): void
     {
-        $select    = self::$gateway->select(function (Select $select) {
+        $select    = self::$gateway->selectWithAST(function (Select $select) {
             $select->limit = new NumericConstant('10');
         });
         $condition = new SqlStringCondition(

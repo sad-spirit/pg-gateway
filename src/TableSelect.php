@@ -50,8 +50,7 @@ final class TableSelect implements SelectProxy
      *
      * @param TableLocator $tableLocator
      * @param TableGateway $gateway
-     * @param null|\Closure|Fragment|FragmentBuilder|iterable<Fragment|FragmentBuilder> $fragments
-     * @param array<string, mixed> $parameters
+     * @param FragmentList $fragments
      * @param \Closure(): SelectCommon|null $baseSelectAST Overrides the base AST
      *      (corresponding to "SELECT self.* from tablename as self" in SQL) which is used when building
      *      the SELECT query. May be used to add some default calculated fields, default JOINs, etc.
@@ -61,15 +60,14 @@ final class TableSelect implements SelectProxy
     public function __construct(
         TableLocator $tableLocator,
         TableGateway $gateway,
-        $fragments = null,
-        array $parameters = [],
+        FragmentList $fragments,
         \Closure $baseSelectAST = null,
         \Closure $baseCountAST = null
     ) {
         $this->tableLocator  = $tableLocator;
         $this->gateway       = $gateway;
-        $this->fragments     = FragmentList::normalize($fragments)
-            ->mergeParameters($parameters);
+        // FragmentList instance used here should be immutable
+        $this->fragments     = clone $fragments;
 
         $this->baseSelectAST = $baseSelectAST ?? function (): Select {
             $from = new RelationReference($this->getDefinition()->getName()->createNode());

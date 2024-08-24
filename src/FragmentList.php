@@ -13,13 +13,14 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway;
 
-use sad_spirit\pg_gateway\{
-    exceptions\InvalidArgumentException,
-    exceptions\LogicException,
-    fragments\ClosureFragment,
-    holders\ParameterHolderFactory,
-    holders\RecursiveParameterHolder,
-    holders\SimpleParameterHolder
+use sad_spirit\pg_gateway\exceptions\{
+    InvalidArgumentException,
+    LogicException
+};
+use sad_spirit\pg_gateway\holders\{
+    ParameterHolderFactory,
+    RecursiveParameterHolder,
+    SimpleParameterHolder
 };
 use sad_spirit\pg_builder\Statement;
 
@@ -60,9 +61,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
     public static function normalize($fragments): self
     {
         $arguments = [];
-        if ($fragments instanceof \Closure) {
-            $arguments[] = new ClosureFragment($fragments);
-        } elseif ($fragments instanceof Fragment || $fragments instanceof FragmentBuilder) {
+        if ($fragments instanceof Fragment || $fragments instanceof FragmentBuilder) {
             $arguments[] = $fragments;
         } elseif (\is_iterable($fragments)) {
             foreach ($fragments as $fragment) {

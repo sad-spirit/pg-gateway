@@ -18,9 +18,11 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests;
 
 use sad_spirit\pg_gateway\{
+    FragmentList,
     OrdinaryTableDefinition,
     TableSelect,
     TableLocator,
+    fragments\ClosureFragment,
     gateways\GenericTableGateway,
     metadata\TableName
 };
@@ -86,7 +88,7 @@ class TableSelectTest extends DatabaseBackedTest
     public function testSelectWithClosure(): void
     {
         $gateway     = $this->createTableGateway('foo');
-        $tableSelect = $gateway->select(function (Select $select) {
+        $tableSelect = $gateway->selectWithAST(function (Select $select) {
             $select->where->and('id = 2');
         });
 
@@ -100,7 +102,7 @@ class TableSelectTest extends DatabaseBackedTest
     public function testSelectWithClosureAndParameters(): void
     {
         $gateway     = $this->createTableGateway('bar');
-        $tableSelect = $gateway->select(
+        $tableSelect = $gateway->selectWithAST(
             fn (Select $select) => $select->where->and('foo_id = :foo_id and id > :id'),
             ['foo_id' => 2, 'id' => 2]
         );
@@ -180,8 +182,10 @@ class TableSelectTest extends DatabaseBackedTest
         $select  = new TableSelect(
             self::$tableLocator,
             $gateway,
-            fn (Select $select) => $select->where->and('self.id = :id'),
-            ['id' => 1],
+            (new FragmentList(new ClosureFragment(
+                fn (Select $select) => $select->where->and('self.id = :id')
+            )))
+                ->mergeParameters(['id' => 1]),
             fn() => self::$tableLocator->createFromString(
                 "select self.*, bar.name as bar_name from foo as self, bar where self.id = bar.id"
             )

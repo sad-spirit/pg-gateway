@@ -22,6 +22,8 @@ use sad_spirit\pg_gateway\tests\DatabaseBackedTest;
 use sad_spirit\pg_gateway\{
     OrdinaryTableDefinition,
     TableLocator,
+    builders\ColumnsBuilder,
+    builders\FluentBuilder,
     exceptions\InvalidArgumentException,
     exceptions\UnexpectedValueException,
     gateways\GenericTableGateway,
@@ -65,7 +67,7 @@ class InsertTest extends DatabaseBackedTest
         $this::expectException(UnexpectedValueException::class);
         $this::expectExceptionMessage('Multiple values');
 
-        self::$gateway->insert(
+        self::$gateway->insertWithAST(
             ['id' => 666],
             function (Insert $insert) {
                 $insert->returning[] = ':id';
@@ -84,7 +86,7 @@ class InsertTest extends DatabaseBackedTest
 
     public function testInsertWithDefaultValues(): void
     {
-        $result = self::$gateway->insert([], function (Insert $insert) {
+        $result = self::$gateway->insertWithAST([], function (Insert $insert) {
             $insert->returning[] = 'self.title';
         });
 
@@ -94,7 +96,7 @@ class InsertTest extends DatabaseBackedTest
 
     public function testInsertWithArray(): void
     {
-        $result = self::$gateway->insert(['title' => 'Some non-default title'], function (Insert $insert) {
+        $result = self::$gateway->insertWithAST(['title' => 'Some non-default title'], function (Insert $insert) {
             $insert->returning[] = 'self.title';
         });
 
@@ -108,7 +110,7 @@ class InsertTest extends DatabaseBackedTest
         $select = self::$tableLocator->createFromString(
             "select unnest(array['first title', 'second title'])"
         );
-        $result = self::$gateway->insert($select, function (Insert $insert) {
+        $result = self::$gateway->insertWithAST($select, function (Insert $insert) {
             $insert->cols[] = new SetTargetElement('title');
             $insert->returning[] = 'self.title';
         });
@@ -125,13 +127,11 @@ class InsertTest extends DatabaseBackedTest
         );
 
         $result = self::$gateway->insert(
-            $sourceGateway->select(
+            $sourceGateway->selectWithAST(
                 fn (Select $select) => $select->where->and('id = :id'),
                 ['id' => -2]
             ),
-            function (Insert $insert) {
-                $insert->returning[] = 'self.title';
-            }
+            fn (FluentBuilder $fb) => $fb->returningColumns(fn (ColumnsBuilder $cb) => $cb->only(['title']))
         );
 
         $this::assertEquals(1, $result->getAffectedRows());
