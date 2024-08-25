@@ -201,4 +201,12 @@ final class TableSelect implements SelectProxy
         $result->setMode(\PGSQL_NUM);
         return $result[0][0];
     }
+
+    /**
+     * Executes the "SELECT [target list]" query with current fragments and returns the first row of the result
+     */
+    public function fetchFirst(): ?array
+    {
+        return $this->getIterator()->current();
+    }
 }

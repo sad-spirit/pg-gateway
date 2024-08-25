@@ -22,6 +22,10 @@ use sad_spirit\pg_gateway\{
     OrdinaryTableDefinition,
     TableSelect,
     TableLocator,
+    builders\ColumnsBuilder,
+    builders\FluentBuilder,
+    conditions\ParametrizedCondition,
+    conditions\PrimaryKeyCondition,
     fragments\ClosureFragment,
     gateways\GenericTableGateway,
     metadata\TableName
@@ -195,5 +199,34 @@ class TableSelectTest extends DatabaseBackedTest
             ['id' => 1, 'name' => 'one', 'bar_name' => 'some stuff'],
             $select->getIterator()->current()
         );
+    }
+
+    public function testFragmentsAddedToPassedFragmentListAreIgnored(): void
+    {
+        $fragmentList = new FragmentList();
+        $tableGateway = $this->createTableGateway('foo');
+        $tableSelect  = new TableSelect(self::$tableLocator, $tableGateway, $fragmentList);
+
+        $this::assertEquals(3, $tableSelect->executeCount());
+
+        $fragmentList->add(new ParametrizedCondition(
+            new PrimaryKeyCondition(
+                $tableGateway->getDefinition()->getPrimaryKey(),
+                self::$tableLocator->getTypeConverterFactory()
+            ),
+            ['id' => 10]
+        ));
+        $this::assertEquals(3, $tableSelect->executeCount());
+    }
+
+    public function testFetchFirst(): void
+    {
+        $gateway = $this->createTableGateway('foo');
+        $select  = $gateway->select(
+            fn (FluentBuilder $fb) => $fb->orderBy('id desc')
+                ->outputColumns(fn (ColumnsBuilder $cb) => $cb->primaryKey())
+        );
+
+        $this::assertEquals(['id' => 3], $select->fetchFirst());
     }
 }
