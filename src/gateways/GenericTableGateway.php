@@ -144,7 +144,7 @@ class GenericTableGateway implements TableGateway, AdHocStatement
      *
      * @param FragmentsInput $fragments
      */
-    private function convertFragments($fragments, array $parameters): FragmentList
+    protected function convertFragments($fragments, array $parameters): FragmentList
     {
         if (!$fragments instanceof \Closure) {
             return FragmentList::normalize($fragments)
