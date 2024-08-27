@@ -63,8 +63,7 @@ we can use default gateways and default builders to perform a non-trivial query 
 ```PHP
 use sad_spirit\pg_gateway\{
     TableLocator,
-    builders\ColumnsBuilder,
-    builders\JoinBuilder
+    builders\FluentBuilder
 };
 use sad_spirit\pg_wrapper\Connection;
 
