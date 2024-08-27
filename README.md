@@ -72,34 +72,29 @@ $connection = new Connection('...');
 $locator    = new TableLocator($connection);
 
 $adminRoles = $locator->createGateway('example.roles')
-    ->select(
-        $locator->createBuilder('example.roles')
-            ->outputColumns(
-                fn(ColumnsBuilder $cb) => $cb->except(['description'])
-                    ->replace('/^/', 'role_')
-            )
-            ->operatorCondition('name', '~*', 'admin')
-    );
+    ->select(fn(FluentBuilder $builder) => $builder
+        ->operatorCondition('name', '~*', 'admin')
+        ->outputColumns()
+            ->except(['description'])
+            ->replace('/^/', 'role_'));
 
 $activeAdminRoles = $locator->createGateway('example.users_roles')
-    ->select(
-        $locator->createBuilder('example.users_roles')
-            ->outputColumns(fn(ColumnsBuilder $cb) => $cb->only(['valid_from', 'valid_to']))
-            ->join($adminRoles, fn(JoinBuilder $jb) => $jb->onForeignKey())
-            ->sqlCondition("current_date between coalesce(self.valid_from, 'yesterday') and coalesce(self.valid_to, 'tomorrow')")
-    );
+    ->select(fn(FluentBuilder $builder) => $builder
+        ->sqlCondition("current_date between coalesce(self.valid_from, 'yesterday') and coalesce(self.valid_to, 'tomorrow')")
+        ->join($adminRoles)
+            ->onForeignKey()
+        ->outputColumns()
+            ->only(['valid_from', 'valid_to']));
 
 $activeAdminUsers = $locator->createGateway('example.users')
-    ->select(
-        $locator->createBuilder('example.users')
-            ->outputColumns(
-                fn(ColumnsBuilder $cb) => $cb->except(['password_hash'])
-                    ->replace('/^/', 'user_')
-            )
-            ->join($activeAdminRoles, fn(JoinBuilder $jb) => $jb->onForeignKey())
-            ->orderBy('user_login, role_name')
-            ->limit(5)
-    );
+    ->select(fn(FluentBuilder $builder) => $builder
+        ->outputColumns()
+            ->except(['password_hash'])
+            ->replace('/^/', 'user_')
+        ->join($activeAdminRoles)
+            ->onForeignKey()
+        ->orderBy('user_login, role_name')
+        ->limit(5));
 
 // Let's assume we want to output that list with pagination
 echo "Total users with active admin roles: " . $activeAdminUsers->executeCount() . "\n\n";

@@ -348,18 +348,19 @@ class FluentBuilder extends FragmentListBuilder
      * $builder->outputColumns(fn(ColumnsBuilder $cb) => $cb->primaryKey()->replace('/_id$/', 'Identity'));
      * </code>
      *
-     * @param callable(ColumnsBuilder): mixed|null $callback
-     * @return $this
+     * @param callable(ColumnsBuilder): mixed|null $callback Deprecated since 0.4.0, use methods of the returned object
+     * @return proxies\ColumnsBuilderProxy<static>
      */
-    public function outputColumns(callable $callback = null): self
+    public function outputColumns(callable $callback = null): proxies\ColumnsBuilderProxy
     {
-        $builder = new ColumnsBuilder($this->definition, false);
+        $builder = new proxies\ColumnsBuilderProxy($this, $this->definition, false);
+        $this->addProxy($builder);
 
         if (null !== $callback) {
             $callback($builder);
         }
 
-        return $this->add($builder);
+        return $builder;
     }
 
     /**
@@ -370,18 +371,19 @@ class FluentBuilder extends FragmentListBuilder
      * $builder->returningColumns(fn(ColumnsBuilder $cb) => $cb->only(['id', 'name']));
      * </code>
      *
-     * @param callable(ColumnsBuilder): mixed|null $callback
-     * @return FluentBuilder
+     * @param callable(ColumnsBuilder): mixed|null $callback Deprecated since 0.4.0, use methods of the returned object
+     * @return proxies\ColumnsBuilderProxy<static>
      */
-    public function returningColumns(callable $callback = null): self
+    public function returningColumns(callable $callback = null): proxies\ColumnsBuilderProxy
     {
-        $builder = new ColumnsBuilder($this->definition, true);
+        $builder = new proxies\ColumnsBuilderProxy($this, $this->definition, true);
+        $this->addProxy($builder);
 
         if (null !== $callback) {
             $callback($builder);
         }
 
-        return $this->add($builder);
+        return $builder;
     }
 
     /**
@@ -398,18 +400,20 @@ class FluentBuilder extends FragmentListBuilder
      * </code>
      *
      * @param SelectProxy $select
-     * @param callable(ScalarSubqueryBuilder): mixed|null $callback
-     * @return $this
+     * @param callable(ScalarSubqueryBuilder): mixed|null $callback Deprecated since 0.4.0, use methods
+     *                                                              of the returned object
+     * @return proxies\ScalarSubqueryBuilderProxy<static>
      */
-    public function outputSubquery(SelectProxy $select, callable $callback = null): self
+    public function outputSubquery(SelectProxy $select, callable $callback = null): proxies\ScalarSubqueryBuilderProxy
     {
-        $builder = new ScalarSubqueryBuilder($this->definition, $select);
+        $builder = new proxies\ScalarSubqueryBuilderProxy($this, $this->definition, $select);
+        $this->addProxy($builder);
 
         if (null !== $callback) {
             $callback($builder);
         }
 
-        return $this->add($builder);
+        return $builder;
     }
 
     /**
@@ -468,18 +472,19 @@ class FluentBuilder extends FragmentListBuilder
      * </code>
      *
      * @param string|TableName|QualifiedName|TableGateway|SelectProxy $joined
-     * @param callable(JoinBuilder): mixed|null $callback
-     * @return $this
+     * @param callable(JoinBuilder): mixed|null $callback Deprecated since 0.4.0, use methods of the returned object
+     * @return proxies\JoinBuilderProxy<static>
      */
-    public function join($joined, callable $callback = null): self
+    public function join($joined, callable $callback = null): proxies\JoinBuilderProxy
     {
-        $builder = new JoinBuilder($this->definition, $this->normalizeSelect($joined));
+        $builder = new proxies\JoinBuilderProxy($this, $this->definition, $this->normalizeSelect($joined));
+        $this->addProxy($builder);
 
         if (null !== $callback) {
             $callback($builder);
         }
 
-        return $this->add($builder);
+        return $builder;
     }
 
     /**
@@ -491,18 +496,19 @@ class FluentBuilder extends FragmentListBuilder
      * </code>
      *
      * @param string|TableName|QualifiedName|TableGateway|SelectProxy $select
-     * @param callable(ExistsBuilder):mixed|null $callback
-     * @return $this
+     * @param callable(ExistsBuilder):mixed|null $callback Deprecated since 0.4.0, use methods of the returned object
+     * @return proxies\ExistsBuilderProxy<static>
      */
-    public function exists($select, callable $callback = null): self
+    public function exists($select, callable $callback = null): proxies\ExistsBuilderProxy
     {
-        $builder = $this->createExists($select);
+        $builder = new proxies\ExistsBuilderProxy($this, $this->definition, $this->normalizeSelect($select));
+        $this->addProxy($builder);
 
         if (null !== $callback) {
             $callback($builder);
         }
 
-        return $this->add($builder);
+        return $builder;
     }
 
     /**
@@ -566,18 +572,22 @@ class FluentBuilder extends FragmentListBuilder
      *
      * @param SelectProxy $select
      * @param string $alias
-     * @param callable(WithClauseBuilder):mixed|null $callback
-     * @return $this
+     * @param callable(WithClauseBuilder):mixed|null $callback Deprecated since 0.4.0, use methods of the returned object
+     * @return proxies\WithClauseBuilderProxy<static>
      */
-    public function withSelect(SelectProxy $select, string $alias, callable $callback = null): self
-    {
-        $builder = new WithClauseBuilder($select, $alias);
+    public function withSelect(
+        SelectProxy $select,
+        string $alias,
+        callable $callback = null
+    ): proxies\WithClauseBuilderProxy {
+        $builder = new proxies\WithClauseBuilderProxy($this, $select, $alias);
+        $this->addProxy($builder);
 
         if (null !== $callback) {
             $callback($builder);
         }
 
-        return $this->add($builder);
+        return $builder;
     }
 
     /**

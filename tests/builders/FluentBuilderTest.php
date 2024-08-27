@@ -332,7 +332,8 @@ class FluentBuilderTest extends DatabaseBackedTest
         $gateway = self::$tableLocator->createGateway('update_test');
 
         $select = $gateway->select(
-            $this->builder->join($name, fn(JoinBuilder $jb) => $jb->alias('custom'))
+            $this->builder->join($name)
+                ->alias('custom')
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
@@ -355,7 +356,8 @@ class FluentBuilderTest extends DatabaseBackedTest
         $gateway = self::$tableLocator->createGateway('update_test');
 
         $select = $gateway->select(
-            $this->builder->join($gateway, fn(JoinBuilder $jb) => $jb->alias('custom'))
+            $this->builder->join($gateway)
+                ->alias('custom')
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
@@ -369,10 +371,8 @@ class FluentBuilderTest extends DatabaseBackedTest
         $gateway = self::$tableLocator->createGateway('update_test');
 
         $select = $gateway->select(
-            $this->builder->join(
-                $gateway->select($this->builder->createBoolColumn('flag')),
-                fn(JoinBuilder $jb) => $jb->alias('custom')
-            )
+            $this->builder->join($gateway->select($this->builder->createBoolColumn('flag')))
+                ->alias('custom')
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
@@ -390,12 +390,13 @@ class FluentBuilderTest extends DatabaseBackedTest
         $select = $gateway->select(
             $this->builder->outputSubquery(
                 $unconditional->select(
-                    $ucBuilder->outputColumns(fn (ColumnsBuilder $cb) => $cb->only(['id']))
-                ),
-                fn(ScalarSubqueryBuilder $sb) => $sb->alias('custom')
-                    ->columnAlias('klmn')
-                    ->joinOn($this->builder->createSqlCondition('self.title = joined.title'))
+                    $ucBuilder->outputColumns()
+                        ->only(['id'])
+                )
             )
+                ->alias('custom')
+                ->columnAlias('klmn')
+                ->joinOn($this->builder->createSqlCondition('self.title = joined.title'))
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
@@ -448,13 +449,10 @@ class FluentBuilderTest extends DatabaseBackedTest
     public function testWithClauseUsingSelectProxy(): void
     {
         $gateway = self::$tableLocator->createGateway('update_test');
-        $select  = $gateway->select($this->builder->withSelect(
-            $gateway->select(),
-            'aaa',
-            fn(WithClauseBuilder $wb) => $wb->recursive()
-                ->notMaterialized()
-                ->columnAliases(['foo', 'bar'])
-        ));
+        $select  = $gateway->select($this->builder->withSelect($gateway->select(), 'aaa')
+            ->recursive()
+            ->notMaterialized()
+            ->columnAliases(['foo', 'bar']));
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'with recursive aaa (foo, bar) as not materialized ( select self.* from public.update_test as self ) '

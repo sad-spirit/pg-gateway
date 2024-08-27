@@ -1,5 +1,45 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+ * Closures passed as the `$fragments` parameter into methods defined in `TableGateway` interface will receive
+   a subclass of `FragmentListBuilder` (created by `TableLocator::createBuilder()` for that table name)
+   rather than a subclass of `Statement`. Before:
+   ```PHP
+   $gateway->delete(fn(Delete $delete) => $delete->where->and('foo = bar'));
+   ```
+   now:
+   ```PHP
+   $gateway->delete(fn(FluentBuilder $fb) => $fb->sqlCondition('foo = bar'));
+   ```
+   Previous behaviour is supported by the new `*WithAST()` methods.
+ * Methods of `FluentBuilder` that accepted callbacks to configure the created builder instances, e.g. `join()`,
+   now return builder objects that proxy `FluentBuilder` methods. Before:
+   ```PHP
+   $builder->join($otherTable, fn(JoinBuilder $jb) => $jb->left()->onForeignKey())
+      ->outputColumns(fn(ColumnsBuilder $cb) => $cb->except(['foo']));
+   ```
+   now:
+   ```PHP
+   $builder
+      ->join($otherTable)
+          ->left()
+          ->onForeignKey()
+      ->outputColumns()
+          ->except(['foo']);
+   ```
+   Callbacks are still accepted but deprecated.
+
+### Added
+ * `AdHocStatement` interface with `deleteWithAST()`, `insertWithAST()`, `selectWithAST()`, and `updateWithAST()`
+   methods. Those accept closures that receive the relevant subclass of `Statement` as parameter.
+   `GenericTableGateway` implements this interface.
+ * `GenericTableGateway::createBuilder()` method that calls `TableLocator::createBuilder()` internally
+   using the table's name from that gateway.
+ * `TableSelect::fetchFirst()` method that is shorthand for `$select->getIterator()->current()`
+
+
 ## [0.3.0] - 2024-08-06
 
 ### Changed
@@ -81,3 +121,4 @@ Initial release on GitHub.
 [0.2.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.1.0...v0.2.0
 [0.2.1]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.0...v0.2.1
 [0.3.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.1...v0.3.0
+[Unreleased]: https://github.com/sad-spirit/pg-gateway/compare/v0.3.0...HEAD
