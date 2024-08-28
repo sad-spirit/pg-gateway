@@ -20,11 +20,12 @@ use sad_spirit\pg_gateway\tests\assets\ConditionImplementation;
 use sad_spirit\pg_gateway\tests\NormalizeWhitespace;
 use sad_spirit\pg_gateway\{
     Condition,
+    SelectBuilder,
     SelectProxy,
     conditions\ParametrizedCondition,
     conditions\SqlStringCondition,
     exceptions\UnexpectedValueException,
-    holders\SimpleParameterHolder,
+    holders\SimpleParameterHolder
 };
 use sad_spirit\pg_gateway\fragments\target_list\SubqueryAppender;
 use sad_spirit\pg_builder\Select;
@@ -174,9 +175,9 @@ class SubqueryAppenderTest extends TestCase
         );
     }
 
-    private function getMockKeyedSelect(?string $key): SelectProxy
+    private function getMockKeyedSelect(?string $key): SelectBuilder
     {
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
+        $mockSelect = $this->getMockBuilder(SelectBuilder::class)
             ->onlyMethods(['getKey'])
             ->getMockForAbstractClass();
 

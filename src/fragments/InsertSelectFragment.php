@@ -17,8 +17,9 @@ use sad_spirit\pg_gateway\{
     Fragment,
     ParameterHolder,
     Parametrized,
-    SelectProxy,
-    exceptions\InvalidArgumentException
+    SelectBuilder,
+    exceptions\InvalidArgumentException,
+    holders\ParameterHolderFactory
 };
 use sad_spirit\pg_builder\{
     Insert,
@@ -26,13 +27,13 @@ use sad_spirit\pg_builder\{
 };
 
 /**
- * Wrapper for SelectProxy object passed as $values to GenericTableGateway::insert()
+ * Wrapper for SelectBuilder object passed as $values to GenericTableGateway::insert()
  */
 class InsertSelectFragment implements Fragment, Parametrized
 {
-    private SelectProxy $select;
+    private SelectBuilder $select;
 
-    public function __construct(SelectProxy $select)
+    public function __construct(SelectBuilder $select)
     {
         $this->select = $select;
     }
@@ -60,6 +61,6 @@ class InsertSelectFragment implements Fragment, Parametrized
 
     public function getParameterHolder(): ParameterHolder
     {
-        return $this->select->getParameterHolder();
+        return ParameterHolderFactory::create($this->select);
     }
 }

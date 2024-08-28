@@ -15,7 +15,7 @@ namespace sad_spirit\pg_gateway\builders\proxies;
 
 use sad_spirit\pg_gateway\{
     Fragment,
-    SelectProxy,
+    SelectBuilder,
     TableDefinition
 };
 use sad_spirit\pg_gateway\builders\{
@@ -39,7 +39,7 @@ class JoinBuilderProxy extends JoinBuilder implements Proxy
     /**
      * @param Owner $owner
      */
-    public function __construct(FluentBuilder $owner, TableDefinition $base, SelectProxy $additional)
+    public function __construct(FluentBuilder $owner, TableDefinition $base, SelectBuilder $additional)
     {
         parent::__construct($base, $additional);
         $this->owner = $owner;

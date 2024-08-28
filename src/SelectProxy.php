@@ -38,7 +38,7 @@ use sad_spirit\pg_wrapper\Result;
  *
  * @extends \IteratorAggregate<int, array>
  */
-interface SelectProxy extends KeyEquatable, Parametrized, TableAccessor, \IteratorAggregate
+interface SelectProxy extends SelectBuilder, Parametrized, TableAccessor, \IteratorAggregate
 {
     /**
      * Executes the "SELECT COUNT(*)" query with current fragments and returns the resultant value
@@ -59,13 +59,4 @@ interface SelectProxy extends KeyEquatable, Parametrized, TableAccessor, \Iterat
      * @return Result
      */
     public function getIterator(): Result;
-
-    /**
-     * Returns the AST representing this SELECT statement
-     *
-     * This method is used when embedding the select query into a bigger statement via e.g. JOIN or EXISTS(...)
-     *
-     * @return SelectCommon
-     */
-    public function createSelectAST(): SelectCommon;
 }

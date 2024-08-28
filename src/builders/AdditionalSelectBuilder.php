@@ -15,22 +15,23 @@ namespace sad_spirit\pg_gateway\builders;
 
 use sad_spirit\pg_gateway\{
     FragmentBuilder,
-    SelectProxy,
+    SelectBuilder,
+    TableAccessor,
     TableDefinition,
     conditions\ForeignKeyCondition,
     exceptions\LogicException
 };
 
 /**
- * Base class for builders that create Fragments based on an additional SelectProxy
+ * Base class for builders that create Fragments based on an additional SELECT statement
  */
 abstract class AdditionalSelectBuilder implements FragmentBuilder
 {
     protected TableDefinition $base;
-    protected SelectProxy $additional;
+    protected SelectBuilder $additional;
     protected ?string $alias = null;
 
-    public function __construct(TableDefinition $base, SelectProxy $additional)
+    public function __construct(TableDefinition $base, SelectBuilder $additional)
     {
         $this->base = $base;
         $this->additional = $additional;
@@ -47,6 +48,12 @@ abstract class AdditionalSelectBuilder implements FragmentBuilder
      */
     protected function createForeignKeyCondition(array $keyColumns = [], bool $fromChild = null): ForeignKeyCondition
     {
+        if (!$this->additional instanceof TableAccessor) {
+            throw new LogicException(\sprintf(
+                "Cannot create a foreign key condition: an instance of %s does not contain table metadata",
+                \get_class($this->additional)
+            ));
+        }
         $foreignKey = $this->base->getReferences()
             ->get($this->additional->getDefinition()->getName(), $keyColumns);
         if (!$foreignKey->isRecursive()) {

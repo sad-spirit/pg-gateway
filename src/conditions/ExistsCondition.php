@@ -17,7 +17,7 @@ use sad_spirit\pg_gateway\{
     Condition,
     ParameterHolder,
     Parametrized,
-    SelectProxy,
+    SelectBuilder,
     TableGateway,
     TableLocator,
     exceptions\UnexpectedValueException,
@@ -37,24 +37,24 @@ use sad_spirit\pg_builder\nodes\{
  */
 final class ExistsCondition extends Condition implements Parametrized
 {
-    private SelectProxy $proxy;
+    private SelectBuilder $builder;
     private ?Condition $joinCondition;
     private ?string $explicitAlias;
     private ?string $alias = null;
 
     public function __construct(
-        SelectProxy $select,
+        SelectBuilder $select,
         ?Condition $joinCondition = null,
         ?string $explicitAlias = null
     ) {
-        $this->proxy = $select;
+        $this->builder = $select;
         $this->joinCondition = $joinCondition;
         $this->explicitAlias = $explicitAlias;
     }
 
     protected function generateExpressionImpl(): ScalarExpression
     {
-        $select = clone $this->proxy->createSelectAST();
+        $select = clone $this->builder->createSelectAST();
         $alias  = $this->getAlias();
         $select->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_SELF, $alias));
         // https://www.postgresql.org/docs/current/functions-subquery.html#FUNCTIONS-SUBQUERY-EXISTS
@@ -92,7 +92,7 @@ final class ExistsCondition extends Condition implements Parametrized
 
     public function getKey(): ?string
     {
-        $selectKey    = $this->proxy->getKey();
+        $selectKey    = $this->builder->getKey();
         $conditionKey = null === $this->joinCondition ? 'none' : $this->joinCondition->getKey();
         $aliasKey     = null === $this->explicitAlias ? '' : '.' . TableLocator::hash($this->explicitAlias);
 
@@ -103,6 +103,6 @@ final class ExistsCondition extends Condition implements Parametrized
 
     public function getParameterHolder(): ParameterHolder
     {
-        return ParameterHolderFactory::create($this->proxy, $this->joinCondition);
+        return ParameterHolderFactory::create($this->builder, $this->joinCondition);
     }
 }

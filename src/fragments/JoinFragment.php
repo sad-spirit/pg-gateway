@@ -18,8 +18,8 @@ use sad_spirit\pg_gateway\{
     Fragment,
     ParameterHolder,
     Parametrized,
+    SelectBuilder,
     SelectFragment,
-    SelectProxy,
     TableGateway,
     TableLocator,
     exceptions\InvalidArgumentException,
@@ -38,7 +38,7 @@ class JoinFragment implements SelectFragment, Parametrized
 {
     use VariablePriority;
 
-    private SelectProxy $joined;
+    private SelectBuilder $joined;
     private ?Condition $condition;
     private bool $usedForCount;
     private JoinStrategy $strategy;
@@ -46,7 +46,7 @@ class JoinFragment implements SelectFragment, Parametrized
     private ?string $alias = null;
 
     public function __construct(
-        SelectProxy $joined,
+        SelectBuilder $joined,
         Condition $condition = null,
         JoinStrategy $strategy = null,
         bool $usedForCount = true,

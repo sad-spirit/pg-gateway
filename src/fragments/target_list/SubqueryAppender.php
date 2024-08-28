@@ -17,7 +17,7 @@ use sad_spirit\pg_gateway\{
     Condition,
     ParameterHolder,
     Parametrized,
-    SelectProxy,
+    SelectBuilder,
     TableGateway,
     TableLocator,
     exceptions\UnexpectedValueException,
@@ -39,14 +39,14 @@ use sad_spirit\pg_builder\nodes\{
  */
 class SubqueryAppender extends TargetListManipulator implements Parametrized
 {
-    private SelectProxy $select;
+    private SelectBuilder $select;
     private ?Condition $joinCondition;
     private ?string $explicitTableAlias;
     private ?string $columnAlias;
     private ?string $tableAlias = null;
 
     public function __construct(
-        SelectProxy $select,
+        SelectBuilder $select,
         ?Condition $joinCondition = null,
         ?string $explicitAlias = null,
         ?string $columnAlias = null
