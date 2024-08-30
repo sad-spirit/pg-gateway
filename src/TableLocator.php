@@ -44,6 +44,8 @@ use Psr\Cache\InvalidArgumentException as PsrException;
 
 /**
  * TableLocator is a facade to pg_gateway features and a means to create table gateways
+ *
+ * @psalm-import-type FragmentsInput from TableGateway
  */
 class TableLocator
 {
@@ -262,6 +264,19 @@ class TableLocator
     public function createTypeNameNodeForOID($oid): TypeName
     {
         return $this->typeConverterFactory->createTypeNameNodeForOID($oid);
+    }
+
+    /**
+     * Returns the result of calling select() on the table gateway created for the given table name
+     *
+     * @param string|TableName|QualifiedName $name
+     * @param FragmentsInput $fragments
+     * @param array<string, mixed> $parameters
+     * @return SelectProxy
+     */
+    public function select($name, $fragments = null, array $parameters = []): SelectProxy
+    {
+        return $this->createGateway($name)->select($fragments, $parameters);
     }
 
     /**

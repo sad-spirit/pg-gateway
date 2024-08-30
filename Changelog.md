@@ -44,9 +44,13 @@
  * `AdHocStatement` interface with `deleteWithAST()`, `insertWithAST()`, `selectWithAST()`, and `updateWithAST()`
    methods. Those accept closures that receive the relevant subclass of `Statement` as parameter.
    `GenericTableGateway` implements this interface.
+ * `FragmentListBuilder::__clone()`: this now clones the current state of the builder allowing to safely use 
+   a semi-configured one as a prototype.
  * `GenericTableGateway::createBuilder()` method that calls `TableLocator::createBuilder()` internally
    using the table's name from that gateway.
  * `TableSelect::fetchFirst()` method that is shorthand for `$select->getIterator()->current()`
+ * `TableLocator::select($name, $fragments, $parameters)` method that is shorthand for
+   `$locator->createGateway($name)->select($fragments, $parameters)`
 
 
 ## [0.3.0] - 2024-08-06
