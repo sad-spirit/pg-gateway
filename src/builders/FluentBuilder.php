@@ -15,10 +15,12 @@ namespace sad_spirit\pg_gateway\builders;
 
 use sad_spirit\pg_gateway\{
     Condition,
+    Exception,
     Fragment,
     SelectBuilder,
     SelectProxy,
     SqlStringSelectBuilder,
+    TableAccessor,
     TableGateway,
     exceptions\InvalidArgumentException,
     metadata\TableName
@@ -468,6 +470,10 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Adds a join to the given table
      *
+     * The method will try to call `onForeignKey()` method of builder if $joined contains table metadata (i.e. is not
+     * an SQL string). If an Exception is thrown in that call (due to missing / ambiguous FK), it will be silenced
+     * and the join will remain unconditional.
+     *
      * $callback is a function that accepts an instance of JoinBuilder and should configure it:
      * <code>
      * $builder->join($table, fn(JoinBuilder $jb) => $jb->left()->onForeignKey());
@@ -479,9 +485,16 @@ class FluentBuilder extends FragmentListBuilder
      */
     public function join($joined, callable $callback = null): proxies\JoinBuilderProxy
     {
-        $builder = new proxies\JoinBuilderProxy($this, $this->definition, $this->normalizeSelect($joined));
+        $normalized = $this->normalizeSelect($joined);
+        $builder    = new proxies\JoinBuilderProxy($this, $this->definition, $normalized);
         $this->addProxy($builder);
 
+        if ($normalized instanceof TableAccessor) {
+            try {
+                $builder->onForeignKey();
+            } catch (Exception $e) {
+            }
+        }
         if (null !== $callback) {
             $callback($builder);
         }

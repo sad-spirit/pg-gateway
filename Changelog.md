@@ -39,6 +39,13 @@
    Table names can still be passed as instances of `TableName` or `QualifiedName`.
  * Constructor of `TableSelect` accepts an instance of `FragmentList` rather than separate
    `$fragments` and `$parameters`.
+ * `FluentBuilder::join()` will join on foreign key by default if possible. If an unconditional
+   join is needed, this should be explicitly requested:
+   ```PHP
+   $builder
+      ->join($otherTable)
+          ->unconditional();
+   ```
 
 ### Added
  * `AdHocStatement` interface with `deleteWithAST()`, `insertWithAST()`, `selectWithAST()`, and `updateWithAST()`

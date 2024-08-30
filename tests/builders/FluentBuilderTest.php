@@ -18,13 +18,11 @@ namespace sad_spirit\pg_gateway\tests\builders;
 use sad_spirit\pg_gateway\{
     Fragment,
     FragmentList,
+    fragments\JoinFragment,
     OrdinaryTableDefinition,
     TableLocator,
-    builders\ColumnsBuilder,
     builders\FluentBuilder,
-    builders\JoinBuilder,
-    builders\ScalarSubqueryBuilder,
-    builders\WithClauseBuilder,
+    conditions\ForeignKeyCondition,
     conditions\ParametrizedCondition,
     exceptions\LogicException,
     exceptions\OutOfBoundsException,
@@ -53,12 +51,13 @@ class FluentBuilderTest extends DatabaseBackedTest
     {
         parent::setUpBeforeClass();
         self::executeSqlFromFile(self::$connection, 'update-drop.sql', 'update-create.sql');
+        self::executeSqlFromFile(self::$connection, 'foreign-key-drop.sql', 'foreign-key-create.sql');
         self::$tableLocator = new TableLocator(self::$connection);
     }
 
     public static function tearDownAfterClass(): void
     {
-        self::executeSqlFromFile(self::$connection, 'update-drop.sql');
+        self::executeSqlFromFile(self::$connection, 'update-drop.sql', 'foreign-key-drop.sql');
         self::$tableLocator = null;
         self::$connection   = null;
     }
@@ -353,6 +352,34 @@ class FluentBuilderTest extends DatabaseBackedTest
             'select self.*, baz.* from public.update_test as self, foo.bar as baz order by baz.quux',
             $select->createSelectStatement()->getSql()
         );
+    }
+
+    public function testJoinsOnForeignKeyByDefault(): void
+    {
+        $documents = self::$tableLocator->createGateway('fkey_test.documents');
+        $joined    = $documents->select();
+
+        $possible  = self::$tableLocator->createBuilder('fkey_test.documents_tags')
+            ->join($joined);
+        $this::assertEquals(
+            new JoinFragment(
+                $joined,
+                new ForeignKeyCondition(
+                    $documents->getDefinition()
+                        ->getReferences()
+                        ->get(new TableName('fkey_test', 'documents_tags')))
+            ),
+            $possible->getOwnFragment()
+        );
+
+        $impossible = self::$tableLocator->createBuilder('public.employees')
+            ->join($joined);
+        $this::assertEquals(new JoinFragment($joined), $impossible->getOwnFragment());
+
+        $unconditional = self::$tableLocator->createBuilder('fkey_test.documents_tags')
+            ->join($joined)
+            ->unconditional();
+        $this::assertEquals(new JoinFragment($joined), $unconditional->getOwnFragment());
     }
 
     public function tableNameProvider(): array
