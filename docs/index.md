@@ -1,8 +1,8 @@
 # sad_spirit/pg_gateway
 
-The Table Data Gateway serves as a gateway to a table in the database, it provides methods that mirror the most common
-table operations (`delete()`, `insert()`, `select()`, `update()`) and encapsulates SQL code that is needed to actually
-perform these operations.
+The [Table Data Gateway]((https://martinfowler.com/eaaCatalog/tableDataGateway.html)) serves as a gateway to a table 
+in the database, it provides methods that mirror the most common table operations (`delete()`, `insert()`, `select()`,
+`update()`) and encapsulates SQL code that is needed to actually perform these operations.
 
 As `pg_gateway` is built upon [pg_wrapper](https://github.com/sad-spirit/pg-wrapper) 
 and [pg_builder](https://github.com/sad-spirit/pg-builder) packages it does not provide database abstraction,

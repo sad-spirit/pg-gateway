@@ -77,22 +77,22 @@ class FluentBuilder extends FragmentListBuilder
     public function operatorCondition(string $column, string $operator, mixed $value) : $this;
     public function equal(string $column, $value) : $this;
     public function sqlCondition(string $sql, array $parameters = []) : $this;
-    public function exists(string|TableName|QualifiedName|TableGateway|SelectProxy $select, callable(ExistsBuilder) $callback = null) : $this;
+    public function exists(string|TableName|QualifiedName|TableGateway|SelectProxy $select, callable(ExistsBuilder) $callback = null) : proxies\ExistsBuilderProxy;
     public function primaryKey(mixed $value) : $this;
 
     // Adding fragments that modify the output expressions list
-    public function outputColumns(callable(ColumnsBuilder) $callback = null) : $this;
-    public function returningColumns(callable(ColumnsBuilder) $callback = null) : $this;
-    public function outputSubquery(SelectProxy $select, callable(ScalarSubqueryBuilder) $callback = null) : $this;
+    public function outputColumns(callable(ColumnsBuilder) $callback = null) : proxies\ColumnsBuilderProxy;
+    public function returningColumns(callable(ColumnsBuilder) $callback = null) : proxies\ColumnsBuilderProxy;
+    public function outputSubquery(SelectProxy $select, callable(ScalarSubqueryBuilder) $callback = null) : proxies\ScalarSubqueryBuilderProxy;
     public function outputExpression(string|Condition $expression, ?string $alias = null) : $this;
     public function returningExpression(string|Condition $expression, ?string $alias = null) : $this;
     
     // Adding a join
-    public function join(string|TableName|QualifiedName|TableGateway|SelectProxy $joined, callable(JoinBuilder) $callback = null) : $this;
+    public function join(string|TableName|QualifiedName|TableGateway|SelectProxy $joined, callable(JoinBuilder) $callback = null) : proxies\JoinBuilderProxy;
 
     // Adding CTEs to the query's WITH clause
     public function withSqlString(string $sql, array $parameters = [], int $priority = Fragment::PRIORITY_DEFAULT) : $this;
-    public function withSelect(SelectProxy $select, string $alias, callable $callback = null) : $this;
+    public function withSelect(SelectProxy $select, string $alias, callable $callback = null) : proxies\WithClauseBuilderProxy;
 
     // Adding fragments to SELECT statements
     public function orderBy(iterable<OrderByElement|string>|string $orderBy) : $this;
@@ -146,8 +146,8 @@ The `create*()` methods eventually generate the following SQL
  * `createSqlCondition()` - embeds manually written SQL as a condition, returned `ParametrizedCondition`
    decorates `conditions\SqlStringCondition`.
  * `createExists()` - returns a [builder for configuring a `[NOT] EXISTS(...)` condition](./builders-classes.md).
-   If the argument is a string or an instance of `TableName` / `QualifiedName` it is treated as a table name,
-   a gateway is located for that table and `select()`ed from.
+   If the argument is a string it is treated as a SELECT query and eventually passed to `Parser`, if it is an instance
+   of `TableName` / `QualifiedName` then a gateway is located for that table name and `select()`ed from.
    If the argument is already a `TableGateway` instance then an unconditional `select()` is done.
  * `createPrimaryKey()` (actually defined in `PrimaryKeyBuilder` trait) - similar to `createEqual()` but handles
    composite primary keys as well. The returned `ParametrizedCondition` decorates `conditions\PrimaryKeyCondition`.
@@ -167,15 +167,25 @@ $condition = $builder->createSqlCondition(
 will have the special `self` alias replaced as needed, also named `:foo` placeholder will be converted
 to positional one and its type info extracted and used to properly convert the given `$fooValue`.
 
-### Methods accepting callbacks
+### Methods returning proxies
 
-Several of the `FluentBuilder`'s methods accept callbacks, these are used to configure
-[builder objects](./builders-classes.md) that are created in these methods.
-E.g. the `exists()` method exposes the `ExistsBuilder` instance:
+Several of the `FluentBuilder`'s methods return instances of classes from `builders\proxies` namespace. These classes
+extend [builder classes](./builders-classes.md) and proxy the methods of `FluentBuilder` instance returning them,
+thus it is possible to configure the specific builder and then continue with methods of `FluentBuilder`:
+```PHP
+$builder
+    ->exists(new TableName('example', 'stuff'))
+        ->not()
+        ->joinOn('self.klmn @@@ joined.klmn')
+    ->orderBy('something');
+```
+
+These methods also accept callbacks that can be used to configure builder objects,
+but their usage is deprecated:
 ```PHP
 use sad_spirit\pg_gateway\builders\ExistsBuilder;
 
-$builder->exists('example.stuff', fn(ExistsBuilder $eb) => $eb->not()->joinOn('self.klmn @@@ joined.klmn'));
+$builder->exists(new TableName('example', 'stuff'), fn(ExistsBuilder $eb) => $eb->not()->joinOn('self.klmn @@@ joined.klmn'));
 ```
 
 ### Modifying the output expressions list
@@ -191,13 +201,18 @@ $builder->exists('example.stuff', fn(ExistsBuilder $eb) => $eb->not()->joinOn('s
 
 ### Adding joins
 
-* `join()` - adds a join to the given table using [a Builder for configuring the join](./builders-classes.md).
-   The first argument has the same semantics as for `exists()` / `createExists()` method described above,
-   the second is a callback to configure the `JoinBuilder` instance:
+* `join()` - adds a join to the given table / query using [a Builder for configuring the join](./builders-classes.md).
+   The first argument has the same semantics as for `exists()` / `createExists()` method described above:
 ```PHP
-use sad_spirit\pg_gateway\builders\JoinBuilder;
+use sad_spirit\pg_gateway\metadata\TableName;
 
-$builder->join('example.users', fn(JoinBuilder $jb) => $jb->onForeignKey(['editor_id'])->left()->alias('editors'))
+$builder->join(new TableName('example', 'users'))
+    ->onForeignKey(['editor_id'])
+    ->left()
+    ->alias('editors');
+
+$builder->join('select foo from bar')
+    ->on($builder->createSqlCondition('bar.baz <> self.baz'));
 ```
 
 ### Adding Common Table Expressions to the `WITH` clause

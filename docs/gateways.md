@@ -13,28 +13,42 @@ use sad_spirit\pg_wrapper\Result;
 interface TableGateway extends TableAccessor
 {
     public function delete($fragments = null, array $parameters = []) : Result;
-    public function insert(array<string, mixed>|SelectCommon|SelectProxy $values, $fragments = null, array $parameters = []) : Result;
+    public function insert(array<string, mixed>|SelectCommon|SelectBuilder $values, $fragments = null, array $parameters = []) : Result;
     public function select($fragments = null, array $parameters = []) : SelectProxy;
     public function update(array $set, $fragments = null, array $parameters = []): Result;
 }
 ```
 
 `$fragments` parameter for the above methods can be one of the following
- * `\Closure` - this is used for ad-hoc queries;
+ * `\Closure` - this accepts an instance of `FluentBuilder` to omit an explicit `createBuilder()` call;
  * Implementation of `Fragment` or `FragmentBuilder`;
  * Iterable over `Fragment` or `FragmentBuilder` implementations.
 
-Most commonly, `$fragments` will be a fluent builder object created by `TableLocator::createBuilder()`:
+Most commonly, `$fragments` will either be a fluent builder object created by `TableLocator::createBuilder()`
 ```PHP
 $locator->createGateway('example')
     ->select(
         $locator->createBuilder('example')
-            ->outputColumns(fn(ColumnsBuilder $cb) => $cb->only(['id', 'name']))
+            ->outputColumns()
+                ->only(['id', 'name'])
             ->notBoolColumn('deleted')
             ->orderBy('added')
             ->limit(10)
-    )
+    );
 ```
+or a closure that will receive such an object
+```PHP
+use sad_spirit\pg_gateway\builders\FluentBuilder;
+
+$locator->createGateway('example')
+    ->select(fn(FluentBuilder $builder) => $builder
+         ->outputColumns()
+            ->only(['id', 'name'])
+         ->notBoolColumn('deleted')
+         ->orderBy('added')
+         ->limit(10));
+```
+
 
 `$values` (when an array) / `$set` parameter for `insert()` / `update()` is an associative array of the form
 `'column name' => 'value'`. Here `'value'` may be either a literal or an instance of `Expression` which is used
@@ -52,14 +66,36 @@ eventually passed to `Connection::executeParams()`.
 Note also that while `delete()` / `insert()` / `update()` methods immediately return `Result` objects,
 `select()` returns a `SelectProxy` instance.
 
-### Ad-hoc queries
+### `AdHocStatement` interface
 
-It is sometimes needed to modify the query AST in a completely custom way. Passing a closure as `$fragments` to one of 
-the above methods allows exactly this:
+It is sometimes needed to modify the query AST in a completely custom way. Methods defined in `AdHocStatement`
+interface allow exactly this:
+```PHP
+namespace sad_spirit\pg_gateway;
+
+use sad_spirit\pg_builder\{
+    Delete,
+    Insert,
+    SelectCommon,
+    Update
+};
+use sad_spirit\pg_wrapper\Result;
+
+interface AdHocStatement
+{
+    public function deleteWithAST(\Closure(Delete) $closure, array $parameters = []) : Result;
+    public function insertWithAST($values, \Closure(Insert) $closure, array $parameters = []) : Result;
+    public function selectWithAST(\Closure(SelectCommon) $closure, array $parameters = []) : SelectProxy;
+    public function updateWithAST(array $set, \Closure(Update) $closure, array $parameters = []) : Result;
+}
+```
+
+Closures passed to its methods accept the base AST of the query and may change it using the full
+capabilities of [pg_builder](https://github.com/sad-spirit/pg-builder):
 ```PHP
 use sad_spirit\pg_builder\Delete;
 
-$gateway->delete(function (Delete $delete) {
+$gateway->deleteWithAST(function (Delete $delete) {
     // Modify the $delete query any way you like
     $delete->with->merge('with recursive foo as (...)');
     $delete->using[] = 'foo'
@@ -79,7 +115,7 @@ namespace sad_spirit\pg_gateway;
 use sad_spirit\pg_builder\SelectCommon;
 use sad_spirit\pg_wrapper\Result;
 
-interface SelectProxy extends KeyEquatable, Parametrized, TableAccessor, \IteratorAggregate
+interface SelectProxy extends SelectBuilder, Parametrized, TableAccessor, \IteratorAggregate
 {
     public function executeCount() : int|numeric-string;
     public function getIterator() : Result;
@@ -118,14 +154,15 @@ final class TableSelect implements SelectProxy
     public function __construct(
         TableLocator $tableLocator,
         TableGateway $gateway,
-        $fragments = null,
-        array $parameters = [],
+        FragmentList $fragments,
         \Closure $baseSelectAST = null,
         \Closure $baseCountAST = null
     );
 
     public function createSelectStatement() : NativeStatement;
     public function createSelectCountStatement() : NativeStatement;
+
+    public function fetchFirst() : ?array;
 }
 ```
 
@@ -136,6 +173,8 @@ SELECT self.* FROM foo AS self WHERE not self.deleted
 ```
 
 Results of `createSelectStatement()` / `createSelectCountStatement()` can be used for `prepare()` / `execute()`. 
+
+`$select->fetchFirst()` method is a shorthand for `$select->getIterator()->current()`.  
 
 ## `TableGateway` implementations
 
@@ -150,11 +189,13 @@ What exactly will be returned depends on
 ### `GenericTableGateway`
 
 This is the simplest gateway implementation, an instance of which is returned for tables that do not have a primary key
-defined. In addition to the methods defined in `TableGateway` it has the methods to create statements:
+defined. In addition to the methods defined in `TableGateway` it contains methods to create statements and
+to create the builder for that particular table
 ```PHP
 namespace sad_spirit\pg_gateway\gateways;
 
 use sad_spirit\pg_gateway\FragmentList;
+use sad_spirit\pg_gateway\builders\FragmentListBuilder;
 use sad_spirit\pg_builder\NativeStatement;
 
 class GenericTableGateway implements TableGateway
@@ -162,6 +203,8 @@ class GenericTableGateway implements TableGateway
     public function createDeleteStatement(FragmentList $fragments) : NativeStatement;
     public function createInsertStatement(FragmentList $fragments) : NativeStatement;
     public function createUpdateStatement(FragmentList $fragments) : NativeStatement
+
+    public function createBuilder() : FragmentListBuilder;
 }
 ```
 
@@ -172,10 +215,14 @@ from whatever can be passed as `$fragments` to `TableGateway` methods.
 
 Note the lack of `createSelectStatement()`, methods of `TableSelect` can be used for that.
 
+`createBuilder()` calls [`TableLocator::createBuilder()`](./locator.md) under the hood so everything
+about that method applies.
+
 ### `PrimaryKeyTableGateway`
 
 If a table has a `PRIMARY KEY` constraint defined and the key has only one column, then an instance of this class
-will be returned. It implements an additional `PrimaryKeyAccess` interface with the following methods
+will be returned. It extends `GenericTableGateway` and implements an additional `PrimaryKeyAccess` interface
+with the following methods
 ```PHP
 namespace sad_spirit\pg_gateway;
 
@@ -203,9 +250,9 @@ will most probably return `['id' => 1]`.
 
 ### `CompositePrimaryKeyTableGateway`
 
-When the table's `PRIMARY KEY` constraint contains two or more columns, this class will be used. We assume that
-such a table is generally used for defining an M:N relationship and provide a method that allows to replace 
-all records related to a key from one side of relationship:
+When the table's `PRIMARY KEY` constraint contains two or more columns, this subclass of `PrimaryKeyTableGateway`
+will be used. We assume that such a table is generally used for defining an M:N relationship and provide a method
+that allows to replace all records related to a key from one side of relationship:
  * `replaceRelated(array $primaryKeyPart, iterable $rows): array`
 
 Assuming the schema defined in [README](../README.md) we can use this method to replace the list of roles

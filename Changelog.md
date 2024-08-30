@@ -37,6 +37,8 @@
       ->join('select foo from bar as baz');
    ```
    Table names can still be passed as instances of `TableName` or `QualifiedName`.
+ * Constructor of `TableSelect` accepts an instance of `FragmentList` rather than separate
+   `$fragments` and `$parameters`.
 
 ### Added
  * `AdHocStatement` interface with `deleteWithAST()`, `insertWithAST()`, `selectWithAST()`, and `updateWithAST()`

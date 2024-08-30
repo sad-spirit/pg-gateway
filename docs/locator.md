@@ -25,7 +25,7 @@ class TableLocator
 {
     public function __construct(
         Connection $connection,
-        array<TableGatewayFactory> $gatewayFactories = [],
+        iterable<TableGatewayFactory> $gatewayFactories = [],
         ?StatementFactory $statementFactory = null,
         ?CacheItemPoolInterface $statementCache = null
     );

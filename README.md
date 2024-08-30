@@ -11,6 +11,13 @@ Using those packages immediately allows
  * Transparent conversion of PHP types to Postgres types and back;
  * Writing parts of the query as SQL strings while later processing those parts as Nodes in the Abstract Syntax Tree.
 
+## Installation
+
+Require the package with composer:
+```
+composer require sad_spirit/pg_gateway
+```
+
 ## Design goals
 
  * Code generation is not necessary, default gateway implementations are useful as-is.
