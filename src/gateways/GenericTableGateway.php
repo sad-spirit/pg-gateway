@@ -16,6 +16,7 @@ namespace sad_spirit\pg_gateway\gateways;
 use sad_spirit\pg_gateway\{
     AdHocStatement,
     FragmentList,
+    SelectBuilder,
     SelectProxy,
     TableDefinition,
     TableGateway,
@@ -97,7 +98,7 @@ class GenericTableGateway implements TableGateway, AdHocStatement
     {
         $fragmentList = $this->convertFragments($fragments, $parameters);
 
-        if ($values instanceof SelectProxy) {
+        if ($values instanceof SelectBuilder) {
             $fragmentList->add(new InsertSelectFragment($values));
         } elseif ($values instanceof SelectCommon) {
             $fragmentList->add(new ClosureFragment(
@@ -116,7 +117,7 @@ class GenericTableGateway implements TableGateway, AdHocStatement
         } else {
             throw new InvalidArgumentException(sprintf(
                 "\$values should be either of: an array, an instance of SelectCommon,"
-                . " an implementation of SelectProxy; %s given",
+                . " an implementation of SelectBuilder; %s given",
                 \is_object($values) ? 'object(' . \get_class($values) . ')' : \gettype($values)
             ));
         }

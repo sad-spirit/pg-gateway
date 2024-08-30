@@ -79,7 +79,7 @@ class InsertTest extends DatabaseBackedTest
     public function testDisallowInvalidValues(): void
     {
         $this::expectException(InvalidArgumentException::class);
-        $this::expectExceptionMessage('an array, an instance of SelectCommon, an implementation of SelectProxy');
+        $this::expectExceptionMessage('an array, an instance of SelectCommon, an implementation of SelectBuilder');
 
         self::$gateway->insert(new \stdClass());
     }
