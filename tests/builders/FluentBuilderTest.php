@@ -342,10 +342,22 @@ class FluentBuilderTest extends DatabaseBackedTest
         );
     }
 
+    public function testJoinUsingSql(): void
+    {
+        $select = self::$tableLocator->createGateway('update_test')
+            ->select(fn (FluentBuilder $builder) => $builder
+                ->join('select baz.* from foo.bar as baz order by baz.quux')
+                    ->inline());
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'select self.*, baz.* from public.update_test as self, foo.bar as baz order by baz.quux',
+            $select->createSelectStatement()->getSql()
+        );
+    }
+
     public function tableNameProvider(): array
     {
         return [
-            ['update_test'],
             [new TableName('update_test')],
             [new QualifiedName('update_test')]
         ];

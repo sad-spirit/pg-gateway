@@ -16,7 +16,9 @@ namespace sad_spirit\pg_gateway\builders;
 use sad_spirit\pg_gateway\{
     Condition,
     Fragment,
+    SelectBuilder,
     SelectProxy,
+    SqlStringSelectBuilder,
     TableGateway,
     exceptions\InvalidArgumentException,
     metadata\TableName
@@ -514,24 +516,26 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Tries to convert a parameter passed to join() or exists() to SelectProxy
      *
-     * @param string|TableName|QualifiedName|TableGateway|SelectProxy $select
-     * @return SelectProxy
+     * @param string|TableName|QualifiedName|TableGateway|SelectBuilder $select
+     * @return SelectBuilder
      * @psalm-suppress RedundantConditionGivenDocblockType
      * @psalm-suppress DocblockTypeContradiction
      */
-    private function normalizeSelect($select): SelectProxy
+    private function normalizeSelect($select): SelectBuilder
     {
-        if (\is_string($select) || $select instanceof QualifiedName || $select instanceof TableName) {
+        if (\is_string($select)) {
+            return new SqlStringSelectBuilder($this->tableLocator->getParser(), $select);
+        } elseif ($select instanceof QualifiedName || $select instanceof TableName) {
             return $this->tableLocator->createGateway($select)
                 ->select();
         } elseif ($select instanceof TableGateway) {
             return $select->select();
-        } elseif ($select instanceof SelectProxy) {
+        } elseif ($select instanceof SelectBuilder) {
             return $select;
         }
 
         throw new InvalidArgumentException(\sprintf(
-            "A table name, TableGateway or SelectProxy instance expected, %s given",
+            "A table name, TableGateway or SelectBuilder instance expected, %s given",
             \is_object($select) ? 'object(' . \get_class($select) . ')' : \gettype($select)
         ));
     }

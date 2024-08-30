@@ -14,10 +14,12 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\builders;
 
 use sad_spirit\pg_gateway\{
+    SqlStringSelectBuilder,
     TableLocator,
     builders\ExistsBuilder,
     conditions\ExistsCondition,
     conditions\NotCondition,
+    exceptions\LogicException,
     fragments\WhereClauseFragment,
     tests\DatabaseBackedTest
 };
@@ -64,5 +66,18 @@ class ExistsBuilderTest extends DatabaseBackedTest
             new NotCondition(new ExistsCondition($select)),
             $builder->getCondition()
         );
+    }
+
+    /** @noinspection SqlResolve */
+    public function testNoForeignKeyForSqlString(): void
+    {
+        $builder = (new ExistsBuilder(
+            self::$tableLocator->getTableDefinition('fkey_test.documents'),
+            new SqlStringSelectBuilder(self::$tableLocator->getParser(), 'select 1 from some_table')
+        ));
+
+        $this::expectException(LogicException::class);
+        $this::expectExceptionMessage('does not contain table metadata');
+        $builder->joinOnForeignKey();
     }
 }

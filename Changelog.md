@@ -30,6 +30,13 @@
           ->except(['foo']);
    ```
    Callbacks are still accepted but deprecated.
+ * Strings passed to `createExists()`, `exists()`, and `join()` methods of `FluentBuilder` are now treated as
+   SELECT statements rather than table names:
+   ```PHP
+   $builder
+      ->join('select foo from bar as baz');
+   ```
+   Table names can still be passed as instances of `TableName` or `QualifiedName`.
 
 ### Added
  * `AdHocStatement` interface with `deleteWithAST()`, `insertWithAST()`, `selectWithAST()`, and `updateWithAST()`
