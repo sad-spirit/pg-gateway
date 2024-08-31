@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.4.0] - 2024-08-31
 
 ### Changed
  * Closures passed as the `$fragments` parameter into methods defined in `TableGateway` interface will receive
@@ -141,4 +141,4 @@ Initial release on GitHub.
 [0.2.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.1.0...v0.2.0
 [0.2.1]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.0...v0.2.1
 [0.3.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.1...v0.3.0
-[Unreleased]: https://github.com/sad-spirit/pg-gateway/compare/v0.3.0...HEAD
+[0.4.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.3.0...v0.4.0
