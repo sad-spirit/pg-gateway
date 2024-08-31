@@ -362,13 +362,11 @@ class FluentBuilderTest extends DatabaseBackedTest
         $possible  = self::$tableLocator->createBuilder('fkey_test.documents_tags')
             ->join($joined);
         $this::assertEquals(
-            new JoinFragment(
-                $joined,
-                new ForeignKeyCondition(
-                    $documents->getDefinition()
-                        ->getReferences()
-                        ->get(new TableName('fkey_test', 'documents_tags')))
-            ),
+            new JoinFragment($joined, new ForeignKeyCondition(
+                $documents->getDefinition()
+                    ->getReferences()
+                    ->get(new TableName('fkey_test', 'documents_tags'))
+            )),
             $possible->getOwnFragment()
         );
 
