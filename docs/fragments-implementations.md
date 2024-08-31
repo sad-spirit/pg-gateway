@@ -24,9 +24,9 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
 ```
 
 The static `normalize()` method accepts `$fragments` parameter that usually was passed to a query method
-of `TableGateway` and returns an instance of `FragmentList`. `$fragments` can be either a `\Closure`,
-an implementation of `Fragment` or `FragmentBuilder`, or, most commonly,
-iterable over `Fragment` or `FragmentBuilder` implementations. Anything else will result in `InvalidArgumentException`.
+of `TableGateway` and returns an instance of `FragmentList`. `$fragments` can be either an implementation of
+`Fragment` or `FragmentBuilder`, or, most commonly, iterable over `Fragment` or `FragmentBuilder` implementations.
+Anything else will result in `InvalidArgumentException`.
 
 `add()` - adds a fragment to the list. If an instance of `FragmentList`
 is given, it will be "flattened" with its items added rather than the list itself. If `FragmentBuilder`
@@ -94,12 +94,12 @@ $fragment = new ParametrizedFragment(
 
 ## `ClosureFragment`
 
-Wrapper for a closure passed to a `TableGateway` query method as `$fragments` parameter. Queries using this fragment
+Wrapper for a closure passed to a query method defined in `AdHocStatement` interface. Queries using this fragment
 won't be cached.
 
 ## `InsertSelectFragment`
 
-Wrapper for `SelectProxy` object passed as `$values` to `GenericTableGateway::insert()`.
+Wrapper for `SelectBuilder` object passed as `$values` to `GenericTableGateway::insert()`.
 
 ## `SetClauseFragment`
 
@@ -112,12 +112,12 @@ You may need to use that explicitly if you want to create a preparable `INSERT` 
 ```PHP
 $update = $gateway->createUpdateStatement(new FragmentList(
     new SetClauseFragment(
-        $gateway->getColumns(),
+        $gateway->getDefinition()->getColumns(),
         $tableLocator,
         ['name' => null] 
     ),
-    // For the sake of example only, using $gateway->createPrimaryKey() is easier 
-    new PrimaryKeyCondition($gateway->getPrimaryKey(), $tableLocator->getTypeConverterFactory())
+    // For the sake of example only, using $builder->createPrimaryKey() is easier
+    new PrimaryKeyCondition($gateway->getDefinition()->getPrimaryKey(), $tableLocator->getTypeConverterFactory())
 ));
 
 $update->prepare($gateway->getConnection());
@@ -143,7 +143,7 @@ the `FragmentBuilder` interface. This will add their expressions to the `WHERE` 
 methods returning `WhereClauseFragment`:
 ```PHP
 $gateway->select(
-    $builder->isNotNull('field') // Adds a Condition to FragmentList
+    $builder->createIsNotNull('field') // Adds a Condition to FragmentList
     // ...
 )
 ```
@@ -166,10 +166,9 @@ These fragments modify the output list of `SELECT` statement or the `RETURNING` 
 
 It is rarely needed to use these directly as there are builders and builder methods available:
 ```PHP
-use sad_spirit\pg_gateway\builders\ColumnsBuilder;
-
 $gateway->update(
-    $builder->returningColumns(fn(ColumnsBuilder $cb) => $cb->primaryKey())
+    $builder->returningColumns()
+        ->primaryKey()
     // ...
 );
 
@@ -187,15 +186,13 @@ Can be additionally configured by a join `Condition`.
 It is recommended to use `JoinBuilder` and related `FluentBuilder::join()` method rather than instantiating
 this class directly:
 ```PHP
-use sad_spirit\pg_gateway\builders\JoinBuilder;
+use sad_spirit\pg_gateway\metadata\TableName;
 
 $documentsGateway->select(
-    $documentsBuilder->join(
-        'documents_tags',                          // Creates a SelectProxy for a given table
-        fn(JoinBuilder $jb) => $jb->onForeignKey() // configures join condition
-            ->lateralLeft()                        // configures join strategy (LateralSubselectStrategy)
-            ->useForCount(false)                   // join will not be used by executeCount()
-    )
+    $documentsBuilder->join(new TableName('documents_tags'))
+        ->onForeignKey()        // configures join condition
+        ->lateralLeft()         // configures join strategy (LateralSubselectStrategy)
+        ->useForCount(false)    // join will not be used by executeCount()
     // ...
 );
 ```
@@ -239,7 +236,7 @@ class OrderByClauseFragment implements SelectFragment
 ```
 
 `$restricted` toggles whether only column names and ordinal numbers are allowed in `ORDER BY` list. As sort options
-often come from user input and have be embedded in SQL, there is that additional protection from SQL injection
+often come from user input and have to be embedded in SQL, there is that additional protection from SQL injection
 by default.
 
 `$merge` toggles whether the new expressions should be added to the existing `ORDER BY` items rather than replace those.
@@ -271,5 +268,5 @@ Subclasses of this abstract class add Common Table Expressions to the query's `W
  * `fragments\with\SelectProxyFragment` accepts an implementation of `SelectProxy` returned by `TableGateway::select()`
    essentially allowing to prepare a CTE with one gateway and use it with the other.
 
-Instances of these are added by `FluentBuilder::withSqlString()` and `FluentBuilder::withSelectProxy()`, respectively.
+Instances of these are added by `FluentBuilder::withSqlString()` and `FluentBuilder::withSelect()`, respectively.
 `SelectProxyFragment` is configured by `WithClauseBuilder`.

@@ -102,15 +102,14 @@ It has two main purposes
 The first purpose is easily illustrated with `JoinBuilder`:
 ```PHP
 use sad_spirit\pg_gateway\builders\JoinBuilder;
+use sad_spirit\pg_gateway\metadata\TableName;
 
-// join() method creates a JoinBuilder instance and allows configuring it via callback
-$documentsBuilder->join(
-    'employees',
-    fn (JoinBuilder $jb) => $jb->onForeignKey(['author_id'])
-        ->left()
-        ->alias('author')
-        ->useForCount(false)
-);
+// join() returns a subclass of JoinBuilder that will also proxy methods of $documentsBuilder
+$documentsBuilder->join(new TableName('employees'))
+   ->onForeignKey(['author_id'])
+   ->left()
+   ->alias('author')
+   ->useForCount(false);
 ```
 
 The second one is most obvious with `Condition` that implements `FragmentBuilder`
