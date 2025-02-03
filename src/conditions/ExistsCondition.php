@@ -25,6 +25,7 @@ use sad_spirit\pg_gateway\{
     walkers\ReplaceTableAliasWalker
 };
 use sad_spirit\pg_builder\Select;
+use sad_spirit\pg_builder\enums\SubselectConstruct;
 use sad_spirit\pg_builder\nodes\{
     TargetElement,
     ScalarExpression,
@@ -74,7 +75,7 @@ final class ExistsCondition extends Condition implements Parametrized
             $select->where->and($condition);
         }
 
-        return new SubselectExpression($select, SubselectExpression::EXISTS);
+        return new SubselectExpression($select, SubselectConstruct::EXISTS);
     }
 
     /**

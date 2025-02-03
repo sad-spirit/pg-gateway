@@ -21,10 +21,10 @@ namespace sad_spirit\pg_gateway\tests\fragments\join_strategies;
 
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_gateway\tests\NormalizeWhitespace;
+use sad_spirit\pg_gateway\fragments\join_strategies\ExplicitJoinType;
 use sad_spirit\pg_gateway\fragments\join_strategies\ExplicitJoinStrategy;
 use sad_spirit\pg_builder\Select;
 use sad_spirit\pg_builder\StatementFactory;
-use sad_spirit\pg_builder\nodes\range\JoinExpression;
 
 class ExplicitJoinStrategyTest extends TestCase
 {
@@ -160,7 +160,7 @@ SQL
             "with cte as (select 1) select m_3.* from quux as m_3"
         );
 
-        (new ExplicitJoinStrategy(JoinExpression::LEFT))->join(
+        (new ExplicitJoinStrategy(ExplicitJoinType::LEFT))->join(
             $base,
             clone $joined,
             $this->factory->getParser()->parseExpression('self.id = joined.id'),
@@ -186,7 +186,7 @@ SQL
             . "where self.id > m_1.id"
         );
 
-        (new ExplicitJoinStrategy(JoinExpression::LEFT))->join(
+        (new ExplicitJoinStrategy(ExplicitJoinType::LEFT))->join(
             $base,
             $joined,
             $this->factory->getParser()->parseExpression('self.id = joined.id'),
@@ -218,7 +218,7 @@ SQL
         $joined = $this->factory->createFromString(
             "select m_2.* from baz as m_2 where m_2.title ~* 'something'"
         );
-        ($strategy = new ExplicitJoinStrategy(JoinExpression::LEFT))->join(
+        ($strategy = new ExplicitJoinStrategy(ExplicitJoinType::LEFT))->join(
             $base,
             $joined,
             $this->factory->getParser()->parseExpression('self.id > joined.id'),

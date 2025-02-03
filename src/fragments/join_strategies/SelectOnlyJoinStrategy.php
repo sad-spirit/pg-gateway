@@ -15,7 +15,6 @@ namespace sad_spirit\pg_gateway\fragments\join_strategies;
 
 use sad_spirit\pg_gateway\{
     TableLocator,
-    exceptions\InvalidArgumentException,
     exceptions\UnexpectedValueException,
     fragments\JoinStrategy
 };
@@ -32,34 +31,6 @@ use sad_spirit\pg_builder\nodes\{
 abstract class SelectOnlyJoinStrategy implements JoinStrategy
 {
     private ?string $alias = null;
-    private string $joinType;
-
-    protected const ALLOWED_TYPES = [];
-
-    /**
-     * Sets the join type, one of the keys of {@see ALLOWED_TYPES}
-     *
-     * @param string $joinType
-     * @return $this
-     */
-    public function setJoinType(string $joinType): self
-    {
-        if (!isset(static::ALLOWED_TYPES[$joinType])) {
-            throw new InvalidArgumentException("Unknown join type '$joinType'");
-        }
-        $this->joinType = $joinType;
-        return $this;
-    }
-
-    /**
-     * Returns the join type
-     *
-     * @return string
-     */
-    public function getJoinType(): string
-    {
-        return $this->joinType;
-    }
 
     /**
      * Returns the alias for a subselect in FROM clause

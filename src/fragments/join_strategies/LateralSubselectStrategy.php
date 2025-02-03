@@ -22,7 +22,9 @@ use sad_spirit\pg_gateway\{
 use sad_spirit\pg_builder\{
     Select,
     SelectCommon,
-    Statement
+    Statement,
+    enums\ConstantName,
+    enums\JoinType
 };
 use sad_spirit\pg_builder\nodes\{
     ColumnReference,
@@ -30,7 +32,6 @@ use sad_spirit\pg_builder\nodes\{
     ScalarExpression,
     TargetElement,
     expressions\KeywordConstant,
-    range\JoinExpression,
     range\Subselect
 };
 
@@ -46,20 +47,8 @@ use sad_spirit\pg_builder\nodes\{
  */
 class LateralSubselectStrategy extends SelectOnlyJoinStrategy
 {
-    /**
-     * A special "join type" that triggers adding the subselect as a separate item of FROM clause
-     */
-    public const APPEND = 'append';
-
-    protected const ALLOWED_TYPES = [
-        self::APPEND          => true,
-        JoinExpression::INNER => true,
-        JoinExpression::LEFT  => true
-    ];
-
-    public function __construct(string $joinType = self::APPEND)
+    public function __construct(public readonly LateralSubselectJoinType $joinType = LateralSubselectJoinType::APPEND)
     {
-        $this->setJoinType($joinType);
     }
 
     public function join(
@@ -78,12 +67,12 @@ class LateralSubselectStrategy extends SelectOnlyJoinStrategy
 
         $subSelect = $this->prepareSubselect($joined, $condition, $alias);
 
-        if (self::APPEND === $this->getJoinType()) {
+        if (LateralSubselectJoinType::APPEND === $this->joinType) {
             $statement->from[] = $subSelect;
         } else {
             $this->findNodeForJoin($statement->from, 'self')
-                ->join($subSelect, $this->getJoinType())
-                ->on = new KeywordConstant(KeywordConstant::TRUE);
+                ->join($subSelect, JoinType::from($this->joinType->value))
+                ->on = new KeywordConstant(ConstantName::TRUE);
         }
 
         if (!$isCount) {
@@ -110,6 +99,6 @@ class LateralSubselectStrategy extends SelectOnlyJoinStrategy
 
     public function getKey(): ?string
     {
-        return 'lateral-' . $this->getJoinType();
+        return 'lateral-' . $this->joinType->value;
     }
 }

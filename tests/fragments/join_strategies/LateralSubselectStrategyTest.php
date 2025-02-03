@@ -20,9 +20,9 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\fragments\join_strategies;
 
 use PHPUnit\Framework\TestCase;
+use sad_spirit\pg_gateway\fragments\join_strategies\LateralSubselectJoinType;
 use sad_spirit\pg_gateway\fragments\join_strategies\LateralSubselectStrategy;
 use sad_spirit\pg_gateway\tests\NormalizeWhitespace;
-use sad_spirit\pg_builder\nodes\range\JoinExpression;
 use sad_spirit\pg_builder\Select;
 use sad_spirit\pg_builder\StatementFactory;
 
@@ -103,7 +103,7 @@ SQL
         $joined = $this->factory->createFromString(
             "select array_agg(gw_1.field) from gw_1"
         );
-        ($strategy = new LateralSubselectStrategy(JoinExpression::LEFT))->join(
+        ($strategy = new LateralSubselectStrategy(LateralSubselectJoinType::LEFT))->join(
             $base,
             clone $joined,
             $this->factory->getParser()->parseExpression('self.id = joined.foo_id'),
@@ -127,7 +127,7 @@ SQL
         $base   = $this->factory->createFromString(
             "select count(self.*) from foo as self"
         );
-        ($strategy = new LateralSubselectStrategy(JoinExpression::LEFT))->join(
+        ($strategy = new LateralSubselectStrategy(LateralSubselectJoinType::LEFT))->join(
             $base,
             clone $joined,
             $this->factory->getParser()->parseExpression('self.id = joined.foo_id'),

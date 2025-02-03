@@ -30,6 +30,7 @@ use sad_spirit\pg_gateway\{
     exceptions\UnexpectedValueException,
     holders\SimpleParameterHolder
 };
+use sad_spirit\pg_builder\enums\ConstantName;
 use sad_spirit\pg_builder\nodes\expressions\KeywordConstant;
 
 class ExistsConditionTest extends DatabaseBackedTest
@@ -152,7 +153,7 @@ class ExistsConditionTest extends DatabaseBackedTest
             ->method('getParameterHolder')
             ->willReturn(new SimpleParameterHolder($mockSelect, ['foo' => 'bar']));
 
-        $condition = new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE));
+        $condition = new ConditionImplementation(new KeywordConstant(ConstantName::TRUE));
 
         $exists = new ExistsCondition($mockSelect, new ParametrizedCondition($condition, ['name' => 'value']));
         $this::assertEquals(
@@ -219,7 +220,7 @@ class ExistsConditionTest extends DatabaseBackedTest
                     )
             );
 
-        $joinCondition = new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE));
+        $joinCondition = new ConditionImplementation(new KeywordConstant(ConstantName::TRUE));
 
         $this::expectException(UnexpectedValueException::class);
         $this::expectExceptionMessage('WHERE clause');

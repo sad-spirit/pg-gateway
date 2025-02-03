@@ -15,12 +15,13 @@ namespace sad_spirit\pg_gateway\tests\assets;
 
 use sad_spirit\pg_builder\SetOpSelect;
 use sad_spirit\pg_builder\SelectCommon;
+use sad_spirit\pg_builder\enums\SetOperator;
 use sad_spirit\pg_gateway\SelectTransformer;
 
 class SelectTransformerImplementation extends SelectTransformer
 {
     protected function transform(SelectCommon $original): SelectCommon
     {
-        return new SetOpSelect(clone $original, clone $original, SetOpSelect::UNION_ALL);
+        return new SetOpSelect(clone $original, clone $original, SetOperator::UNION_ALL);
     }
 }

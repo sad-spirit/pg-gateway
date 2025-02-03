@@ -14,13 +14,12 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests;
 
 use PHPUnit\Framework\TestCase;
-use sad_spirit\pg_builder\Select;
+use sad_spirit\pg_builder\enums\ConstantName;
 use sad_spirit\pg_builder\nodes\expressions\KeywordConstant;
 use sad_spirit\pg_gateway\{
     FragmentList,
     exceptions\InvalidArgumentException,
-    exceptions\UnexpectedValueException,
-    fragments\ClosureFragment
+    exceptions\UnexpectedValueException
 };
 use sad_spirit\pg_gateway\tests\assets\{
     FragmentImplementation,
@@ -51,7 +50,7 @@ class FragmentListTest extends TestCase
 
     public function testNormalizeSelf(): void
     {
-        $fragment = new FragmentImplementation(new KeywordConstant(KeywordConstant::FALSE), 'self');
+        $fragment = new FragmentImplementation(new KeywordConstant(ConstantName::FALSE), 'self');
         $input    = new FragmentList($fragment);
         $list     = FragmentList::normalize($input);
 
@@ -61,7 +60,7 @@ class FragmentListTest extends TestCase
 
     public function testNormalizeFragment(): void
     {
-        $fragment = new FragmentImplementation(new KeywordConstant(KeywordConstant::FALSE), 'single');
+        $fragment = new FragmentImplementation(new KeywordConstant(ConstantName::FALSE), 'single');
         $list     = FragmentList::normalize($fragment);
 
         $this::assertEquals(
@@ -72,7 +71,7 @@ class FragmentListTest extends TestCase
 
     public function testNormalizeFragmentBuilder(): void
     {
-        $fragment = new FragmentImplementation(new KeywordConstant(KeywordConstant::FALSE), 'built');
+        $fragment = new FragmentImplementation(new KeywordConstant(ConstantName::FALSE), 'built');
         $list     = FragmentList::normalize(new FragmentBuilderImplementation($fragment));
 
         $this::assertEquals(
@@ -83,8 +82,8 @@ class FragmentListTest extends TestCase
 
     public function testNormalizeIterable(): void
     {
-        $fragmentOne = new FragmentImplementation(new KeywordConstant(KeywordConstant::FALSE), 'one');
-        $fragmentTwo = new FragmentImplementation(new KeywordConstant(KeywordConstant::TRUE), 'two');
+        $fragmentOne = new FragmentImplementation(new KeywordConstant(ConstantName::FALSE), 'one');
+        $fragmentTwo = new FragmentImplementation(new KeywordConstant(ConstantName::TRUE), 'two');
 
         $list = FragmentList::normalize(new \ArrayIterator([
             $fragmentOne,
@@ -101,15 +100,15 @@ class FragmentListTest extends TestCase
     public function testFlattensAddedLists(): void
     {
         $fragmentOne = new FragmentImplementation(
-            new KeywordConstant(KeywordConstant::FALSE),
+            new KeywordConstant(ConstantName::FALSE),
             'one'
         );
         $fragmentTwo = new FragmentImplementation(
-            new KeywordConstant(KeywordConstant::TRUE),
+            new KeywordConstant(ConstantName::TRUE),
             'two'
         );
         $fragmentThree = new FragmentImplementation(
-            new KeywordConstant(KeywordConstant::NULL),
+            new KeywordConstant(ConstantName::NULL),
             'three'
         );
 
@@ -125,9 +124,9 @@ class FragmentListTest extends TestCase
 
     public function testAddFragmentWithDuplicateKey(): void
     {
-        $fragmentOne = new FragmentImplementation(new KeywordConstant(KeywordConstant::FALSE), 'a key');
+        $fragmentOne = new FragmentImplementation(new KeywordConstant(ConstantName::FALSE), 'a key');
         $fragmentTwo = new ParametrizedFragmentImplementation(
-            new KeywordConstant(KeywordConstant::FALSE),
+            new KeywordConstant(ConstantName::FALSE),
             ['foo' => 'bar'],
             'a key'
         );
@@ -141,12 +140,12 @@ class FragmentListTest extends TestCase
     public function testAddFragmentWithDuplicateKeyAndExtraParameters(): void
     {
         $fragmentOne = new ParametrizedFragmentImplementation(
-            new KeywordConstant(KeywordConstant::FALSE),
+            new KeywordConstant(ConstantName::FALSE),
             ['param' => 'value'],
             'a key'
         );
         $fragmentTwo = new ParametrizedFragmentImplementation(
-            new KeywordConstant(KeywordConstant::FALSE),
+            new KeywordConstant(ConstantName::FALSE),
             ['foo' => 'bar'],
             'a key'
         );
@@ -159,12 +158,12 @@ class FragmentListTest extends TestCase
     public function testAddFragmentWithDuplicateKeyAndConflictingParameters(): void
     {
         $fragmentOne = new ParametrizedFragmentImplementation(
-            new KeywordConstant(KeywordConstant::FALSE),
+            new KeywordConstant(ConstantName::FALSE),
             ['param' => 'value'],
             'a key'
         );
         $fragmentTwo = new ParametrizedFragmentImplementation(
-            new KeywordConstant(KeywordConstant::FALSE),
+            new KeywordConstant(ConstantName::FALSE),
             ['param' => 'another value'],
             'a key'
         );
@@ -177,11 +176,11 @@ class FragmentListTest extends TestCase
     public function testNullKeyIfFragmentHasNullKey(): void
     {
         $fragmentOne = new FragmentImplementation(
-            new KeywordConstant(KeywordConstant::FALSE),
+            new KeywordConstant(ConstantName::FALSE),
             'one'
         );
         $fragmentNull = new FragmentImplementation(
-            new KeywordConstant(KeywordConstant::TRUE),
+            new KeywordConstant(ConstantName::TRUE),
             null
         );
 
@@ -195,12 +194,12 @@ class FragmentListTest extends TestCase
     public function testFragmentsAreSorted(): void
     {
         $fragmentOne = new FragmentImplementation(
-            new KeywordConstant(KeywordConstant::FALSE),
+            new KeywordConstant(ConstantName::FALSE),
             'one',
             2
         );
         $fragmentTwo = new FragmentImplementation(
-            new KeywordConstant(KeywordConstant::TRUE),
+            new KeywordConstant(ConstantName::TRUE),
             'two',
             1
         );
@@ -216,7 +215,7 @@ class FragmentListTest extends TestCase
         $this::assertEquals($listOne->getSortedFragments(), $listTwo->getSortedFragments());
 
         $fragmentNull = new FragmentImplementation(
-            new KeywordConstant(KeywordConstant::FALSE),
+            new KeywordConstant(ConstantName::FALSE),
             null,
             2
         );
@@ -268,7 +267,7 @@ class FragmentListTest extends TestCase
             [666],
             [new \stdClass()],
             [[new \stdClass()]],
-            [[new FragmentImplementation(new KeywordConstant(KeywordConstant::TRUE), null), 'false']]
+            [[new FragmentImplementation(new KeywordConstant(ConstantName::TRUE), null), 'false']]
         ];
     }
 }

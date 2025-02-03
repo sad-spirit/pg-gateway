@@ -15,6 +15,7 @@ namespace sad_spirit\pg_gateway\conditions\column;
 
 use sad_spirit\pg_gateway\TableGateway;
 use sad_spirit\pg_gateway\conditions\ColumnCondition;
+use sad_spirit\pg_builder\enums\IsPredicate;
 use sad_spirit\pg_builder\nodes\{
     ColumnReference,
     ScalarExpression,
@@ -30,7 +31,7 @@ final class IsNullCondition extends ColumnCondition
     {
         return new IsExpression(
             new ColumnReference(TableGateway::ALIAS_SELF, $this->column->getName()),
-            IsExpression::NULL
+            IsPredicate::NULL
         );
     }
 }

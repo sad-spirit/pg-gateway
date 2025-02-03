@@ -37,7 +37,7 @@ class ReplaceTableAliasWalker extends BlankWalker
         $this->newAlias = $newAlias;
     }
 
-    public function walkColumnReference(ColumnReference $node): void
+    public function walkColumnReference(ColumnReference $node): null
     {
         if (
             null !== $node->relation
@@ -51,6 +51,7 @@ class ReplaceTableAliasWalker extends BlankWalker
                 clone $node->column
             ));
         }
+        return null;
     }
 
     public function walkRangeItemAliases(FromElement $rangeItem): void

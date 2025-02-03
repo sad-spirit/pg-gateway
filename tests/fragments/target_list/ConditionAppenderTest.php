@@ -19,6 +19,7 @@ use sad_spirit\pg_gateway\tests\NormalizeWhitespace;
 use sad_spirit\pg_gateway\tests\assets\ConditionImplementation;
 use sad_spirit\pg_builder\Select;
 use sad_spirit\pg_builder\StatementFactory;
+use sad_spirit\pg_builder\enums\ConstantName;
 use sad_spirit\pg_builder\nodes\expressions\KeywordConstant;
 
 class ConditionAppenderTest extends TestCase
@@ -28,7 +29,7 @@ class ConditionAppenderTest extends TestCase
     public function testKeyIsNullIfConditionKeyIsNull(): void
     {
         $manipulator = new ConditionAppender(
-            new ConditionImplementation(new KeywordConstant(KeywordConstant::FALSE), null)
+            new ConditionImplementation(new KeywordConstant(ConstantName::FALSE), null)
         );
 
         $this::assertNull($manipulator->getKey());
@@ -37,7 +38,7 @@ class ConditionAppenderTest extends TestCase
     public function testKeyDependsOnConditionKey(): void
     {
         $manipulator = new ConditionAppender(
-            new ConditionImplementation(new KeywordConstant(KeywordConstant::FALSE), 'some_key')
+            new ConditionImplementation(new KeywordConstant(ConstantName::FALSE), 'some_key')
         );
 
         $this::assertNotNull($manipulator->getKey());
@@ -47,15 +48,15 @@ class ConditionAppenderTest extends TestCase
     public function testKeyDependsOnAlias(): void
     {
         $manipulatorOne = new ConditionAppender(
-            new ConditionImplementation(new KeywordConstant(KeywordConstant::FALSE), 'some_key'),
+            new ConditionImplementation(new KeywordConstant(ConstantName::FALSE), 'some_key'),
             'alias_one'
         );
         $manipulatorTwo = new ConditionAppender(
-            new ConditionImplementation(new KeywordConstant(KeywordConstant::FALSE), 'some_key'),
+            new ConditionImplementation(new KeywordConstant(ConstantName::FALSE), 'some_key'),
             'alias_two'
         );
         $manipulatorThree = new ConditionAppender(
-            new ConditionImplementation(new KeywordConstant(KeywordConstant::FALSE), 'some_key'),
+            new ConditionImplementation(new KeywordConstant(ConstantName::FALSE), 'some_key'),
             'alias_two'
         );
 
@@ -70,12 +71,12 @@ class ConditionAppenderTest extends TestCase
         /** @var Select $select */
         $select = $factory->createFromString('select self.foo as bar, quux.xyzzy');
         (new ConditionAppender(
-            new ConditionImplementation(new KeywordConstant(KeywordConstant::NULL)),
+            new ConditionImplementation(new KeywordConstant(ConstantName::NULL)),
             'baz'
         ))->modifyTargetList($select->list);
 
         (new ConditionAppender(
-            new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE)),
+            new ConditionImplementation(new KeywordConstant(ConstantName::TRUE)),
         ))->modifyTargetList($select->list);
 
         $this::assertStringEqualsStringNormalizingWhitespace(

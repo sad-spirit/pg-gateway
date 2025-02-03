@@ -26,7 +26,9 @@ use sad_spirit\pg_gateway\tests\{
 };
 use sad_spirit\pg_builder\{
     Delete,
-    StatementFactory
+    StatementFactory,
+    enums\ConstantName,
+    enums\IsPredicate
 };
 use sad_spirit\pg_builder\nodes\{
     ColumnReference,
@@ -51,7 +53,7 @@ class NotConditionTest extends TestCase
 
     public function testDoubleNegation(): void
     {
-        $notTrue   = new ConditionImplementation(new NotExpression(new KeywordConstant(KeywordConstant::TRUE)));
+        $notTrue   = new ConditionImplementation(new NotExpression(new KeywordConstant(ConstantName::TRUE)));
         $notNotOne = new NotCondition($notTrue);
         $notNotTwo = new NotCondition($notTrue);
 
@@ -72,24 +74,24 @@ class NotConditionTest extends TestCase
     public function testNegatableExpression(): void
     {
         $isNotNull = new NotCondition(new ConditionImplementation(
-            new IsExpression(new ColumnReference('foo'), IsExpression::NULL)
+            new IsExpression(new ColumnReference('foo'), IsPredicate::NULL)
         ));
         $isNull = new NotCondition($isNotNull);
 
         $this::assertEquals(
-            new IsExpression(new ColumnReference('foo'), IsExpression::NULL, true),
+            new IsExpression(new ColumnReference('foo'), IsPredicate::NULL, true),
             $isNotNull->generateExpression()
         );
         $this::assertEquals(
-            new IsExpression(new ColumnReference('foo'), IsExpression::NULL, false),
+            new IsExpression(new ColumnReference('foo'), IsPredicate::NULL, false),
             $isNull->generateExpression()
         );
     }
 
     public function testGetKey(): void
     {
-        $nullKey   = new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE), null);
-        $stringKey = new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE), 'key');
+        $nullKey   = new ConditionImplementation(new KeywordConstant(ConstantName::TRUE), null);
+        $stringKey = new ConditionImplementation(new KeywordConstant(ConstantName::TRUE), 'key');
 
         $nullKeyNot   = new NotCondition($nullKey);
         $stringKeyNot = new NotCondition($stringKey);
@@ -101,7 +103,7 @@ class NotConditionTest extends TestCase
 
     public function testGetParameters(): void
     {
-        $child = new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE));
+        $child = new ConditionImplementation(new KeywordConstant(ConstantName::TRUE));
 
         $notChild = new NotCondition($child);
         $this::assertInstanceOf(

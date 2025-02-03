@@ -23,6 +23,8 @@ use sad_spirit\pg_gateway\{
     fragments\WhereClauseFragment,
     metadata\PrimaryKey
 };
+use sad_spirit\pg_builder\converters\TypeNameNodeHandler;
+use sad_spirit\pg_builder\enums\LogicalOperator;
 use sad_spirit\pg_builder\nodes\{
     ColumnReference,
     ScalarExpression,
@@ -31,7 +33,6 @@ use sad_spirit\pg_builder\nodes\{
     expressions\OperatorExpression,
     expressions\TypecastExpression
 };
-use sad_spirit\pg_builder\converters\TypeNameNodeHandler;
 
 /**
  * A condition for finding a table row by its primary key
@@ -96,7 +97,7 @@ final class PrimaryKeyCondition extends Condition
 
     protected function generateExpressionImpl(): ScalarExpression
     {
-        $expression = new LogicalExpression([], LogicalExpression::AND);
+        $expression = new LogicalExpression([], LogicalOperator::AND);
         foreach ($this->primaryKey as $column) {
             $expression[] = new OperatorExpression(
                 '=',

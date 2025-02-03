@@ -28,6 +28,7 @@ use sad_spirit\pg_gateway\tests\{
 };
 use sad_spirit\pg_builder\Select;
 use sad_spirit\pg_builder\StatementFactory;
+use sad_spirit\pg_builder\enums\ConstantName;
 use sad_spirit\pg_builder\nodes\{
     Identifier,
     expressions\KeywordConstant,
@@ -155,7 +156,7 @@ class SelectProxyFragmentTest extends DatabaseBackedTest
     public function testGetParameters(): void
     {
         $select   = self::$gateway->select(new ParametrizedCondition(
-            new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE)),
+            new ConditionImplementation(new KeywordConstant(ConstantName::TRUE)),
             ['name' => 'value']
         ));
         $fragment = new SelectProxyFragment($select, new Identifier('alias'));

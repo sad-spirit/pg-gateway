@@ -437,7 +437,7 @@ class FluentBuilderTest extends DatabaseBackedTest
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
-            'select self.*, ( select custom.id from public.unconditional as custom where self.title = custom.title )'
+            'select self.*, ( select custom.id from public."unconditional" as custom where self.title = custom.title )'
             . ' as klmn from public.update_test as self',
             $select->createSelectStatement()->getSql()
         );

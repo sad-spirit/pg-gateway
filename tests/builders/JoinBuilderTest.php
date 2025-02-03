@@ -27,10 +27,11 @@ use sad_spirit\pg_gateway\{
 };
 use sad_spirit\pg_gateway\fragments\join_strategies\{
     ExplicitJoinStrategy,
+    ExplicitJoinType,
     InlineStrategy,
+    LateralSubselectJoinType,
     LateralSubselectStrategy
 };
-use sad_spirit\pg_builder\nodes\range\JoinExpression;
 
 class JoinBuilderTest extends DatabaseBackedTest
 {
@@ -210,13 +211,13 @@ class JoinBuilderTest extends DatabaseBackedTest
     {
         return [
             ['inline',        new InlineStrategy()],
-            ['inner',         new ExplicitJoinStrategy(JoinExpression::INNER)],
-            ['left',          new ExplicitJoinStrategy(JoinExpression::LEFT)],
-            ['right',         new ExplicitJoinStrategy(JoinExpression::RIGHT)],
-            ['full',          new ExplicitJoinStrategy(JoinExpression::FULL)],
-            ['lateral',       new LateralSubselectStrategy(LateralSubselectStrategy::APPEND)],
-            ['lateralInner',  new LateralSubselectStrategy(JoinExpression::INNER)],
-            ['lateralLeft',   new LateralSubselectStrategy(JoinExpression::LEFT)],
+            ['inner',         new ExplicitJoinStrategy(ExplicitJoinType::INNER)],
+            ['left',          new ExplicitJoinStrategy(ExplicitJoinType::LEFT)],
+            ['right',         new ExplicitJoinStrategy(ExplicitJoinType::RIGHT)],
+            ['full',          new ExplicitJoinStrategy(ExplicitJoinType::FULL)],
+            ['lateral',       new LateralSubselectStrategy(LateralSubselectJoinType::APPEND)],
+            ['lateralInner',  new LateralSubselectStrategy(LateralSubselectJoinType::INNER)],
+            ['lateralLeft',   new LateralSubselectStrategy(LateralSubselectJoinType::LEFT)],
             ['unconditional', null]
         ];
     }

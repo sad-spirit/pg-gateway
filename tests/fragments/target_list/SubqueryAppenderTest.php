@@ -30,6 +30,7 @@ use sad_spirit\pg_gateway\{
 use sad_spirit\pg_gateway\fragments\target_list\SubqueryAppender;
 use sad_spirit\pg_builder\Select;
 use sad_spirit\pg_builder\StatementFactory;
+use sad_spirit\pg_builder\enums\ConstantName;
 use sad_spirit\pg_builder\nodes\expressions\KeywordConstant;
 
 class SubqueryAppenderTest extends TestCase
@@ -146,7 +147,7 @@ class SubqueryAppenderTest extends TestCase
                 'select foo, bar from baz except all select foo, bar from quux'
             ));
 
-        $joinCondition = new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE));
+        $joinCondition = new ConditionImplementation(new KeywordConstant(ConstantName::TRUE));
 
         /** @var Select $select */
         $select = $factory->createFromString('select 1');
@@ -166,7 +167,7 @@ class SubqueryAppenderTest extends TestCase
             ->method('getParameterHolder')
             ->willReturn(new SimpleParameterHolder($mockSelect, ['foo' => 'bar']));
 
-        $condition = new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE));
+        $condition = new ConditionImplementation(new KeywordConstant(ConstantName::TRUE));
 
         $manipulator = new SubqueryAppender($mockSelect, new ParametrizedCondition($condition, ['name' => 'value']));
         $this::assertEquals(

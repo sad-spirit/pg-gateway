@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\conditions;
 
 use PHPUnit\Framework\TestCase;
+use sad_spirit\pg_builder\enums\ConstantName;
 use sad_spirit\pg_builder\nodes\expressions\KeywordConstant;
 use sad_spirit\pg_gateway\{
     conditions\LogicalCondition,
@@ -46,8 +47,8 @@ abstract class LogicalConditionTest extends TestCase
 
     public function testKeyIsNullIfAnyChildKeyIsNull(): void
     {
-        $nullKey   = new ConditionImplementation(new KeywordConstant(KeywordConstant::NULL), null);
-        $stringKey = new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE), 'key');
+        $nullKey   = new ConditionImplementation(new KeywordConstant(ConstantName::NULL), null);
+        $stringKey = new ConditionImplementation(new KeywordConstant(ConstantName::TRUE), 'key');
 
         $className = $this->getTestedClassName();
         $condition = new $className($nullKey, $stringKey);
@@ -57,8 +58,8 @@ abstract class LogicalConditionTest extends TestCase
 
     public function testChildConditionsOrderIsIrrelevantForKey(): void
     {
-        $one = new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE), 'first');
-        $two = new ConditionImplementation(new KeywordConstant(KeywordConstant::FALSE), 'second');
+        $one = new ConditionImplementation(new KeywordConstant(ConstantName::TRUE), 'first');
+        $two = new ConditionImplementation(new KeywordConstant(ConstantName::FALSE), 'second');
 
         $className     = $this->getTestedClassName();
         $conditionAsc  = new $className($one, $two);
@@ -70,8 +71,8 @@ abstract class LogicalConditionTest extends TestCase
 
     public function testGetParameters(): void
     {
-        $one = new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE), 'first');
-        $two = new ConditionImplementation(new KeywordConstant(KeywordConstant::FALSE), 'second');
+        $one = new ConditionImplementation(new KeywordConstant(ConstantName::TRUE), 'first');
+        $two = new ConditionImplementation(new KeywordConstant(ConstantName::FALSE), 'second');
 
         $className = $this->getTestedClassName();
         $conditionNoParameters = new $className($one, $two);

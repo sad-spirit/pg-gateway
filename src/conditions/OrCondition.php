@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\conditions;
 
 use sad_spirit\pg_gateway\TableLocator;
+use sad_spirit\pg_builder\enums\ConstantName;
 use sad_spirit\pg_builder\nodes\{
     ScalarExpression,
     WhereOrHavingClause,
@@ -32,7 +33,7 @@ final class OrCondition extends LogicalCondition
             $where->or($child->generateExpression());
         }
 
-        return $where->condition ?? new KeywordConstant(KeywordConstant::TRUE);
+        return $where->condition ?? new KeywordConstant(ConstantName::TRUE);
     }
 
     public function getKey(): ?string

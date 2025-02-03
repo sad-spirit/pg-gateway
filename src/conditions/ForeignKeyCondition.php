@@ -19,6 +19,7 @@ use sad_spirit\pg_gateway\{
     TableLocator,
     metadata\ForeignKey
 };
+use sad_spirit\pg_builder\enums\LogicalOperator;
 use sad_spirit\pg_builder\nodes\{
     ColumnReference,
     ScalarExpression,
@@ -54,7 +55,7 @@ class ForeignKeyCondition extends Condition
             );
         }
 
-        return new LogicalExpression($expression, LogicalExpression::AND);
+        return new LogicalExpression($expression, LogicalOperator::AND);
     }
 
     public function getKey(): ?string

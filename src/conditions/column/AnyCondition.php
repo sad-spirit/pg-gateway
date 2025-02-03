@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\conditions\column;
 
 use sad_spirit\pg_gateway\TableGateway;
+use sad_spirit\pg_builder\enums\ArrayComparisonConstruct;
 use sad_spirit\pg_builder\nodes\{
     ColumnReference,
     ScalarExpression,
@@ -37,7 +38,7 @@ final class AnyCondition extends TypedCondition
             '=',
             new ColumnReference(TableGateway::ALIAS_SELF, $this->column->getName()),
             new ArrayComparisonExpression(
-                ArrayComparisonExpression::ANY,
+                ArrayComparisonConstruct::ANY,
                 new TypecastExpression(new NamedParameter($this->column->getName()), $typeName)
             )
         );

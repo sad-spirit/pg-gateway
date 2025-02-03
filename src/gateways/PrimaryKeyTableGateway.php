@@ -24,6 +24,7 @@ use sad_spirit\pg_gateway\{
 };
 use sad_spirit\pg_builder\Insert;
 use sad_spirit\pg_builder\NativeStatement;
+use sad_spirit\pg_builder\enums\OnConflictAction;
 use sad_spirit\pg_builder\nodes\{
     ColumnReference,
     Identifier,
@@ -145,7 +146,7 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
             }
         }
 
-        $insert->onConflict = new OnConflictClause(OnConflictClause::UPDATE, $target, $set);
+        $insert->onConflict = new OnConflictClause(OnConflictAction::UPDATE, $target, $set);
 
         return $insert;
     }

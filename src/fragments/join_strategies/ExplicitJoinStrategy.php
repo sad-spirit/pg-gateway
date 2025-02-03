@@ -21,7 +21,9 @@ use sad_spirit\pg_gateway\{
 use sad_spirit\pg_builder\{
     Select,
     SelectCommon,
-    Statement
+    Statement,
+    enums\ConstantName,
+    enums\JoinType
 };
 use sad_spirit\pg_builder\nodes\{
     ColumnReference,
@@ -30,7 +32,6 @@ use sad_spirit\pg_builder\nodes\{
     TargetElement,
     expressions\KeywordConstant,
     range\FromElement,
-    range\JoinExpression,
     range\Subselect
 };
 
@@ -45,16 +46,8 @@ use sad_spirit\pg_builder\nodes\{
  */
 class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
 {
-    protected const ALLOWED_TYPES = [
-        JoinExpression::LEFT  => true,
-        JoinExpression::RIGHT => true,
-        JoinExpression::FULL  => true,
-        JoinExpression::INNER => true
-    ];
-
-    public function __construct(string $joinType = JoinExpression::INNER)
+    public function __construct(public readonly ExplicitJoinType $joinType = ExplicitJoinType::INNER)
     {
-        $this->setJoinType($joinType);
     }
 
     public function join(
@@ -93,9 +86,9 @@ class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
         if (null !== $condition) {
             $condition->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $subAlias));
         } else {
-            $condition = new KeywordConstant(KeywordConstant::TRUE);
+            $condition = new KeywordConstant(ConstantName::TRUE);
         }
-        $fromElement->join($subselect, $this->getJoinType())->on = $condition;
+        $fromElement->join($subselect, JoinType::from($this->joinType->value))->on = $condition;
 
         if (!$isCount) {
             $select->list[] = new TargetElement(new ColumnReference($subAlias, '*'));
@@ -115,10 +108,10 @@ class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
         if (null !== $condition) {
             $condition->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
         } else {
-            $condition = new KeywordConstant(KeywordConstant::TRUE);
+            $condition = new KeywordConstant(ConstantName::TRUE);
         }
 
-        $fromElement->join($joined->from[0], $this->getJoinType())->on = $condition;
+        $fromElement->join($joined->from[0], JoinType::from($this->joinType->value))->on = $condition;
 
         $select->where->and($joined->where);
 
@@ -140,13 +133,13 @@ class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
         return !$joined instanceof Select
             || \count($joined->from) > 1
             // We can merge the WHERE clauses in case of INNER JOIN, but not with OUTER
-            || JoinExpression::INNER !== $this->getJoinType()
+            || ExplicitJoinType::INNER !== $this->joinType
                 && null !== $joined->where->condition
             || !InlineStrategy::canBeInlined($joined);
     }
 
     public function getKey(): ?string
     {
-        return 'join-' . $this->getJoinType();
+        return 'join-' . $this->joinType->value;
     }
 }

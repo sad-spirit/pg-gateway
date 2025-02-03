@@ -21,6 +21,7 @@ use sad_spirit\pg_gateway\{
     holders\SimpleParameterHolder
 };
 use sad_spirit\pg_gateway\tests\assets\FragmentImplementation;
+use sad_spirit\pg_builder\enums\ConstantName;
 use sad_spirit\pg_builder\nodes\expressions\KeywordConstant;
 
 class RecursiveParameterHolderTest extends TestCase
@@ -34,8 +35,8 @@ class RecursiveParameterHolderTest extends TestCase
 
     public function testGetOwnerReturnsFirstOwner(): void
     {
-        $first  = new FragmentImplementation(new KeywordConstant(KeywordConstant::FALSE), 'first');
-        $second = new FragmentImplementation(new KeywordConstant(KeywordConstant::TRUE), 'second');
+        $first  = new FragmentImplementation(new KeywordConstant(ConstantName::FALSE), 'first');
+        $second = new FragmentImplementation(new KeywordConstant(ConstantName::TRUE), 'second');
 
         $holderOne = new RecursiveParameterHolder(
             new SimpleParameterHolder($first, []),
@@ -53,11 +54,11 @@ class RecursiveParameterHolderTest extends TestCase
     public function testFlatten(): void
     {
         $first = new SimpleParameterHolder(
-            new FragmentImplementation(new KeywordConstant(KeywordConstant::FALSE), 'first'),
+            new FragmentImplementation(new KeywordConstant(ConstantName::FALSE), 'first'),
             []
         );
         $second = new SimpleParameterHolder(
-            new FragmentImplementation(new KeywordConstant(KeywordConstant::TRUE), 'second'),
+            new FragmentImplementation(new KeywordConstant(ConstantName::TRUE), 'second'),
             []
         );
 
@@ -71,15 +72,15 @@ class RecursiveParameterHolderTest extends TestCase
     public function testGetParameters(): void
     {
         $first = new SimpleParameterHolder(
-            new FragmentImplementation(new KeywordConstant(KeywordConstant::FALSE), 'first'),
+            new FragmentImplementation(new KeywordConstant(ConstantName::FALSE), 'first'),
             ['foo' => 'bar']
         );
         $second = new SimpleParameterHolder(
-            new FragmentImplementation(new KeywordConstant(KeywordConstant::NULL), 'second'),
+            new FragmentImplementation(new KeywordConstant(ConstantName::NULL), 'second'),
             ['param' => 'value']
         );
         $third = new SimpleParameterHolder(
-            new FragmentImplementation(new KeywordConstant(KeywordConstant::TRUE), 'third'),
+            new FragmentImplementation(new KeywordConstant(ConstantName::TRUE), 'third'),
             ['foo' => 'bar']
         );
 
@@ -90,11 +91,11 @@ class RecursiveParameterHolderTest extends TestCase
     public function testDisallowMultipleValuesForParameter(): void
     {
         $first = new SimpleParameterHolder(
-            new FragmentImplementation(new KeywordConstant(KeywordConstant::FALSE), 'first'),
+            new FragmentImplementation(new KeywordConstant(ConstantName::FALSE), 'first'),
             ['foo' => 'bar']
         );
         $second = new SimpleParameterHolder(
-            new FragmentImplementation(new KeywordConstant(KeywordConstant::TRUE), 'second'),
+            new FragmentImplementation(new KeywordConstant(ConstantName::TRUE), 'second'),
             ['foo' => 'baz']
         );
         $holder = new RecursiveParameterHolder($first, $second);

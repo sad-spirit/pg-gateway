@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\gateways;
 
 use sad_spirit\pg_builder\Delete;
+use sad_spirit\pg_builder\enums\ConstantName;
 use sad_spirit\pg_builder\nodes\{
     ColumnReference,
     Star,
@@ -116,7 +117,7 @@ class DeleteTest extends DatabaseBackedTest
     {
         $gateway = $this->createTableGateway('foo');
         $result  = $gateway->delete(new FragmentImplementation(
-            new KeywordConstant(KeywordConstant::FALSE),
+            new KeywordConstant(ConstantName::FALSE),
             'falsy'
         ));
 

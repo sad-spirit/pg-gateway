@@ -21,10 +21,11 @@ use sad_spirit\pg_gateway\{
 };
 use sad_spirit\pg_gateway\fragments\join_strategies\{
     ExplicitJoinStrategy,
+    ExplicitJoinType,
     InlineStrategy,
+    LateralSubselectJoinType,
     LateralSubselectStrategy
 };
-use sad_spirit\pg_builder\nodes\range\JoinExpression;
 
 /**
  * Builder for JoinFragment
@@ -80,7 +81,7 @@ class JoinBuilder extends AdditionalSelectBuilder
      */
     public function inner(): self
     {
-        $this->strategy = new ExplicitJoinStrategy(JoinExpression::INNER);
+        $this->strategy = new ExplicitJoinStrategy(ExplicitJoinType::INNER);
 
         return $this;
     }
@@ -92,7 +93,7 @@ class JoinBuilder extends AdditionalSelectBuilder
      */
     public function left(): self
     {
-        $this->strategy = new ExplicitJoinStrategy(JoinExpression::LEFT);
+        $this->strategy = new ExplicitJoinStrategy(ExplicitJoinType::LEFT);
 
         return $this;
     }
@@ -104,7 +105,7 @@ class JoinBuilder extends AdditionalSelectBuilder
      */
     public function right(): self
     {
-        $this->strategy = new ExplicitJoinStrategy(JoinExpression::RIGHT);
+        $this->strategy = new ExplicitJoinStrategy(ExplicitJoinType::RIGHT);
 
         return $this;
     }
@@ -116,7 +117,7 @@ class JoinBuilder extends AdditionalSelectBuilder
      */
     public function full(): self
     {
-        $this->strategy = new ExplicitJoinStrategy(JoinExpression::FULL);
+        $this->strategy = new ExplicitJoinStrategy(ExplicitJoinType::FULL);
 
         return $this;
     }
@@ -129,7 +130,7 @@ class JoinBuilder extends AdditionalSelectBuilder
      */
     public function lateral(): self
     {
-        $this->strategy = new LateralSubselectStrategy(LateralSubselectStrategy::APPEND);
+        $this->strategy = new LateralSubselectStrategy(LateralSubselectJoinType::APPEND);
 
         return $this;
     }
@@ -141,7 +142,7 @@ class JoinBuilder extends AdditionalSelectBuilder
      */
     public function lateralInner(): self
     {
-        $this->strategy = new LateralSubselectStrategy(JoinExpression::INNER);
+        $this->strategy = new LateralSubselectStrategy(LateralSubselectJoinType::INNER);
 
         return $this;
     }
@@ -153,7 +154,7 @@ class JoinBuilder extends AdditionalSelectBuilder
      */
     public function lateralLeft(): self
     {
-        $this->strategy = new LateralSubselectStrategy(JoinExpression::LEFT);
+        $this->strategy = new LateralSubselectStrategy(LateralSubselectJoinType::LEFT);
 
         return $this;
     }

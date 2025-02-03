@@ -31,7 +31,8 @@ use sad_spirit\pg_builder\{
     Select,
     SelectCommon,
     Statement,
-    StatementFactory
+    StatementFactory,
+    enums\ConstantName
 };
 use sad_spirit\pg_builder\nodes\{
     ScalarExpression,
@@ -102,7 +103,7 @@ class JoinFragmentTest extends DatabaseBackedTest
     public function testKeyIsNullForNullConditionKey(): void
     {
         $select    = self::$gateway->select();
-        $condition = new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE), null);
+        $condition = new ConditionImplementation(new KeywordConstant(ConstantName::TRUE), null);
         $fragment  = new JoinFragment($select, $condition);
 
         $this::assertNull($fragment->getKey());
@@ -158,7 +159,7 @@ class JoinFragmentTest extends DatabaseBackedTest
     public function testGetParameters(): void
     {
         $select    = self::$gateway->select(null, ['foo' => 'bar']);
-        $condition = new ConditionImplementation(new KeywordConstant(KeywordConstant::TRUE));
+        $condition = new ConditionImplementation(new KeywordConstant(ConstantName::TRUE));
         $fragment  = new JoinFragment(
             $select,
             new ParametrizedCondition($condition, ['name' => 'value'])

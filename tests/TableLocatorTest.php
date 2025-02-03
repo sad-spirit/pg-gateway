@@ -25,6 +25,7 @@ use sad_spirit\pg_builder\{
     Parser,
     StatementFactory,
     converters\BuilderSupportDecorator,
+    enums\ConstantName
 };
 use sad_spirit\pg_builder\nodes\{
     Identifier,
@@ -133,7 +134,7 @@ class TableLocatorTest extends DatabaseBackedTest
     {
         $definition = new OrdinaryTableDefinition(self::$connection, new TableName('cols_test', 'simple'));
         $fragment   = new FragmentImplementation(
-            new KeywordConstant(KeywordConstant::TRUE),
+            new KeywordConstant(ConstantName::TRUE),
             'a key'
         );
         $tableLocatorNoCache = new TableLocator(self::$connection);
@@ -152,7 +153,7 @@ class TableLocatorTest extends DatabaseBackedTest
 
         $definition   = new OrdinaryTableDefinition(self::$connection, new TableName('update_test'));
         $tableLocator = new TableLocator(self::$connection, [], null, $this->getMockForCacheHit($stmt));
-        $fragment     = new FragmentImplementation(new KeywordConstant(KeywordConstant::FALSE), 'a key');
+        $fragment     = new FragmentImplementation(new KeywordConstant(ConstantName::FALSE), 'a key');
 
         $this::assertSame(
             $stmt,
@@ -163,7 +164,7 @@ class TableLocatorTest extends DatabaseBackedTest
     public function testNoCacheForNullKeyedFragments(): void
     {
         $definition    = new OrdinaryTableDefinition(self::$connection, new TableName('foo'));
-        $fragment      = new FragmentImplementation(new KeywordConstant(KeywordConstant::NULL), null);
+        $fragment      = new FragmentImplementation(new KeywordConstant(ConstantName::NULL), null);
 
         $tableLocator = new TableLocator(self::$connection, [], null, $this->getMockForNoCache());
         $this->createDeleteStatement($tableLocator, $definition, $fragment);
