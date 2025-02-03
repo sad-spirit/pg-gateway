@@ -24,7 +24,7 @@ use sad_spirit\pg_gateway\{
 };
 use sad_spirit\pg_gateway\tests\assets\SelectTransformerImplementation;
 
-class SelectTransformerTest extends DatabaseBackedTest
+class SelectTransformerTest extends DatabaseBackedTestCase
 {
     use NormalizeWhitespace;
 

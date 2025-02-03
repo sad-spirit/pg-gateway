@@ -18,7 +18,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\tests\gateways;
 
-use sad_spirit\pg_gateway\tests\DatabaseBackedTest;
+use sad_spirit\pg_gateway\tests\DatabaseBackedTestCase;
 use sad_spirit\pg_gateway\{
     OrdinaryTableDefinition,
     TableLocator,
@@ -38,7 +38,7 @@ use sad_spirit\pg_builder\{
 /**
  * Tests for insert() method
  */
-class InsertTest extends DatabaseBackedTest
+class InsertTest extends DatabaseBackedTestCase
 {
     protected static ?TableLocator $tableLocator;
     protected static ?GenericTableGateway $gateway;

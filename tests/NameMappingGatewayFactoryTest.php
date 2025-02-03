@@ -25,7 +25,7 @@ use sad_spirit\pg_gateway\tests\assets\mapping\{
     StandardBuilder
 };
 
-class NameMappingGatewayFactoryTest extends DatabaseBackedTest
+class NameMappingGatewayFactoryTest extends DatabaseBackedTestCase
 {
     public static function setUpBeforeClass(): void
     {

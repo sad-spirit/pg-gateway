@@ -23,7 +23,7 @@ use sad_spirit\pg_gateway\{
     fragments\JoinFragment,
     fragments\JoinStrategy,
     metadata\TableName,
-    tests\DatabaseBackedTest
+    tests\DatabaseBackedTestCase
 };
 use sad_spirit\pg_gateway\fragments\join_strategies\{
     ExplicitJoinStrategy,
@@ -32,8 +32,9 @@ use sad_spirit\pg_gateway\fragments\join_strategies\{
     LateralSubselectJoinType,
     LateralSubselectStrategy
 };
+use PHPUnit\Framework\Attributes\DataProvider;
 
-class JoinBuilderTest extends DatabaseBackedTest
+class JoinBuilderTest extends DatabaseBackedTestCase
 {
     protected static ?TableLocator $tableLocator;
 
@@ -60,9 +61,7 @@ class JoinBuilderTest extends DatabaseBackedTest
         $this::assertEquals(new JoinFragment($select), $builder->getFragment());
     }
 
-    /**
-     * @dataProvider strategiesProvider
-     */
+    #[DataProvider('strategiesProvider')]
     public function testStrategies(string $method, ?JoinStrategy $strategy): void
     {
         $gateway   = self::$tableLocator->createGateway('fkey_test.documents');
@@ -207,7 +206,7 @@ class JoinBuilderTest extends DatabaseBackedTest
         );
     }
 
-    public function strategiesProvider(): array
+    public static function strategiesProvider(): array
     {
         return [
             ['inline',        new InlineStrategy()],

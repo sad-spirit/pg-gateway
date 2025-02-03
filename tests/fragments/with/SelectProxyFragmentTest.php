@@ -23,7 +23,7 @@ use sad_spirit\pg_gateway\{
 use sad_spirit\pg_gateway\fragments\with\SelectProxyFragment;
 use sad_spirit\pg_gateway\tests\{
     assets\ConditionImplementation,
-    DatabaseBackedTest,
+    DatabaseBackedTestCase,
     NormalizeWhitespace
 };
 use sad_spirit\pg_builder\Select;
@@ -36,7 +36,7 @@ use sad_spirit\pg_builder\nodes\{
     lists\IdentifierList
 };
 
-class SelectProxyFragmentTest extends DatabaseBackedTest
+class SelectProxyFragmentTest extends DatabaseBackedTestCase
 {
     use NormalizeWhitespace;
 

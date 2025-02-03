@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\tests;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_builder\enums\ConstantName;
 use sad_spirit\pg_builder\nodes\expressions\KeywordConstant;
@@ -249,18 +250,15 @@ class FragmentListTest extends TestCase
         $this::assertEquals(['foo' => 'bar', 'baz' => 'xyzzy'], $filtered->getParameters());
     }
 
-    /**
-     * @param mixed $fragments
-     * @dataProvider invalidFragmentsProvider
-     */
-    public function testNormalizeFailure($fragments): void
+    #[DataProvider('invalidFragmentsProvider')]
+    public function testNormalizeFailure(mixed $fragments): void
     {
         $this::expectException(InvalidArgumentException::class);
         $this::expectExceptionMessageMatches('/Fragment or FragmentBuilder/');
         FragmentList::normalize($fragments);
     }
 
-    public function invalidFragmentsProvider(): array
+    public static function invalidFragmentsProvider(): array
     {
         return [
             ['a string'],

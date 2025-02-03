@@ -35,14 +35,14 @@ use sad_spirit\pg_gateway\{
     metadata\TableName
 };
 use sad_spirit\pg_gateway\tests\{
-    DatabaseBackedTest,
+    DatabaseBackedTestCase,
     assets\ParametrizedFragmentImplementation
 };
 
 /**
  * Tests for update() method
  */
-class UpdateTest extends DatabaseBackedTest
+class UpdateTest extends DatabaseBackedTestCase
 {
     protected static ?TableLocator $tableLocator;
     protected static ?GenericTableGateway $gateway;

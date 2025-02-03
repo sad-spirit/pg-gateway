@@ -30,11 +30,11 @@ use sad_spirit\pg_gateway\{
     gateways\GenericTableGateway,
     gateways\PrimaryKeyTableGateway,
     metadata\TableName,
-    tests\DatabaseBackedTest,
+    tests\DatabaseBackedTestCase,
     tests\NormalizeWhitespace
 };
 
-class ColumnsBuilderTest extends DatabaseBackedTest
+class ColumnsBuilderTest extends DatabaseBackedTestCase
 {
     use NormalizeWhitespace;
 

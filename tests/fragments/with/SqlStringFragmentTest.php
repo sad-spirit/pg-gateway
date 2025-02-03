@@ -18,12 +18,12 @@ use sad_spirit\pg_gateway\{
     TableLocator,
     gateways\GenericTableGateway,
     metadata\TableName,
-    tests\DatabaseBackedTest,
+    tests\DatabaseBackedTestCase,
     tests\NormalizeWhitespace
 };
 use sad_spirit\pg_gateway\fragments\with\SqlStringFragment;
 
-class SqlStringFragmentTest extends DatabaseBackedTest
+class SqlStringFragmentTest extends DatabaseBackedTestCase
 {
     use NormalizeWhitespace;
 

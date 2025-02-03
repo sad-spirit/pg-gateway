@@ -16,7 +16,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\conditions;
 
 use sad_spirit\pg_gateway\tests\{
-    DatabaseBackedTest,
+    DatabaseBackedTestCase,
     NormalizeWhitespace,
     assets\ConditionImplementation
 };
@@ -33,7 +33,7 @@ use sad_spirit\pg_gateway\{
 use sad_spirit\pg_builder\enums\ConstantName;
 use sad_spirit\pg_builder\nodes\expressions\KeywordConstant;
 
-class ExistsConditionTest extends DatabaseBackedTest
+class ExistsConditionTest extends DatabaseBackedTestCase
 {
     use NormalizeWhitespace;
 

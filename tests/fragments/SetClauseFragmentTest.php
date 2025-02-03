@@ -27,9 +27,10 @@ use sad_spirit\pg_gateway\{
     metadata\Columns,
     metadata\TableColumns,
     metadata\TableName,
-    tests\DatabaseBackedTest,
+    tests\DatabaseBackedTestCase,
     tests\NormalizeWhitespace
 };
+use PHPUnit\Framework\Attributes\DataProvider;
 use sad_spirit\pg_builder\nodes\{
     QualifiedName,
     SetToDefault,
@@ -39,7 +40,7 @@ use sad_spirit\pg_builder\nodes\{
 /**
  * Test for fragment populating SET clauses for UPDATE statements
  */
-class SetClauseFragmentTest extends DatabaseBackedTest
+class SetClauseFragmentTest extends DatabaseBackedTestCase
 {
     use NormalizeWhitespace;
 
@@ -165,9 +166,7 @@ class SetClauseFragmentTest extends DatabaseBackedTest
         );
     }
 
-    /**
-     * @dataProvider nonApplicableStatementsProvider
-     */
+    #[DataProvider('nonApplicableStatementsProvider')]
     public function testDoesNotApplyToOtherStatements(string $sql): void
     {
         $fragment  = new SetClauseFragment(self::$columns, self::$tableLocator, ['title' => 'some title']);
@@ -178,7 +177,7 @@ class SetClauseFragmentTest extends DatabaseBackedTest
         $fragment->applyTo($statement);
     }
 
-    public function nonApplicableStatementsProvider(): array
+    public static function nonApplicableStatementsProvider(): array
     {
         return [
             ['select * from update_test'],

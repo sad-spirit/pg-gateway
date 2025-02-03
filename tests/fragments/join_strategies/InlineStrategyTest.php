@@ -19,6 +19,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\tests\fragments\join_strategies;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_gateway\exceptions\UnexpectedValueException;
 use sad_spirit\pg_gateway\fragments\join_strategies\InlineStrategy;
@@ -137,9 +138,7 @@ class InlineStrategyTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider addClauseProvider
-     */
+    #[DataProvider('addClauseProvider')]
     public function testCannotInline(\Closure $addClause): void
     {
         $base   = $this->factory->select('self.*', 'foo as self');
@@ -157,7 +156,7 @@ class InlineStrategyTest extends TestCase
         );
     }
 
-    public function addClauseProvider(): array
+    public static function addClauseProvider(): array
     {
         return [
             [function (Select $select) {

@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\fragments;
 
 use sad_spirit\pg_gateway\tests\assets\ConditionImplementation;
-use sad_spirit\pg_gateway\tests\DatabaseBackedTest;
+use sad_spirit\pg_gateway\tests\DatabaseBackedTestCase;
 use sad_spirit\pg_gateway\{
     Fragment,
     OrdinaryTableDefinition,
@@ -40,7 +40,7 @@ use sad_spirit\pg_builder\nodes\{
     expressions\NumericConstant
 };
 
-class JoinFragmentTest extends DatabaseBackedTest
+class JoinFragmentTest extends DatabaseBackedTestCase
 {
     protected static ?GenericTableGateway $gateway;
 

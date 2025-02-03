@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\tests\fragments;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_gateway\{
     exceptions\InvalidArgumentException,
@@ -53,9 +54,7 @@ class LimitClauseFragmentTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider nonApplicableStatementsProvider
-     */
+    #[DataProvider('nonApplicableStatementsProvider')]
     public function testDoesNotApplyToAnythingButSelect(string $sql): void
     {
         $fragment  = new LimitClauseFragment();

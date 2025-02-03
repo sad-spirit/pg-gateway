@@ -19,14 +19,14 @@ use sad_spirit\pg_gateway\{
     exceptions\InvalidArgumentException,
     gateways\CompositePrimaryKeyTableGateway,
     metadata\TableName,
-    tests\DatabaseBackedTest
+    tests\DatabaseBackedTestCase
 };
 use sad_spirit\pg_builder\Select;
 
 /**
  * Tests methods from CompositePrimaryKeyTableGateway
  */
-class CompositePrimaryKeyTableGatewayTest extends DatabaseBackedTest
+class CompositePrimaryKeyTableGatewayTest extends DatabaseBackedTestCase
 {
     protected static ?CompositePrimaryKeyTableGateway $gateway;
 

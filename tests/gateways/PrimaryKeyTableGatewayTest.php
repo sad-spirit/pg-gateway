@@ -20,13 +20,13 @@ use sad_spirit\pg_gateway\{
     exceptions\UnexpectedValueException,
     gateways\PrimaryKeyTableGateway,
     metadata\TableName,
-    tests\DatabaseBackedTest
+    tests\DatabaseBackedTestCase
 };
 
 /**
  * Tests access by primary key and upsert() implementation
  */
-class PrimaryKeyTableGatewayTest extends DatabaseBackedTest
+class PrimaryKeyTableGatewayTest extends DatabaseBackedTestCase
 {
     protected static ?TableLocator $tableLocator;
 

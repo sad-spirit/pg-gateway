@@ -31,16 +31,17 @@ use sad_spirit\pg_gateway\{
     fragments\LimitClauseFragment,
     fragments\OffsetClauseFragment,
     metadata\TableName,
-    tests\DatabaseBackedTest,
+    tests\DatabaseBackedTestCase,
     tests\NormalizeWhitespace
 };
+use PHPUnit\Framework\Attributes\DataProvider;
 use sad_spirit\pg_builder\{
     Select,
     Statement,
     nodes\QualifiedName
 };
 
-class FluentBuilderTest extends DatabaseBackedTest
+class FluentBuilderTest extends DatabaseBackedTestCase
 {
     use NormalizeWhitespace;
 
@@ -323,9 +324,7 @@ class FluentBuilderTest extends DatabaseBackedTest
         );
     }
 
-    /**
-     * @dataProvider tableNameProvider
-     */
+    #[DataProvider('tableNameProvider')]
     public function testJoinUsingTableName($name): void
     {
         $gateway = self::$tableLocator->createGateway('update_test');
@@ -380,7 +379,7 @@ class FluentBuilderTest extends DatabaseBackedTest
         $this::assertEquals(new JoinFragment($joined), $unconditional->getOwnFragment());
     }
 
-    public function tableNameProvider(): array
+    public static function tableNameProvider(): array
     {
         return [
             [new TableName('update_test')],

@@ -21,10 +21,10 @@ use sad_spirit\pg_gateway\{
     conditions\NotCondition,
     exceptions\LogicException,
     fragments\WhereClauseFragment,
-    tests\DatabaseBackedTest
+    tests\DatabaseBackedTestCase
 };
 
-class ExistsBuilderTest extends DatabaseBackedTest
+class ExistsBuilderTest extends DatabaseBackedTestCase
 {
     protected static ?TableLocator $tableLocator;
 

@@ -18,7 +18,7 @@ namespace sad_spirit\pg_gateway\tests\fragments;
 
 trait NonSelectStatements
 {
-    public function nonApplicableStatementsProvider(): array
+    public static function nonApplicableStatementsProvider(): array
     {
         return [
             ['delete from a_table'],

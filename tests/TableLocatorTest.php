@@ -61,7 +61,7 @@ use sad_spirit\pg_wrapper\converters\{
 /**
  * Test for StatementFactory backed by PSR-6 cache
  */
-class TableLocatorTest extends DatabaseBackedTest
+class TableLocatorTest extends DatabaseBackedTestCase
 {
     public static function setUpBeforeClass(): void
     {

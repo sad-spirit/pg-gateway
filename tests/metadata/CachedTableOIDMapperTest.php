@@ -18,10 +18,10 @@ use sad_spirit\pg_gateway\{
     metadata\CachedTableOIDMapper,
     metadata\TableName,
     metadata\TableOIDMapper,
-    tests\DatabaseBackedTest
+    tests\DatabaseBackedTestCase
 };
 
-class CachedTableOIDMapperTest extends DatabaseBackedTest
+class CachedTableOIDMapperTest extends DatabaseBackedTestCase
 {
     public static function setUpBeforeClass(): void
     {

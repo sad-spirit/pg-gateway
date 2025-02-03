@@ -17,6 +17,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\tests\fragments;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_gateway\{
     Fragment,
@@ -59,9 +60,7 @@ class OrderByClauseFragmentTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider nonApplicableStatementsProvider
-     */
+    #[DataProvider('nonApplicableStatementsProvider')]
     public function testDoesNotApplyToAnythingButSelect(string $sql): void
     {
         $fragment  = new OrderByClauseFragment(self::$statementFactory->getParser(), 'foo, bar');
@@ -103,9 +102,7 @@ class OrderByClauseFragmentTest extends TestCase
         $this::assertNotEquals($fragmentOne->getKey(), $fragmentTwo->getKey());
     }
 
-    /**
-     * @dataProvider arbitraryExpressionsProvider
-     */
+    #[DataProvider('arbitraryExpressionsProvider')]
     public function testRestrictedOptionDisallowsArbitraryExpressions(string $sql): void
     {
         $statement = self::$statementFactory->createFromString('select self.* from a_table as self');
@@ -116,9 +113,7 @@ class OrderByClauseFragmentTest extends TestCase
         $fragment->applyTo($statement);
     }
 
-    /**
-     * @dataProvider arbitraryExpressionsProvider
-     */
+    #[DataProvider('arbitraryExpressionsProvider')]
     public function testAllowArbitraryExpressionsWithoutRestricted(string $sql): void
     {
         $select    = 'select self.* from a_table as self';
@@ -190,7 +185,7 @@ class OrderByClauseFragmentTest extends TestCase
         );
     }
 
-    public function arbitraryExpressionsProvider(): array
+    public static function arbitraryExpressionsProvider(): array
     {
         return [
             ['foo + bar'],

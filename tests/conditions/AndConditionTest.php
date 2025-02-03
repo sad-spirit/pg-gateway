@@ -15,7 +15,7 @@ namespace sad_spirit\pg_gateway\tests\conditions;
 
 use sad_spirit\pg_gateway\conditions\AndCondition;
 
-class AndConditionTest extends LogicalConditionTest
+class AndConditionTest extends LogicalConditionTestCase
 {
     protected function getTestedClassName(): string
     {

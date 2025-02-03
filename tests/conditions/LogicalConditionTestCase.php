@@ -27,7 +27,7 @@ use sad_spirit\pg_gateway\tests\{
     assets\ConditionImplementation
 };
 
-abstract class LogicalConditionTest extends TestCase
+abstract class LogicalConditionTestCase extends TestCase
 {
     use NormalizeWhitespace;
 

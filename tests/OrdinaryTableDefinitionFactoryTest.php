@@ -21,7 +21,7 @@ use sad_spirit\pg_gateway\{
     metadata\TableName
 };
 
-class OrdinaryTableDefinitionFactoryTest extends DatabaseBackedTest
+class OrdinaryTableDefinitionFactoryTest extends DatabaseBackedTestCase
 {
     private OrdinaryTableDefinitionFactory $factory;
 

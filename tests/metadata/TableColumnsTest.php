@@ -18,10 +18,10 @@ use sad_spirit\pg_gateway\{
     metadata\Column,
     metadata\TableColumns,
     metadata\TableName,
-    tests\DatabaseBackedTest
+    tests\DatabaseBackedTestCase
 };
 
-class TableColumnsTest extends DatabaseBackedTest
+class TableColumnsTest extends DatabaseBackedTestCase
 {
     public static function setUpBeforeClass(): void
     {

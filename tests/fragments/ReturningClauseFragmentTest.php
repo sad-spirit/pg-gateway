@@ -18,6 +18,7 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\tests\fragments;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_gateway\tests\{
     NormalizeWhitespace,
@@ -47,9 +48,7 @@ class ReturningClauseFragmentTest extends TestCase
         self::$statementFactory = new StatementFactory();
     }
 
-    /**
-     * @dataProvider applicableStatementsProvider
-     */
+    #[DataProvider('applicableStatementsProvider')]
     public function testAppliesToDmlStatements(string $sql): void
     {
         $fragment  = new ReturningClauseFragment(new TargetListManipulatorImplementation(new TargetElement(
@@ -105,7 +104,7 @@ class ReturningClauseFragmentTest extends TestCase
         $this::assertNotEquals('some_key', $fragment->getKey());
     }
 
-    public function applicableStatementsProvider(): array
+    public static function applicableStatementsProvider(): array
     {
         return [
             ['delete from a_table'],

@@ -19,7 +19,7 @@ use sad_spirit\pg_gateway\fragments\WhereClauseFragment;
 use sad_spirit\pg_gateway\conditions\OrCondition;
 use sad_spirit\pg_gateway\tests\assets\ConditionImplementation;
 
-class OrConditionTest extends LogicalConditionTest
+class OrConditionTest extends LogicalConditionTestCase
 {
     protected function getTestedClassName(): string
     {

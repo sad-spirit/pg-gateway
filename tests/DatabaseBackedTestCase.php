@@ -23,7 +23,7 @@ use sad_spirit\pg_wrapper\Connection;
 /**
  * Contains helper methods for setting up DB fixtures and creating mocks for metadata cache
  */
-abstract class DatabaseBackedTest extends TestCase
+abstract class DatabaseBackedTestCase extends TestCase
 {
     protected static ?Connection $connection = null;
 

@@ -13,13 +13,13 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\tests\builders;
 
-use sad_spirit\pg_gateway\tests\DatabaseBackedTest;
+use sad_spirit\pg_gateway\tests\DatabaseBackedTestCase;
 use sad_spirit\pg_gateway\builders\ScalarSubqueryBuilder;
 use sad_spirit\pg_gateway\fragments\SelectListFragment;
 use sad_spirit\pg_gateway\fragments\target_list\SubqueryAppender;
 use sad_spirit\pg_gateway\TableLocator;
 
-class ScalarSubqueryBuilderTest extends DatabaseBackedTest
+class ScalarSubqueryBuilderTest extends DatabaseBackedTestCase
 {
     protected static ?TableLocator $tableLocator;
 

@@ -32,7 +32,7 @@ use sad_spirit\pg_gateway\{
     metadata\TableName
 };
 use sad_spirit\pg_gateway\tests\{
-    DatabaseBackedTest,
+    DatabaseBackedTestCase,
     assets\FragmentImplementation,
     assets\ParametrizedFragmentImplementation
 };
@@ -40,7 +40,7 @@ use sad_spirit\pg_gateway\tests\{
 /**
  * Tests for delete() method
  */
-class DeleteTest extends DatabaseBackedTest
+class DeleteTest extends DatabaseBackedTestCase
 {
     protected static ?TableLocator $tableLocator;
 

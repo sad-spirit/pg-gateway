@@ -46,7 +46,7 @@ use sad_spirit\pg_builder\nodes\{
  *
  * NB: Reuses fixtures from DELETE tests
  */
-class TableSelectTest extends DatabaseBackedTest
+class TableSelectTest extends DatabaseBackedTestCase
 {
     protected static ?TableLocator $tableLocator;
 
