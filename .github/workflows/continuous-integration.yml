@@ -12,9 +12,9 @@ jobs:
 
     strategy:
       matrix:
-        postgres-version: ['10', '16']
+        postgres-version: ['12', '17']
         operating-system: ['ubuntu-latest']
-        php-version: ['7.4', '8.0', '8.1', '8.2', '8.3']
+        php-version: ['8.2', '8.3', '8.4']
 
     name: CI on ${{ matrix.operating-system }} with PHP ${{ matrix.php-version }} and PostgreSQL ${{ matrix.postgres-version }}
 
