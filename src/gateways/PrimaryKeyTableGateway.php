@@ -125,6 +125,7 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
 
         $target            = new IndexParameters();
         $set               = new SetClauseList();
+        /** @var non-empty-array $primaryKeyColumns */
         $primaryKeyColumns = $this->definition->getPrimaryKey()->getNames();
         $nonPrimaryKey     = \array_diff($this->definition->getColumns()->getNames(), $primaryKeyColumns);
 

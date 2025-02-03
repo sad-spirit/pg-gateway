@@ -25,12 +25,13 @@
             </errorLevel>
         </UndefinedMagicPropertyAssignment>
 
-        <MissingClosureReturnType>
+        <PossiblyNullPropertyAssignmentValue>
+            <!-- array_shift() cannot return null there due to count() check -->
             <errorLevel type="suppress">
-                <!-- Cannot typehint mixed in PHP 7.4 -->
-                <file name="src/gateways/CompositePrimaryKeyTableGateway.php"/>
-                <file name="src/TableLocator.php"/>
+                <file name="src/metadata/TableName.php"/>
+                <referencedProperty name="schema"/>
+                <referencedProperty name="relation"/>
             </errorLevel>
-        </MissingClosureReturnType>
+        </PossiblyNullPropertyAssignmentValue>
     </issueHandlers>
 </psalm>

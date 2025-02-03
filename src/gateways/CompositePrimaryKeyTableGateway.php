@@ -148,7 +148,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
             )
         ))));
 
-        $otherPartValues = \array_map(fn($value) => $value[$otherPart], $primaryKeys);
+        $otherPartValues = \array_map(fn($value): mixed => $value[$otherPart], $primaryKeys);
 
         $native->executeParams($this->getConnection(), \array_merge([$otherPart => $otherPartValues], $keyPart));
     }
@@ -204,7 +204,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
         $otherPartsValues = [];
         foreach ($otherParts as $column) {
             $otherPartsValues[$column] = \array_map(
-                fn($value) => $value[$column],
+                fn($value): mixed => $value[$column],
                 $primaryKeys
             );
         }

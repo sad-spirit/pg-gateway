@@ -199,7 +199,7 @@ class TableLocator
      */
     public function atomic(callable $callback, bool $savepoint = false)
     {
-        return $this->connection->atomic(fn() => $callback($this, $this->connection), $savepoint);
+        return $this->connection->atomic(fn(): mixed => $callback($this, $this->connection), $savepoint);
     }
 
     /**

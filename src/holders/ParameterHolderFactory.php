@@ -34,13 +34,10 @@ class ParameterHolderFactory
             $maybeParametrized
         ));
 
-        switch (\count($holders)) {
-            case 0:
-                return new EmptyParameterHolder();
-            case 1:
-                return \reset($holders);
-            default:
-                return new RecursiveParameterHolder(...$holders);
-        }
+        return match (\count($holders)) {
+            0 => new EmptyParameterHolder(),
+            1 => \reset($holders),
+            default => new RecursiveParameterHolder(...$holders),
+        };
     }
 }
