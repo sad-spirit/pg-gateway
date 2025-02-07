@@ -18,11 +18,8 @@ use sad_spirit\pg_gateway\FragmentBuilder;
 
 class FragmentBuilderImplementation implements FragmentBuilder
 {
-    private Fragment $fragment;
-
-    public function __construct(Fragment $fragment)
+    public function __construct(private readonly Fragment $fragment)
     {
-        $this->fragment = $fragment;
     }
 
     public function getFragment(): Fragment

@@ -31,7 +31,7 @@ abstract class CachedMetadataLoader
         if (null !== ($cache = $connection->getMetadataCache())) {
             try {
                 $cacheItem = $cache->getItem($this->getCacheKey($connection, $table));
-            } catch (InvalidArgumentException $e) {
+            } catch (InvalidArgumentException) {
             }
         }
 

@@ -29,6 +29,7 @@ use sad_spirit\pg_gateway\{
     gateways\GenericTableGateway,
     metadata\TableName
 };
+use sad_spirit\pg_gateway\builders\proxies\ColumnsBuilderProxy;
 use sad_spirit\pg_builder\{
     Insert,
     Select,
@@ -69,7 +70,7 @@ class InsertTest extends DatabaseBackedTestCase
 
         self::$gateway->insertWithAST(
             ['id' => 666],
-            function (Insert $insert) {
+            function (Insert $insert): void {
                 $insert->returning[] = ':id';
             },
             ['id' => 3]
@@ -86,7 +87,7 @@ class InsertTest extends DatabaseBackedTestCase
 
     public function testInsertWithDefaultValues(): void
     {
-        $result = self::$gateway->insertWithAST([], function (Insert $insert) {
+        $result = self::$gateway->insertWithAST([], function (Insert $insert): void {
             $insert->returning[] = 'self.title';
         });
 
@@ -96,7 +97,7 @@ class InsertTest extends DatabaseBackedTestCase
 
     public function testInsertWithArray(): void
     {
-        $result = self::$gateway->insertWithAST(['title' => 'Some non-default title'], function (Insert $insert) {
+        $result = self::$gateway->insertWithAST(['title' => 'Some non-default title'], function (Insert $insert): void {
             $insert->returning[] = 'self.title';
         });
 
@@ -110,7 +111,7 @@ class InsertTest extends DatabaseBackedTestCase
         $select = self::$tableLocator->createFromString(
             "select unnest(array['first title', 'second title'])"
         );
-        $result = self::$gateway->insertWithAST($select, function (Insert $insert) {
+        $result = self::$gateway->insertWithAST($select, function (Insert $insert): void {
             $insert->cols[] = new SetTargetElement('title');
             $insert->returning[] = 'self.title';
         });
@@ -131,7 +132,8 @@ class InsertTest extends DatabaseBackedTestCase
                 fn (Select $select) => $select->where->and('id = :id'),
                 ['id' => -2]
             ),
-            fn (FluentBuilder $fb) => $fb->returningColumns(fn (ColumnsBuilder $cb) => $cb->only(['title']))
+            fn (FluentBuilder $fb): ColumnsBuilderProxy => $fb
+                ->returningColumns(fn (ColumnsBuilder $cb): ColumnsBuilder => $cb->only(['title']))
         );
 
         $this::assertEquals(1, $result->getAffectedRows());

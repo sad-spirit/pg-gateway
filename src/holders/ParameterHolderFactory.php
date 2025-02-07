@@ -30,7 +30,9 @@ class ParameterHolderFactory
     public static function create(?KeyEquatable ...$maybeParametrized): ParameterHolder
     {
         $holders = \array_filter(\array_map(
-            fn(?KeyEquatable $item) => $item instanceof Parametrized ? $item->getParameterHolder() : null,
+            fn(?KeyEquatable $item): ?ParameterHolder => $item instanceof Parametrized
+                ? $item->getParameterHolder()
+                : null,
             $maybeParametrized
         ));
 

@@ -29,13 +29,10 @@ use sad_spirit\pg_builder\{
 /**
  * Wrapper for SelectBuilder object passed as $values to GenericTableGateway::insert()
  */
-class InsertSelectFragment implements Fragment, Parametrized
+readonly class InsertSelectFragment implements Fragment, Parametrized
 {
-    private SelectBuilder $select;
-
-    public function __construct(SelectBuilder $select)
+    public function __construct(private SelectBuilder $select)
     {
-        $this->select = $select;
     }
 
     public function applyTo(Statement $statement): void
@@ -43,7 +40,7 @@ class InsertSelectFragment implements Fragment, Parametrized
         if (!$statement instanceof Insert) {
             throw new InvalidArgumentException(\sprintf(
                 "This fragment can only be added to INSERT statements, instance of %s given",
-                \get_class($statement)
+                $statement::class
             ));
         }
         $statement->values = $this->select->createSelectAST();

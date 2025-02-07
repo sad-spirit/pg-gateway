@@ -33,16 +33,14 @@ use sad_spirit\pg_builder\nodes\{
 final class SelfColumnsList extends SelfColumnsNone
 {
     /** @var string[] */
-    private array $columns;
-    private ?ColumnAliasStrategy $strategy;
+    private readonly array $columns;
 
-    public function __construct(array $columns, ColumnAliasStrategy $strategy = null)
+    public function __construct(array $columns, private readonly ?ColumnAliasStrategy $strategy = null)
     {
         if ([] === $columns) {
             throw new InvalidArgumentException('$columns array should not be empty');
         }
         $this->columns  = $columns;
-        $this->strategy = $strategy;
     }
 
     public function modifyTargetList(TargetList $targetList): void

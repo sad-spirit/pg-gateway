@@ -102,7 +102,7 @@ class GenericTableGateway implements TableGateway, AdHocStatement
             $fragmentList->add(new InsertSelectFragment($values));
         } elseif ($values instanceof SelectCommon) {
             $fragmentList->add(new ClosureFragment(
-                static function (Insert $insert) use ($values) {
+                static function (Insert $insert) use ($values): void {
                     $insert->values = $values;
                 }
             ));
@@ -118,7 +118,7 @@ class GenericTableGateway implements TableGateway, AdHocStatement
             throw new InvalidArgumentException(sprintf(
                 "\$values should be either of: an array, an instance of SelectCommon,"
                 . " an implementation of SelectBuilder; %s given",
-                \is_object($values) ? 'object(' . \get_class($values) . ')' : \gettype($values)
+                \is_object($values) ? 'object(' . $values::class . ')' : \gettype($values)
             ));
         }
 

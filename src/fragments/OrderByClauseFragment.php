@@ -39,12 +39,6 @@ class OrderByClauseFragment implements SelectFragment
 {
     use VariablePriority;
 
-    private Parser $parser;
-    /** @var iterable<OrderByElement|string>|string */
-    private $orderBy;
-    private bool $merge;
-    private bool $restricted;
-
     /**
      * Class constructor
      *
@@ -56,16 +50,12 @@ class OrderByClauseFragment implements SelectFragment
      * @param int $priority
      */
     public function __construct(
-        Parser $parser,
-        $orderBy,
-        bool $restricted = true,
-        bool $merge = false,
+        private readonly Parser $parser,
+        private readonly string|iterable $orderBy,
+        private readonly bool $restricted = true,
+        private readonly bool $merge = false,
         int $priority = self::PRIORITY_DEFAULT
     ) {
-        $this->parser = $parser;
-        $this->orderBy = $orderBy;
-        $this->restricted = $restricted;
-        $this->merge = $merge;
         $this->setPriority($priority);
     }
 
@@ -74,7 +64,7 @@ class OrderByClauseFragment implements SelectFragment
         if (!$statement instanceof SelectCommon) {
             throw new InvalidArgumentException(\sprintf(
                 "OrderByClauseFragment instances can only be applied to SELECT statements, %s given",
-                \get_class($statement)
+                $statement::class
             ));
         }
 
@@ -95,7 +85,7 @@ class OrderByClauseFragment implements SelectFragment
                     throw new UnexpectedValueException(\sprintf(
                         "OrderByClauseFragment only allows sorting by column names or ordinal numbers"
                         . " in restricted mode, instance of %s found as expression in ORDER BY list",
-                        \get_class($item->expression)
+                        $item->expression::class
                     ));
                 }
             }

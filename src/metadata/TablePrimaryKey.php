@@ -72,7 +72,7 @@ class TablePrimaryKey extends CachedMetadataLoader implements PrimaryKey
             $generated = $generated
                 || 'a' === $row['attidentity']
                 || 'd' === $row['attidentity']
-                || 'nextval(' === \substr($row['defexpr'] ?? '', 0, 8);
+                || str_starts_with((string)$row['defexpr'], 'nextval(');
         }
         $this->generated = $generated && 1 === \count($this->columns);
     }

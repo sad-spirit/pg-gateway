@@ -39,17 +39,15 @@ use sad_spirit\pg_builder\nodes\{
  */
 final class PrimaryKeyCondition extends Condition
 {
-    private PrimaryKey $primaryKey;
-    private TypeNameNodeHandler $converterFactory;
+    private readonly PrimaryKey $primaryKey;
 
-    public function __construct(PrimaryKey $primaryKey, TypeNameNodeHandler $converterFactory)
+    public function __construct(PrimaryKey $primaryKey, private readonly TypeNameNodeHandler $converterFactory)
     {
         // Sanity check: primary key actually is defined
         if (0 === \count($primaryKey)) {
             throw new UnexpectedValueException("No columns in table's primary key");
         }
         $this->primaryKey = $primaryKey;
-        $this->converterFactory = $converterFactory;
     }
 
     public function getFragment(): Fragment
@@ -74,7 +72,7 @@ final class PrimaryKeyCondition extends Condition
             } else {
                 throw new InvalidArgumentException(\sprintf(
                     "Expecting an array for a composite primary key value, %s given",
-                    \is_object($value) ? 'object(' . \get_class($value) . ')' : \gettype($value)
+                    \is_object($value) ? 'object(' . $value::class . ')' : \gettype($value)
                 ));
             }
         }

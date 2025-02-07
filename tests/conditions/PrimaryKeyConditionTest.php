@@ -42,9 +42,8 @@ class PrimaryKeyConditionTest extends TestCase
         $reflection = new \ReflectionClass(TablePrimaryKey::class);
         $mock       = $reflection->newInstanceWithoutConstructor();
         $property   = $reflection->getProperty('columns');
-        $property->setAccessible(true);
         $property->setValue($mock, \array_map(
-            fn(string $name) => new Column($name, true, 25),
+            fn(string $name): Column => new Column($name, true, 25),
             $columnNames
         ));
 
@@ -59,9 +58,7 @@ class PrimaryKeyConditionTest extends TestCase
 
         $mock->expects($this->any())
             ->method('createTypeNameNodeForOID')
-            ->will($this->returnCallback(function (): TypeName {
-                return new TypeName(new QualifiedName('int5'));
-            }));
+            ->will($this->returnCallback(fn(): TypeName => new TypeName(new QualifiedName('int5'))));
 
         return $mock;
     }

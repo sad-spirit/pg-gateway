@@ -27,17 +27,13 @@ class FragmentImplementation implements Fragment
 {
     use VariablePriority;
 
-    private ScalarExpression $expression;
     private array $parameterNames;
-    private ?string $key = null;
 
     public function __construct(
-        ScalarExpression $expression,
-        ?string $key,
+        private ScalarExpression $expression,
+        private ?string $key,
         int $priority = Fragment::PRIORITY_DEFAULT
     ) {
-        $this->expression = $expression;
-        $this->key = $key;
         $this->setPriority($priority);
     }
 
@@ -46,7 +42,7 @@ class FragmentImplementation implements Fragment
         if (!isset($statement->where)) {
             throw new InvalidArgumentException(sprintf(
                 "This fragment can only be applied to Statements containing a WHERE clause, instance of %s given",
-                get_class($statement)
+                $statement::class
             ));
         }
         $statement->where->condition = $this->expression;

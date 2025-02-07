@@ -33,19 +33,12 @@ use sad_spirit\pg_builder\{
  */
 class SqlStringFragment extends WithClauseFragment
 {
-    private string $sql;
-    private array $parameters;
-    private Parser $parser;
-
     public function __construct(
-        Parser $parser,
-        string $sql,
-        array $parameters = [],
+        private readonly Parser $parser,
+        private readonly string $sql,
+        private readonly array $parameters = [],
         int $priority = self::PRIORITY_DEFAULT
     ) {
-        $this->parser = $parser;
-        $this->sql = $sql;
-        $this->parameters = $parameters;
         parent::__construct($priority);
     }
 
@@ -57,7 +50,7 @@ class SqlStringFragment extends WithClauseFragment
         } else {
             try {
                 return new WithClause([$parser->parseCommonTableExpression($this->sql)]);
-            } catch (SyntaxException $e) {
+            } catch (SyntaxException) {
                 return $parser->parseWithClause($this->sql);
             }
         }

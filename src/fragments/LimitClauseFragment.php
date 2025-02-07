@@ -28,13 +28,10 @@ use sad_spirit\pg_builder\nodes\expressions\NamedParameter;
 /**
  * Adds a `LIMIT :limit` clause, possibly keeps a value for that parameter
  */
-class LimitClauseFragment implements SelectFragment, Parametrized
+readonly class LimitClauseFragment implements SelectFragment, Parametrized
 {
-    private ?int $limit;
-
-    public function __construct(?int $limit = null)
+    public function __construct(private ?int $limit = null)
     {
-        $this->limit = $limit;
     }
 
     public function applyTo(Statement $statement, bool $isCount = false): void
@@ -42,7 +39,7 @@ class LimitClauseFragment implements SelectFragment, Parametrized
         if (!$statement instanceof SelectCommon) {
             throw new InvalidArgumentException(\sprintf(
                 "LimitClauseFragment instances can only be applied to SELECT statements, %s given",
-                \get_class($statement)
+                $statement::class
             ));
         }
         $statement->limit = new NamedParameter('limit');

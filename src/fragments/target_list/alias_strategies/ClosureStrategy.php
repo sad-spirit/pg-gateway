@@ -18,15 +18,10 @@ use sad_spirit\pg_gateway\fragments\target_list\ColumnAliasStrategy;
 /**
  * Creates an alias by running the provided callback on the column name
  */
-class ClosureStrategy implements ColumnAliasStrategy
+readonly class ClosureStrategy implements ColumnAliasStrategy
 {
-    private \Closure $closure;
-    private ?string $key;
-
-    public function __construct(\Closure $closure, ?string $key = null)
+    public function __construct(private \Closure $closure, private ?string $key = null)
     {
-        $this->closure = $closure;
-        $this->key = $key;
     }
 
     public function getAlias(string $column): ?string

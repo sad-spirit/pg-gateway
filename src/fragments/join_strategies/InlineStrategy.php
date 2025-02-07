@@ -60,7 +60,7 @@ final class InlineStrategy implements JoinStrategy
         if (!isset($statement->where)) {
             throw new InvalidArgumentException(\sprintf(
                 "Joins can only be applied to Statements containing a WHERE clause, instance of %s given",
-                \get_class($statement)
+                $statement::class
             ));
         }
         /** @psalm-var Delete|Select|Update $statement */

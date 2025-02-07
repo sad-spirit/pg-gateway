@@ -28,10 +28,6 @@ use sad_spirit\pg_builder\SelectCommon;
  */
 abstract class SelectTransformer implements SelectProxy
 {
-    protected TableLocator $tableLocator;
-    protected SelectProxy $wrapped;
-    private ?string $key;
-
     /**
      * Constructor, sets the Select being decorated and additional dependencies
      *
@@ -39,11 +35,11 @@ abstract class SelectTransformer implements SelectProxy
      * @param TableLocator $tableLocator
      * @param string|null  $key          Passing null as the key will make the generated statement non-cacheable
      */
-    public function __construct(SelectProxy $wrapped, TableLocator $tableLocator, ?string $key = null)
-    {
-        $this->wrapped      = $wrapped;
-        $this->tableLocator = $tableLocator;
-        $this->key          = $key;
+    public function __construct(
+        protected readonly SelectProxy $wrapped,
+        protected readonly TableLocator $tableLocator,
+        private readonly ?string $key = null
+    ) {
     }
 
     public function getKey(): ?string
@@ -99,7 +95,7 @@ abstract class SelectTransformer implements SelectProxy
         }
 
         return $this->tableLocator->createNativeStatementUsingCache(
-            \Closure::fromCallable([$this, 'createSelectAST']),
+            $this->createSelectAST(...),
             $cacheKey
         );
     }

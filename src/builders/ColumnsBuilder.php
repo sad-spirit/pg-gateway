@@ -39,18 +39,16 @@ use sad_spirit\pg_gateway\fragments\target_list\{
  */
 class ColumnsBuilder implements FragmentBuilder
 {
-    private TableDefinition $definition;
     /** @var string[] */
     private array $columns = [];
     private bool $shorthand;
     private ?ColumnAliasStrategy $strategy = null;
-    private bool $returningClause;
 
-    public function __construct(TableDefinition $definition, bool $returningClause = false)
-    {
-        $this->definition      = $definition;
-        $this->returningClause = $returningClause;
-        $this->shorthand       = !$returningClause;
+    public function __construct(
+        private readonly TableDefinition $definition,
+        private readonly bool $returningClause = false
+    ) {
+        $this->shorthand = !$this->returningClause;
     }
 
     public function getFragment(): Fragment

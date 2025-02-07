@@ -28,21 +28,19 @@ use sad_spirit\pg_builder\Statement;
  *
  * @since 0.2.0
  */
-final class ParametrizedFragment implements SelectFragment, Parametrized
+final readonly class ParametrizedFragment implements SelectFragment, Parametrized
 {
     private Fragment $wrapped;
-    private array $parameters;
 
-    public function __construct(Fragment $wrapped, array $parameters)
+    public function __construct(Fragment $wrapped, private array $parameters)
     {
         if ($wrapped instanceof Parametrized) {
             throw new InvalidArgumentException(\sprintf(
                 "%s already implements Parametrized interface",
-                \get_class($wrapped)
+                $wrapped::class
             ));
         }
         $this->wrapped = $wrapped;
-        $this->parameters = $parameters;
     }
 
     public function getPriority(): int

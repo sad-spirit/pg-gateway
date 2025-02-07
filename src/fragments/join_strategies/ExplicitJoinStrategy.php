@@ -60,7 +60,7 @@ class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
         if (!$statement instanceof Select) {
             throw new InvalidArgumentException(\sprintf(
                 "Explicit joins can only be performed with Select statements, instance of %s given",
-                \get_class($statement)
+                $statement::class
             ));
         }
 

@@ -159,25 +159,25 @@ class InlineStrategyTest extends TestCase
     public static function addClauseProvider(): array
     {
         return [
-            [function (Select $select) {
+            [function (Select $select): void {
                 $select->limit = new NumericConstant('10');
             }],
-            [function (Select $select) {
+            [function (Select $select): void {
                 $select->offset = new NumericConstant('20');
             }],
-            [function (Select $select) {
+            [function (Select $select): void {
                 $select->locking[] = 'for update';
             }],
-            [function (Select $select) {
+            [function (Select $select): void {
                 $select->distinct = true;
             }],
-            [function (Select $select) {
+            [function (Select $select): void {
                 $select->group[] = 'self.title';
             }],
-            [function (Select $select) {
+            [function (Select $select): void {
                 $select->having->and('count(self.field) > 1');
             }],
-            [function (Select $select) {
+            [function (Select $select): void {
                 $select->window[] = 'win95 as (partition by self.field)';
             }]
         ];

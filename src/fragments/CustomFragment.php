@@ -24,11 +24,8 @@ abstract class CustomFragment implements Fragment
 {
     use VariablePriority;
 
-    private ?string $key;
-
-    public function __construct(?string $key, int $priority = Fragment::PRIORITY_DEFAULT)
+    public function __construct(private readonly ?string $key, int $priority = Fragment::PRIORITY_DEFAULT)
     {
-        $this->key = $key;
         $this->setPriority($priority);
     }
 

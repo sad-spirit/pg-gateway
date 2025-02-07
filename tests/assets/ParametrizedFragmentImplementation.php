@@ -23,17 +23,14 @@ use sad_spirit\pg_builder\nodes\ScalarExpression;
 
 class ParametrizedFragmentImplementation extends FragmentImplementation implements Parametrized
 {
-    /** @var array<string, mixed> */
-    private array $parameters;
-
     public function __construct(
         ScalarExpression $expression,
-        array $parameters,
+        /** @var array<string, mixed> */
+        private readonly array $parameters,
         ?string $key,
         int $priority = Fragment::PRIORITY_DEFAULT
     ) {
         parent::__construct($expression, $key, $priority);
-        $this->parameters = $parameters;
     }
 
     public function getParameterHolder(): ParameterHolder

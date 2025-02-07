@@ -25,13 +25,10 @@ use sad_spirit\pg_builder\Statement;
 /**
  * Changes the RETURNING clause of DELETE / INSERT / UPDATE
  */
-final class ReturningClauseFragment implements Fragment, Parametrized
+final readonly class ReturningClauseFragment implements Fragment, Parametrized
 {
-    private TargetListManipulator $manipulator;
-
-    public function __construct(TargetListManipulator $manipulator)
+    public function __construct(private TargetListManipulator $manipulator)
     {
-        $this->manipulator = $manipulator;
     }
 
     public function applyTo(Statement $statement): void
@@ -39,7 +36,7 @@ final class ReturningClauseFragment implements Fragment, Parametrized
         if (!isset($statement->returning)) {
             throw new InvalidArgumentException(\sprintf(
                 "This fragment can only be applied to statements having a RETURNING clause, instance of %s given",
-                \get_class($statement)
+                $statement::class
             ));
         }
         $this->manipulator->modifyTargetList($statement->returning);

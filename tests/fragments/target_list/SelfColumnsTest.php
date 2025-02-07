@@ -97,7 +97,7 @@ class SelfColumnsTest extends TestCase
     {
         $manipulator = new SelfColumnsList(
             ['id'],
-            new ClosureStrategy(fn(string $column) => 'foo_' . $column)
+            new ClosureStrategy(fn(string $column): string => 'foo_' . $column)
         );
 
         $this::assertNull($manipulator->getKey());

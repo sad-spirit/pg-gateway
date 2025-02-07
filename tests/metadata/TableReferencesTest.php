@@ -42,7 +42,10 @@ class TableReferencesTest extends DatabaseBackedTestCase
         $this::assertCount(2, $references);
         $this::assertEqualsCanonicalizing(
             ['documents_author_fkey', 'documents_approval_fkey'],
-            array_map(fn(ForeignKey $key) => $key->getConstraintName(), $references->getIterator()->getArrayCopy())
+            array_map(
+                fn(ForeignKey $key): string => $key->getConstraintName(),
+                $references->getIterator()->getArrayCopy()
+            )
         );
     }
 
@@ -80,7 +83,7 @@ class TableReferencesTest extends DatabaseBackedTestCase
         $this::assertEqualsCanonicalizing(
             ['documents_author_fkey', 'documents_approval_fkey'],
             \array_map(
-                fn(ForeignKey $key) => $key->getConstraintName(),
+                fn(ForeignKey $key): string => $key->getConstraintName(),
                 $references->to(new TableName('public', 'employees'))
             )
         );
@@ -107,7 +110,7 @@ class TableReferencesTest extends DatabaseBackedTestCase
         $this::assertEqualsCanonicalizing(
             ['documents_author_fkey', 'documents_approval_fkey'],
             \array_map(
-                fn(ForeignKey $key) => $key->getConstraintName(),
+                fn(ForeignKey $key): string => $key->getConstraintName(),
                 $references->from(new TableName('fkey_test', 'documents'))
             )
         );

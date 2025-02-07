@@ -462,7 +462,7 @@ class FluentBuilder extends FragmentListBuilder
         } else {
             throw new InvalidArgumentException(\sprintf(
                 "An SQL string or Condition instance expected, %s given",
-                \is_object($expression) ? 'object(' . \get_class($expression) . ')' : \gettype($expression)
+                \is_object($expression) ? 'object(' . $expression::class . ')' : \gettype($expression)
             ));
         }
     }
@@ -492,7 +492,7 @@ class FluentBuilder extends FragmentListBuilder
         if ($normalized instanceof TableAccessor) {
             try {
                 $builder->onForeignKey();
-            } catch (Exception $e) {
+            } catch (Exception) {
             }
         }
         if (null !== $callback) {
@@ -549,7 +549,7 @@ class FluentBuilder extends FragmentListBuilder
 
         throw new InvalidArgumentException(\sprintf(
             "A table name, TableGateway or SelectBuilder instance expected, %s given",
-            \is_object($select) ? 'object(' . \get_class($select) . ')' : \gettype($select)
+            \is_object($select) ? 'object(' . $select::class . ')' : \gettype($select)
         ));
     }
 

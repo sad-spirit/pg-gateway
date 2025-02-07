@@ -18,11 +18,6 @@ namespace sad_spirit\pg_gateway\metadata;
  */
 final class Column
 {
-    private string $name;
-    private bool $nullable;
-    /** @var int|numeric-string */
-    private $typeOID;
-
     /**
      * Constructor, sets the column's properties
      *
@@ -30,11 +25,8 @@ final class Column
      * @param bool               $nullable Whether column is nullable
      * @param int|numeric-string $typeOID  OID of the column data type
      */
-    public function __construct(string $name, bool $nullable, $typeOID)
+    public function __construct(private readonly string $name, private readonly bool $nullable, private $typeOID)
     {
-        $this->name = $name;
-        $this->nullable = $nullable;
-        $this->typeOID = $typeOID;
     }
 
     /**

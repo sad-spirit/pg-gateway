@@ -84,6 +84,6 @@ trait FluentBuilderWrapper
         } elseif (\method_exists($this->owner, '__call')) {
             return $this->owner->__call($name, $arguments);
         }
-        throw new BadMethodCallException("The method '{$name}' is not available in " . get_class($this->owner));
+        throw new BadMethodCallException("The method '{$name}' is not available in " . $this->owner::class);
     }
 }

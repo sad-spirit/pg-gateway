@@ -25,7 +25,7 @@ final class EmptyParameterHolder implements ParameterHolder
 {
     public function getOwner(): KeyEquatable
     {
-        return new ClosureFragment(function () {
+        return new ClosureFragment(function (): never {
             throw new LogicException('This function is not expected to be called');
         });
     }

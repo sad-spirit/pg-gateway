@@ -68,7 +68,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
                 if (!$fragment instanceof Fragment && !$fragment instanceof FragmentBuilder) {
                     throw new InvalidArgumentException(\sprintf(
                         "Expecting only implementations of Fragment or FragmentBuilder in iterable, %s given",
-                        \is_object($fragment) ? 'object(' . \get_class($fragment) . ')' : \gettype($fragment)
+                        \is_object($fragment) ? 'object(' . $fragment::class . ')' : \gettype($fragment)
                     ));
                 }
                 $arguments[] = $fragment;
@@ -77,7 +77,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
             throw new InvalidArgumentException(sprintf(
                 'Expecting an implementation of either Fragment or FragmentBuilder'
                 . ' or an iterable containing those, %s given',
-                \is_object($fragments) ? 'object(' . \get_class($fragments) . ')' : \gettype($fragments)
+                \is_object($fragments) ? 'object(' . $fragments::class . ')' : \gettype($fragments)
             ));
         }
 
@@ -126,7 +126,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
         } else {
             throw new InvalidArgumentException(\sprintf(
                 "An instance of Fragment or FragmentBuilder expected, object(%s) given",
-                \get_class($fragment)
+                $fragment::class
             ));
         }
 
@@ -263,8 +263,8 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
             }
             $fragmentKeys[] = ['key' => $key, 'priority' => $fragment->getPriority()];
         }
-        \usort($fragmentKeys, fn($a, $b) => ($b['priority'] <=> $a['priority']) ?: ($a['key'] <=> $b['key']));
-        return TableLocator::hash(\array_map(fn($a) => $a['key'], $fragmentKeys));
+        \usort($fragmentKeys, fn($a, $b): int => ($b['priority'] <=> $a['priority']) ?: ($a['key'] <=> $b['key']));
+        return TableLocator::hash(\array_map(fn($a): string => $a['key'], $fragmentKeys));
     }
 
     /**
@@ -275,7 +275,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
     public function getSortedFragments(): array
     {
         $fragments = $this->fragments;
-        \usort($fragments, fn(Fragment $a, Fragment $b) => ($b->getPriority() <=> $a->getPriority())
+        \usort($fragments, fn(Fragment $a, Fragment $b): int => ($b->getPriority() <=> $a->getPriority())
             ?: (\is_null($a->getKey()) <=> \is_null($b->getKey()))
             ?: ($a->getKey() <=> $b->getKey()));
         return $fragments;

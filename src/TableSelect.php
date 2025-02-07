@@ -35,10 +35,8 @@ use sad_spirit\pg_wrapper\{
 /**
  * Default implementation of SelectProxy that is returned by GenericTableGateway
  */
-final class TableSelect implements SelectProxy
+final readonly class TableSelect implements SelectProxy
 {
-    private TableLocator $tableLocator;
-    private TableGateway $gateway;
     private FragmentList $fragments;
     /** @var \Closure(): SelectCommon */
     private \Closure $baseSelectAST;
@@ -58,14 +56,12 @@ final class TableSelect implements SelectProxy
      *      (corresponding to "SELECT count(self.*) from tablename as self" in SQL) which is used in executeCount()
      */
     public function __construct(
-        TableLocator $tableLocator,
-        TableGateway $gateway,
+        private TableLocator $tableLocator,
+        private TableGateway $gateway,
         FragmentList $fragments,
         \Closure $baseSelectAST = null,
         \Closure $baseCountAST = null
     ) {
-        $this->tableLocator  = $tableLocator;
-        $this->gateway       = $gateway;
         // FragmentList instance used here should be immutable
         $this->fragments     = clone $fragments;
 
@@ -134,7 +130,7 @@ final class TableSelect implements SelectProxy
     public function createSelectStatement(): NativeStatement
     {
         return $this->tableLocator->createNativeStatementUsingCache(
-            \Closure::fromCallable([$this, 'createSelectAST']),
+            $this->createSelectAST(...),
             $this->generateStatementKey(TableGateway::STATEMENT_SELECT, $this->baseSelectAST, $this->fragments)
         );
     }
@@ -142,7 +138,7 @@ final class TableSelect implements SelectProxy
     public function createSelectCountStatement(): NativeStatement
     {
         $fragments = $this->fragments->filter(
-            fn(Fragment $fragment) => !$fragment instanceof SelectFragment || $fragment->isUsedForCount()
+            fn(Fragment $fragment): bool => !$fragment instanceof SelectFragment || $fragment->isUsedForCount()
         );
         return $this->tableLocator->createNativeStatementUsingCache(
             function () use ($fragments): SelectCommon {
@@ -192,7 +188,7 @@ final class TableSelect implements SelectProxy
         } else {
             $parameters = \array_filter(
                 $this->fragments->getParameters(),
-                fn($key) => isset($namesHash[$key]),
+                fn($key): bool => isset($namesHash[$key]),
                 \ARRAY_FILTER_USE_KEY
             );
             $result     = $native->executeParams($this->gateway->getConnection(), $parameters);

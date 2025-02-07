@@ -34,7 +34,7 @@ abstract class LogicalCondition extends Condition implements Parametrized
         if ([] === $children) {
             throw new InvalidArgumentException(sprintf(
                 '%s: at least one child Condition is required',
-                \get_class($this)
+                static::class
             ));
         }
 

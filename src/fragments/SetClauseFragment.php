@@ -79,9 +79,7 @@ class SetClauseFragment implements Fragment, Parametrized
      */
     private array $types;
 
-    private TableLocator $tableLocator;
-
-    public function __construct(Columns $columns, TableLocator $tableLocator, array $set)
+    public function __construct(Columns $columns, private readonly TableLocator $tableLocator, array $set)
     {
         if ([] === $set) {
             throw new InvalidArgumentException('At least one column should be specified, empty $set array given');
@@ -115,7 +113,6 @@ class SetClauseFragment implements Fragment, Parametrized
             fn(Column $column) => $column->getTypeOID(),
             $columns->getAll()
         );
-        $this->tableLocator = $tableLocator;
     }
 
     public function getParameterHolder(): SimpleParameterHolder
@@ -132,7 +129,7 @@ class SetClauseFragment implements Fragment, Parametrized
         } else {
             throw new InvalidArgumentException(\sprintf(
                 "This fragment can only be applied to INSERT or UPDATE statements, instance of %s given",
-                \get_class($statement)
+                $statement::class
             ));
         }
     }

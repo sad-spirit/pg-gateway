@@ -19,15 +19,10 @@ use sad_spirit\pg_gateway\ParameterHolder;
 /**
  * "Scalar" parameter holder, for Fragments/Conditions that do not aggregate Parametrized dependencies
  */
-final class SimpleParameterHolder implements ParameterHolder
+final readonly class SimpleParameterHolder implements ParameterHolder
 {
-    private KeyEquatable $owner;
-    private array $parameters;
-
-    public function __construct(KeyEquatable $owner, array $parameters)
+    public function __construct(private KeyEquatable $owner, private array $parameters)
     {
-        $this->owner = $owner;
-        $this->parameters = $parameters;
     }
 
     public function getOwner(): KeyEquatable

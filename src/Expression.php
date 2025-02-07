@@ -22,13 +22,10 @@ namespace sad_spirit\pg_gateway;
  * <code>['foo' => new Expression('default')]</code>
  * means: set foo to its default value.
  */
-final class Expression
+final readonly class Expression implements \Stringable
 {
-    private string $expression;
-
-    public function __construct(string $expression)
+    public function __construct(private string $expression)
     {
-        $this->expression = $expression;
     }
 
     /**
@@ -36,7 +33,7 @@ final class Expression
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->expression;
     }

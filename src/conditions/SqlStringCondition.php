@@ -25,13 +25,8 @@ use sad_spirit\pg_builder\{
  */
 class SqlStringCondition extends Condition
 {
-    private Parser $parser;
-    private string $sql;
-
-    public function __construct(Parser $parser, string $sql)
+    public function __construct(private readonly Parser $parser, private readonly string $sql)
     {
-        $this->parser = $parser;
-        $this->sql    = $sql;
     }
 
     protected function generateExpressionImpl(): ScalarExpression

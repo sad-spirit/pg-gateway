@@ -31,6 +31,7 @@ use sad_spirit\pg_gateway\{
     gateways\GenericTableGateway,
     metadata\TableName
 };
+use sad_spirit\pg_gateway\builders\proxies\ColumnsBuilderProxy;
 use sad_spirit\pg_gateway\tests\{
     DatabaseBackedTestCase,
     assets\FragmentImplementation,
@@ -77,7 +78,7 @@ class DeleteTest extends DatabaseBackedTestCase
     public function testDeleteWithAST(): void
     {
         $gateway = $this->createTableGateway('bar');
-        $result  = $gateway->deleteWithAST(function (Delete $delete) {
+        $result  = $gateway->deleteWithAST(function (Delete $delete): void {
             $delete->where->and('id = 1');
             $delete->returning[] = new Star();
         });
@@ -90,7 +91,7 @@ class DeleteTest extends DatabaseBackedTestCase
     {
         $gateway = $this->createTableGateway('foo');
         $result  = $gateway->deleteWithAST(
-            function (Delete $delete) {
+            function (Delete $delete): void {
                 $delete->where->and('id = :param');
                 $delete->returning[] = new Star();
             },
@@ -105,8 +106,8 @@ class DeleteTest extends DatabaseBackedTestCase
     {
         $gateway = $this->createTableGateway('bar');
         $result  = $gateway->delete(
-            fn(FluentBuilder $fb) => $fb->equal('id', 2)
-                ->returningColumns(fn(ColumnsBuilder $cb) => $cb->primaryKey())
+            fn(FluentBuilder $fb): ColumnsBuilderProxy => $fb->equal('id', 2)
+                ->returningColumns(fn(ColumnsBuilder $cb): ColumnsBuilder => $cb->primaryKey())
         );
 
         $this::assertEquals(1, $result->getAffectedRows());

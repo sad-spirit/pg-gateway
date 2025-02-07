@@ -28,13 +28,8 @@ use sad_spirit\pg_builder\nodes\{
  */
 class ReplaceTableAliasWalker extends BlankWalker
 {
-    private string $oldAlias;
-    private string $newAlias;
-
-    public function __construct(string $oldAlias, string $newAlias)
+    public function __construct(private readonly string $oldAlias, private readonly string $newAlias)
     {
-        $this->oldAlias = $oldAlias;
-        $this->newAlias = $newAlias;
     }
 
     public function walkColumnReference(ColumnReference $node): null

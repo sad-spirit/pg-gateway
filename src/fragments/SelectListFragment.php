@@ -29,13 +29,10 @@ use sad_spirit\pg_builder\{
 /**
  * Modifies the list of expressions returned by SELECT statement
  */
-final class SelectListFragment implements SelectFragment, Parametrized
+final readonly class SelectListFragment implements SelectFragment, Parametrized
 {
-    private TargetListManipulator $manipulator;
-
-    public function __construct(TargetListManipulator $manipulator)
+    public function __construct(private TargetListManipulator $manipulator)
     {
-        $this->manipulator = $manipulator;
     }
 
     public function applyTo(Statement $statement, bool $isCount = false): void
@@ -43,7 +40,7 @@ final class SelectListFragment implements SelectFragment, Parametrized
         if (!$statement instanceof Select) {
             throw new InvalidArgumentException(\sprintf(
                 "This fragment can only be applied to SELECT statements, instance of %s given",
-                \get_class($statement)
+                $statement::class
             ));
         }
         $this->manipulator->modifyTargetList($statement->list);

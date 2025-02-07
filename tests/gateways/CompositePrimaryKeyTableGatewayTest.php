@@ -101,7 +101,7 @@ class CompositePrimaryKeyTableGatewayTest extends DatabaseBackedTestCase
             ]
         );
 
-        $select = self::$gateway->selectWithAST(static function (Select $select) {
+        $select = self::$gateway->selectWithAST(static function (Select $select): void {
             $select->where->and('e_id = 2');
         });
 
@@ -123,7 +123,7 @@ class CompositePrimaryKeyTableGatewayTest extends DatabaseBackedTestCase
             ]
         );
 
-        $select = self::$gateway->selectWithAST(static function (Select $select) {
+        $select = self::$gateway->selectWithAST(static function (Select $select): void {
             $select->list->replace("s_id::text || ':' || i_id::text as si");
             $select->where->and('e_id = 1');
         });

@@ -31,17 +31,15 @@ use sad_spirit\pg_builder\nodes\lists\IdentifierList;
  */
 class WithClauseBuilder implements FragmentBuilder
 {
-    private SelectProxy $select;
-    private Identifier $alias;
+    private readonly Identifier $alias;
     private ?IdentifierList $columnAliases = null;
     private ?bool $materialized = null;
     private bool $recursive = false;
     private int $priority = Fragment::PRIORITY_DEFAULT;
 
-    public function __construct(SelectProxy $select, string $alias)
+    public function __construct(private readonly SelectProxy $select, string $alias)
     {
-        $this->select = $select;
-        $this->alias  = new Identifier($alias);
+        $this->alias = new Identifier($alias);
     }
 
     public function getFragment(): Fragment

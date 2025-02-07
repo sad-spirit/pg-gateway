@@ -24,16 +24,12 @@ use sad_spirit\pg_wrapper\Connection;
  */
 final class OrdinaryTableDefinition implements TableDefinition
 {
-    private Connection $connection;
-    private metadata\TableName $name;
     private ?metadata\TableColumns $columns = null;
     private ?metadata\TablePrimaryKey $primaryKey = null;
     private ?metadata\TableReferences $references = null;
 
-    public function __construct(Connection $connection, metadata\TableName $tableName)
+    public function __construct(private readonly Connection $connection, private readonly metadata\TableName $name)
     {
-        $this->connection = $connection;
-        $this->name       = $tableName;
     }
 
     public function getName(): metadata\TableName

@@ -39,22 +39,14 @@ use sad_spirit\pg_builder\nodes\{
  */
 class SubqueryAppender extends TargetListManipulator implements Parametrized
 {
-    private SelectBuilder $select;
-    private ?Condition $joinCondition;
-    private ?string $explicitTableAlias;
-    private ?string $columnAlias;
     private ?string $tableAlias = null;
 
     public function __construct(
-        SelectBuilder $select,
-        ?Condition $joinCondition = null,
-        ?string $explicitAlias = null,
-        ?string $columnAlias = null
+        private readonly SelectBuilder $select,
+        private readonly ?Condition $joinCondition = null,
+        private readonly ?string $explicitTableAlias = null,
+        private readonly ?string $columnAlias = null
     ) {
-        $this->select = $select;
-        $this->joinCondition = $joinCondition;
-        $this->explicitTableAlias = $explicitAlias;
-        $this->columnAlias = $columnAlias;
     }
 
     /**
@@ -80,7 +72,7 @@ class SubqueryAppender extends TargetListManipulator implements Parametrized
             if (!isset($select->where)) {
                 throw new UnexpectedValueException(\sprintf(
                     "Join conditions require a Statement containing a WHERE clause, instance of %s given",
-                    \get_class($select)
+                    $select::class
                 ));
             }
             $condition = $this->joinCondition->generateExpression();

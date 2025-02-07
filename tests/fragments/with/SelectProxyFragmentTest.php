@@ -71,7 +71,7 @@ class SelectProxyFragmentTest extends DatabaseBackedTestCase
 
     public function testKeyIsNullForNullSelectKey(): void
     {
-        $selectNullKey = self::$gateway->selectWithAST(function (Select $select) {
+        $selectNullKey = self::$gateway->selectWithAST(function (Select $select): void {
             $select->limit = new NumericConstant('10');
         });
         $fragment      = new SelectProxyFragment($selectNullKey, new Identifier('foo'));

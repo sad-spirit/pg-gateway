@@ -108,7 +108,6 @@ class CachedTableOIDMapperTest extends DatabaseBackedTestCase
         $donor->findOIDForTableName(new TableName('insert_test'));
 
         $reflectedNames = new \ReflectionProperty($donor, 'tableNames');
-        $reflectedNames->setAccessible(true);
 
         $connection = clone self::$connection;
         $connection->setMetadataCache($this->getMockForCacheMiss($reflectedNames->getValue($donor)));

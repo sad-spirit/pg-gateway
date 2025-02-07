@@ -34,26 +34,15 @@ use sad_spirit\pg_builder\nodes\{
  */
 class SelectProxyFragment extends WithClauseFragment
 {
-    private SelectProxy $select;
-    private Identifier $alias;
-    private ?IdentifierList $columnAliases;
-    private ?bool $materialized;
-    private bool $recursive;
-
     public function __construct(
-        SelectProxy $select,
-        Identifier $alias,
-        IdentifierList $columnAliases = null,
-        ?bool $materialized = null,
-        bool $recursive = false,
+        private readonly SelectProxy $select,
+        private readonly Identifier $alias,
+        private readonly ?IdentifierList $columnAliases = null,
+        private readonly ?bool $materialized = null,
+        private readonly bool $recursive = false,
         int $priority = self::PRIORITY_DEFAULT
     ) {
         parent::__construct($priority);
-        $this->select = $select;
-        $this->alias = $alias;
-        $this->columnAliases = $columnAliases;
-        $this->materialized = $materialized;
-        $this->recursive = $recursive;
     }
 
     protected function createWithClause(Statement $statement): WithClause

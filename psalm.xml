@@ -16,15 +16,6 @@
     </projectFiles>
 
     <issueHandlers>
-        <UndefinedMagicPropertyAssignment>
-            <!-- No clue what happened, worked with previous version of pg-builder -->
-            <errorLevel type="suppress">
-                <file name="src/fragments/join_strategies/ExplicitJoinStrategy.php" />
-                <file name="src/fragments/join_strategies/LateralSubselectStrategy.php" />
-                <referencedProperty name="on" />
-            </errorLevel>
-        </UndefinedMagicPropertyAssignment>
-
         <PossiblyNullPropertyAssignmentValue>
             <!-- array_shift() cannot return null there due to count() check -->
             <errorLevel type="suppress">

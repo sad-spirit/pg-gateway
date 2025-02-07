@@ -21,13 +21,8 @@ use sad_spirit\pg_builder\nodes\ScalarExpression;
  */
 class ConditionImplementation extends Condition
 {
-    private ScalarExpression $where;
-    private ?string $key;
-
-    public function __construct(ScalarExpression $where, ?string $key = null)
+    public function __construct(private readonly ScalarExpression $where, private readonly ?string $key = null)
     {
-        $this->where = $where;
-        $this->key   = $key;
     }
 
     protected function generateExpressionImpl(): ScalarExpression

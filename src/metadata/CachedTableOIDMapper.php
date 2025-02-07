@@ -24,8 +24,6 @@ use Psr\Cache\InvalidArgumentException as PsrException;
  */
 class CachedTableOIDMapper implements TableOIDMapper
 {
-    private Connection $connection;
-    private bool $ignoreSystemSchemas;
     private bool $loadedFromDB = false;
 
     /**
@@ -48,10 +46,10 @@ class CachedTableOIDMapper implements TableOIDMapper
     private array $oidMap = [];
 
 
-    public function __construct(Connection $connection, bool $ignoreSystemSchemas = true)
-    {
-        $this->connection          = $connection;
-        $this->ignoreSystemSchemas = $ignoreSystemSchemas;
+    public function __construct(
+        private readonly Connection $connection,
+        private readonly bool $ignoreSystemSchemas = true
+    ) {
     }
 
     public function findOIDForTableName(TableName $name)
@@ -130,7 +128,7 @@ class CachedTableOIDMapper implements TableOIDMapper
      */
     private function isSystemSchema(string $schema): bool
     {
-        return 'information_schema' === $schema || 'pg_' === \substr($schema, 0, 3);
+        return 'information_schema' === $schema || str_starts_with($schema, 'pg_');
     }
 
     /**
@@ -147,7 +145,7 @@ class CachedTableOIDMapper implements TableOIDMapper
                     $this->connection->getConnectionId() . '-tables-'
                     . ($this->ignoreSystemSchemas ? 'user' : 'all')
                 );
-            } catch (PsrException $e) {
+            } catch (PsrException) {
             }
         }
 

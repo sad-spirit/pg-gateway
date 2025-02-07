@@ -18,28 +18,17 @@ namespace sad_spirit\pg_gateway\metadata;
  *
  * @implements \IteratorAggregate<string, string>
  */
-final class ForeignKey implements \IteratorAggregate
+final readonly class ForeignKey implements \IteratorAggregate
 {
-    private TableName $childTable;
-    private TableName $referencedTable;
-    /** @var string[] */
-    private array $childColumns;
-    /** @var string[] */
-    private array $referencedColumns;
-    private string $constraintName;
-
     public function __construct(
-        TableName $childTable,
-        array $childColumns,
-        TableName $referencedTable,
-        array $referencedColumns,
-        string $constraintName
+        private TableName $childTable,
+        /** @var string[] */
+        private array $childColumns,
+        private TableName $referencedTable,
+        /** @var string[] */
+        private array $referencedColumns,
+        private string $constraintName
     ) {
-        $this->childTable = $childTable;
-        $this->childColumns = $childColumns;
-        $this->referencedTable = $referencedTable;
-        $this->referencedColumns = $referencedColumns;
-        $this->constraintName = $constraintName;
     }
 
     /**

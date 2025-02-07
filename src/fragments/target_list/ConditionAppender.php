@@ -29,13 +29,8 @@ use sad_spirit\pg_builder\nodes\{
  */
 class ConditionAppender extends TargetListManipulator
 {
-    private Condition $condition;
-    private ?string $alias;
-
-    public function __construct(Condition $condition, ?string $alias = null)
+    public function __construct(private readonly Condition $condition, private readonly ?string $alias = null)
     {
-        $this->condition = $condition;
-        $this->alias = $alias;
     }
 
     public function modifyTargetList(TargetList $targetList): void

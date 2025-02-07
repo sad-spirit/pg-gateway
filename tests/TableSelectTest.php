@@ -30,6 +30,7 @@ use sad_spirit\pg_gateway\{
     gateways\GenericTableGateway,
     metadata\TableName
 };
+use sad_spirit\pg_gateway\builders\proxies\ColumnsBuilderProxy;
 use sad_spirit\pg_gateway\tests\assets\{
     ParametrizedFragmentImplementation,
     SelectFragmentImplementation
@@ -40,6 +41,7 @@ use sad_spirit\pg_builder\nodes\{
     expressions\NamedParameter,
     expressions\OperatorExpression
 };
+use sad_spirit\pg_builder\Statement;
 
 /**
  * Test for the class that actually executes SELECT queries
@@ -92,7 +94,7 @@ class TableSelectTest extends DatabaseBackedTestCase
     public function testSelectWithClosure(): void
     {
         $gateway     = $this->createTableGateway('foo');
-        $tableSelect = $gateway->selectWithAST(function (Select $select) {
+        $tableSelect = $gateway->selectWithAST(function (Select $select): void {
             $select->where->and('id = 2');
         });
 
@@ -124,7 +126,7 @@ class TableSelectTest extends DatabaseBackedTestCase
         $tableSelect = $gateway->select(
             [
                 new SelectFragmentImplementation(
-                    function (Select $select) {
+                    function (Select $select): void {
                         $select->order->replace('id');
                         $select->offset = ':offset';
                     },
@@ -190,7 +192,7 @@ class TableSelectTest extends DatabaseBackedTestCase
                 fn (Select $select) => $select->where->and('self.id = :id')
             )))
                 ->mergeParameters(['id' => 1]),
-            fn() => self::$tableLocator->createFromString(
+            fn(): Statement => self::$tableLocator->createFromString(
                 "select self.*, bar.name as bar_name from foo as self, bar where self.id = bar.id"
             )
         );
@@ -223,8 +225,8 @@ class TableSelectTest extends DatabaseBackedTestCase
     {
         $gateway = $this->createTableGateway('foo');
         $select  = $gateway->select(
-            fn (FluentBuilder $fb) => $fb->orderBy('id desc')
-                ->outputColumns(fn (ColumnsBuilder $cb) => $cb->primaryKey())
+            fn (FluentBuilder $fb): ColumnsBuilderProxy => $fb->orderBy('id desc')
+                ->outputColumns(fn (ColumnsBuilder $cb): ColumnsBuilder => $cb->primaryKey())
         );
 
         $this::assertEquals(['id' => 3], $select->fetchFirst());

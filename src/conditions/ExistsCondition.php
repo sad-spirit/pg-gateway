@@ -38,19 +38,13 @@ use sad_spirit\pg_builder\nodes\{
  */
 final class ExistsCondition extends Condition implements Parametrized
 {
-    private SelectBuilder $builder;
-    private ?Condition $joinCondition;
-    private ?string $explicitAlias;
     private ?string $alias = null;
 
     public function __construct(
-        SelectBuilder $select,
-        ?Condition $joinCondition = null,
-        ?string $explicitAlias = null
+        private readonly SelectBuilder $builder,
+        private readonly ?Condition $joinCondition = null,
+        private readonly ?string $explicitAlias = null
     ) {
-        $this->builder = $select;
-        $this->joinCondition = $joinCondition;
-        $this->explicitAlias = $explicitAlias;
     }
 
     protected function generateExpressionImpl(): ScalarExpression
@@ -67,7 +61,7 @@ final class ExistsCondition extends Condition implements Parametrized
             if (!isset($select->where)) {
                 throw new UnexpectedValueException(\sprintf(
                     "Join conditions require a Statement containing a WHERE clause, instance of %s given",
-                    \get_class($select)
+                    $select::class
                 ));
             }
             $condition = $this->joinCondition->generateExpression();

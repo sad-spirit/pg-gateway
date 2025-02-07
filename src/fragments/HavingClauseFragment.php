@@ -32,11 +32,8 @@ final class HavingClauseFragment implements SelectFragment, Parametrized
 {
     use VariablePriority;
 
-    private Condition $condition;
-
-    public function __construct(Condition $condition, int $priority = self::PRIORITY_DEFAULT)
+    public function __construct(private readonly Condition $condition, int $priority = self::PRIORITY_DEFAULT)
     {
-        $this->condition = $condition;
         $this->setPriority($priority);
     }
 
@@ -45,7 +42,7 @@ final class HavingClauseFragment implements SelectFragment, Parametrized
         if (!$statement instanceof Select) {
             throw new InvalidArgumentException(\sprintf(
                 "HavingClauseFragment instances can only be added to SELECT Statements, %s given",
-                \get_class($statement)
+                $statement::class
             ));
         }
 

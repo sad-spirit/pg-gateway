@@ -30,11 +30,8 @@ use sad_spirit\pg_builder\nodes\{
  */
 final class NotCondition extends Condition implements Parametrized
 {
-    private Condition $child;
-
-    public function __construct(Condition $child)
+    public function __construct(private readonly Condition $child)
     {
-        $this->child = $child;
     }
 
     protected function generateExpressionImpl(): ScalarExpression

@@ -50,13 +50,10 @@ use Psr\Cache\InvalidArgumentException as PsrException;
 class TableLocator
 {
     private static int $aliasIndex = 0;
-
-    private Connection $connection;
     /** @var array<TableGatewayFactory>  */
     private array $gatewayFactories = [];
-    private StatementFactory $statementFactory;
+    private readonly StatementFactory $statementFactory;
     private TypeNameNodeHandler $typeConverterFactory;
-    private ?CacheItemPoolInterface $statementCache;
 
     private ?TableDefinitionFactory $definitionFactory = null;
 
@@ -100,14 +97,12 @@ class TableLocator
      * @param CacheItemPoolInterface|null $statementCache
      */
     public function __construct(
-        Connection $connection,
+        private readonly Connection $connection,
         iterable $gatewayFactories = [],
         ?StatementFactory $statementFactory = null,
-        ?CacheItemPoolInterface $statementCache = null
+        private readonly ?CacheItemPoolInterface $statementCache = null
     ) {
-        $this->connection       = $connection;
-        $this->statementFactory = $statementFactory ?? StatementFactory::forConnection($connection);
-        $this->statementCache   = $statementCache;
+        $this->statementFactory = $statementFactory ?? StatementFactory::forConnection($this->connection);
         foreach ($gatewayFactories as $factory) {
             $this->addTableGatewayFactory($factory);
         }
@@ -197,7 +192,7 @@ class TableLocator
      * @return mixed The value returned by $callback
      * @throws \Throwable
      */
-    public function atomic(callable $callback, bool $savepoint = false)
+    public function atomic(callable $callback, bool $savepoint = false): mixed
     {
         return $this->connection->atomic(fn(): mixed => $callback($this, $this->connection), $savepoint);
     }
@@ -296,7 +291,7 @@ class TableLocator
                 if ($cacheItem->isHit()) {
                     return $cacheItem->get();
                 }
-            } catch (PsrException $e) {
+            } catch (PsrException) {
             }
         }
 
@@ -327,14 +322,11 @@ class TableLocator
                 return $gateway;
             }
         }
-        switch (\count($definition->getPrimaryKey())) {
-            case 0:
-                return new GenericTableGateway($definition, $this);
-            case 1:
-                return new PrimaryKeyTableGateway($definition, $this);
-            default:
-                return new CompositePrimaryKeyTableGateway($definition, $this);
-        }
+        return match (\count($definition->getPrimaryKey())) {
+            0 => new GenericTableGateway($definition, $this),
+            1 => new PrimaryKeyTableGateway($definition, $this),
+            default => new CompositePrimaryKeyTableGateway($definition, $this),
+        };
     }
 
     /**
@@ -376,7 +368,7 @@ class TableLocator
             "%s() expects either a string, an instance of QualifiedName, or an instance of TableName"
             . " for a table name, %s given",
             __METHOD__,
-            \is_object($name) ? 'object(' . \get_class($name) . ')' : \gettype($name)
+            \is_object($name) ? 'object(' . $name::class . ')' : \gettype($name)
         ));
     }
 

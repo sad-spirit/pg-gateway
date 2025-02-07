@@ -22,6 +22,7 @@ use sad_spirit\pg_gateway\{
     OrdinaryTableDefinition,
     TableLocator,
     builders\FluentBuilder,
+    builders\JoinBuilder,
     conditions\ForeignKeyCondition,
     conditions\ParametrizedCondition,
     exceptions\LogicException,
@@ -325,7 +326,7 @@ class FluentBuilderTest extends DatabaseBackedTestCase
     }
 
     #[DataProvider('tableNameProvider')]
-    public function testJoinUsingTableName($name): void
+    public function testJoinUsingTableName(TableName|QualifiedName $name): void
     {
         $gateway = self::$tableLocator->createGateway('update_test');
 
@@ -343,7 +344,7 @@ class FluentBuilderTest extends DatabaseBackedTestCase
     public function testJoinUsingSql(): void
     {
         $select = self::$tableLocator->createGateway('update_test')
-            ->select(fn (FluentBuilder $builder) => $builder
+            ->select(fn (FluentBuilder $builder): JoinBuilder => $builder
                 ->join('select baz.* from foo.bar as baz order by baz.quux')
                     ->inline());
 

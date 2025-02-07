@@ -32,12 +32,12 @@ use sad_spirit\pg_gateway\TableLocator;
  */
 class OperatorCondition extends TypedCondition
 {
-    private string $operator;
-
-    public function __construct(Column $column, TypeNameNodeHandler $converterFactory, string $operator)
-    {
+    public function __construct(
+        Column $column,
+        TypeNameNodeHandler $converterFactory,
+        private readonly string $operator
+    ) {
         parent::__construct($column, $converterFactory);
-        $this->operator = $operator;
     }
 
     protected function generateExpressionImpl(): ScalarExpression

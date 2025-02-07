@@ -23,6 +23,7 @@ use sad_spirit\pg_gateway\{
     metadata\TableName
 };
 use sad_spirit\pg_gateway\tests\assets\SelectTransformerImplementation;
+use sad_spirit\pg_builder\Statement;
 
 class SelectTransformerTest extends DatabaseBackedTestCase
 {
@@ -57,7 +58,8 @@ class SelectTransformerTest extends DatabaseBackedTestCase
         $mockSelect->expects($this::atLeastOnce())
             ->method('createSelectAST')
             ->willReturnCallback(
-                fn() => $tableLocator->getStatementFactory()->createFromString('select self.* from foo as self')
+                fn(): Statement => $tableLocator->getStatementFactory()
+                    ->createFromString('select self.* from foo as self')
             );
 
         $transformer = new SelectTransformerImplementation($mockSelect, $tableLocator);
@@ -79,7 +81,8 @@ class SelectTransformerTest extends DatabaseBackedTestCase
         $mockSelect->expects($this::atLeastOnce())
             ->method('createSelectAST')
             ->willReturnCallback(
-                fn() => $tableLocator->getStatementFactory()->createFromString('select self.* from foo as self')
+                fn(): Statement => $tableLocator->getStatementFactory()
+                    ->createFromString('select self.* from foo as self')
             );
 
         $transformer = new SelectTransformerImplementation($mockSelect, $tableLocator, 'a transformer key');

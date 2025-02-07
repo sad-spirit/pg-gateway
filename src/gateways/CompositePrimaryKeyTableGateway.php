@@ -139,7 +139,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
                 $this->tableLocator->getTypeConverterFactory()
             ),
             ...\array_map(
-                fn(string $column) => new OperatorCondition(
+                fn(string $column): OperatorCondition => new OperatorCondition(
                     $this->definition->getColumns()->get($column),
                     $this->tableLocator->getTypeConverterFactory(),
                     '='
@@ -165,7 +165,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
     protected function deleteRelatedMultipleColumns(array $keyPart, array $otherParts, array $primaryKeys): void
     {
         $fragments = new FragmentList(new ClosureFragment(
-            function (Delete $delete) use ($otherParts) {
+            function (Delete $delete) use ($otherParts): void {
                 $unnestArgs = new FunctionArgumentList();
                 foreach ($otherParts as $column) {
                     $typeName = $this->tableLocator->createTypeNameNodeForOID(
@@ -181,7 +181,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
 
                 $delete->where->and(new InExpression(
                     new RowExpression(\array_map(
-                        fn($value) => new ColumnReference(TableGateway::ALIAS_SELF, $value),
+                        fn($value): ColumnReference => new ColumnReference(TableGateway::ALIAS_SELF, $value),
                         $otherParts
                     )),
                     $select,
@@ -191,7 +191,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
         ));
 
         $fragments->add(new WhereClauseFragment(Condition::and(...\array_map(
-            fn(string $column) => new OperatorCondition(
+            fn(string $column): OperatorCondition => new OperatorCondition(
                 $this->definition->getColumns()->get($column),
                 $this->tableLocator->getTypeConverterFactory(),
                 '='

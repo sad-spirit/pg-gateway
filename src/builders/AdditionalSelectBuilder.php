@@ -27,14 +27,10 @@ use sad_spirit\pg_gateway\{
  */
 abstract class AdditionalSelectBuilder implements FragmentBuilder
 {
-    protected TableDefinition $base;
-    protected SelectBuilder $additional;
     protected ?string $alias = null;
 
-    public function __construct(TableDefinition $base, SelectBuilder $additional)
+    public function __construct(protected TableDefinition $base, protected SelectBuilder $additional)
     {
-        $this->base = $base;
-        $this->additional = $additional;
     }
 
     /**
@@ -51,7 +47,7 @@ abstract class AdditionalSelectBuilder implements FragmentBuilder
         if (!$this->additional instanceof TableAccessor) {
             throw new LogicException(\sprintf(
                 "Cannot create a foreign key condition: an instance of %s does not contain table metadata",
-                \get_class($this->additional)
+                $this->additional::class
             ));
         }
         $foreignKey = $this->base->getReferences()

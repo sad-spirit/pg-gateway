@@ -38,7 +38,7 @@ final class RecursiveParameterHolder implements ParameterHolder, \IteratorAggreg
         if ([] === $holders) {
             throw new InvalidArgumentException(\sprintf(
                 '%s: at least one ParameterHolder is required',
-                \get_class($this)
+                self::class
             ));
         }
 
@@ -73,10 +73,10 @@ final class RecursiveParameterHolder implements ParameterHolder, \IteratorAggreg
                         . " and %s owned by object(%s) with %s",
                         $k,
                         self::stringify($parameters[$k]),
-                        \get_class($owners[$k]),
+                        $owners[$k]::class,
                         null === $ownerKey ? 'null key' : "key '$ownerKey'",
                         self::stringify($v),
-                        \get_class($holder->getOwner()),
+                        $holder->getOwner()::class,
                         null === $currentKey ? 'null key' : "key '$currentKey'"
                     ));
                 }

@@ -30,15 +30,11 @@ use sad_spirit\pg_builder\nodes\{
  */
 class SqlStringAppender extends TargetListManipulator
 {
-    private Parser $parser;
-    private string $sql;
-    private ?string $alias;
-
-    public function __construct(Parser $parser, string $sql, ?string $alias = null)
-    {
-        $this->parser = $parser;
-        $this->sql = $sql;
-        $this->alias = $alias;
+    public function __construct(
+        private readonly Parser $parser,
+        private readonly string $sql,
+        private readonly ?string $alias = null
+    ) {
     }
 
     public function modifyTargetList(TargetList $targetList): void

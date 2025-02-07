@@ -19,23 +19,16 @@ use sad_spirit\pg_gateway\TableLocator;
 /**
  * Creates an alias by using preg_replace() on column name
  */
-class PregReplaceStrategy implements ColumnAliasStrategy
+readonly class PregReplaceStrategy implements ColumnAliasStrategy
 {
-    /** @var non-empty-string|non-empty-string[] */
-    private $pattern;
-    /** @var string|string[] */
-    private $replacement;
-
     /**
      * Constructor, $pattern and $replacement will be passed to preg_replace() eventually
      *
      * @param non-empty-string|non-empty-string[] $pattern
      * @param string|string[]                     $replacement
      */
-    public function __construct($pattern, $replacement)
+    public function __construct(private string|array $pattern, private string|array $replacement)
     {
-        $this->pattern = $pattern;
-        $this->replacement = $replacement;
     }
 
     public function getAlias(string $column): ?string

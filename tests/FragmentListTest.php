@@ -246,7 +246,7 @@ class FragmentListTest extends TestCase
         $list = new FragmentList();
         $list->mergeParameters(['foo' => 'bar', 'baz' => 'xyzzy']);
 
-        $filtered = $list->filter(fn($fragment) => true);
+        $filtered = $list->filter(fn($fragment): true => true);
         $this::assertEquals(['foo' => 'bar', 'baz' => 'xyzzy'], $filtered->getParameters());
     }
 

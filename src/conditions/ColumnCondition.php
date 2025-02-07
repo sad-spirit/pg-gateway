@@ -24,11 +24,8 @@ use sad_spirit\pg_gateway\{
  */
 abstract class ColumnCondition extends Condition
 {
-    protected Column $column;
-
-    public function __construct(Column $column)
+    public function __construct(protected Column $column)
     {
-        $this->column = $column;
     }
 
     public function getKey(): ?string

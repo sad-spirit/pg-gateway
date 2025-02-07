@@ -27,19 +27,17 @@ use sad_spirit\pg_builder\nodes\ScalarExpression;
  */
 final class ParametrizedCondition extends Condition implements Parametrized
 {
-    private Condition $wrapped;
-    private array $parameters;
+    private readonly Condition $wrapped;
 
-    public function __construct(Condition $wrapped, array $parameters)
+    public function __construct(Condition $wrapped, private readonly array $parameters)
     {
         if ($wrapped instanceof Parametrized) {
             throw new InvalidArgumentException(\sprintf(
                 "%s already implements Parametrized interface",
-                \get_class($wrapped)
+                $wrapped::class
             ));
         }
         $this->wrapped = $wrapped;
-        $this->parameters = $parameters;
     }
 
     protected function generateExpressionImpl(): ScalarExpression

@@ -32,13 +32,8 @@ use sad_spirit\pg_builder\nodes\{
  */
 class ForeignKeyCondition extends Condition
 {
-    private ForeignKey $foreignKey;
-    private bool $fromChild;
-
-    public function __construct(ForeignKey $foreignKey, bool $fromChild = true)
+    public function __construct(private readonly ForeignKey $foreignKey, private readonly bool $fromChild = true)
     {
-        $this->foreignKey = $foreignKey;
-        $this->fromChild  = $fromChild;
     }
 
     protected function generateExpressionImpl(): ScalarExpression

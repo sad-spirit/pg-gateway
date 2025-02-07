@@ -28,13 +28,10 @@ use sad_spirit\pg_builder\nodes\expressions\NamedParameter;
 /**
  * Adds an `OFFSET :offset` clause, possibly keeps a value for that parameter
  */
-class OffsetClauseFragment implements SelectFragment, Parametrized
+readonly class OffsetClauseFragment implements SelectFragment, Parametrized
 {
-    private ?int $offset;
-
-    public function __construct(?int $offset = null)
+    public function __construct(private ?int $offset = null)
     {
-        $this->offset = $offset;
     }
 
     public function applyTo(Statement $statement, bool $isCount = false): void
@@ -42,7 +39,7 @@ class OffsetClauseFragment implements SelectFragment, Parametrized
         if (!$statement instanceof SelectCommon) {
             throw new InvalidArgumentException(\sprintf(
                 "OffsetClauseFragment instances can only be applied to SELECT statements, %s given",
-                \get_class($statement)
+                $statement::class
             ));
         }
         $statement->offset = new NamedParameter('offset');

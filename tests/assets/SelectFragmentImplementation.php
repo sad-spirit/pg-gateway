@@ -22,12 +22,9 @@ use sad_spirit\pg_gateway\SelectFragment;
  */
 class SelectFragmentImplementation extends ClosureFragment implements SelectFragment
 {
-    private bool $useForCount;
-
-    public function __construct(\Closure $closure, bool $useForCount = true)
+    public function __construct(\Closure $closure, private readonly bool $useForCount = true)
     {
         parent::__construct($closure);
-        $this->useForCount = $useForCount;
     }
 
     public function applyTo(Statement $statement, bool $isCount = false): void

@@ -21,11 +21,8 @@ use sad_spirit\pg_gateway\Fragment;
  */
 class ClosureFragment implements Fragment
 {
-    private \Closure $closure;
-
-    public function __construct(\Closure $closure)
+    public function __construct(private readonly \Closure $closure)
     {
-        $this->closure = $closure;
     }
 
     final public function getKey(): ?string

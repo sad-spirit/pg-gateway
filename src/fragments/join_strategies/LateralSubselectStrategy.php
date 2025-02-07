@@ -61,7 +61,7 @@ class LateralSubselectStrategy extends SelectOnlyJoinStrategy
         if (!$statement instanceof Select) {
             throw new InvalidArgumentException(\sprintf(
                 "Lateral subselects can only be joined with Select statements, instance of %s given",
-                \get_class($statement)
+                $statement::class
             ));
         }
 

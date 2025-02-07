@@ -33,11 +33,8 @@ final class WhereClauseFragment implements Fragment, Parametrized
 {
     use VariablePriority;
 
-    private Condition $condition;
-
-    public function __construct(Condition $condition, int $priority = self::PRIORITY_DEFAULT)
+    public function __construct(private readonly Condition $condition, int $priority = self::PRIORITY_DEFAULT)
     {
-        $this->condition = $condition;
         $this->setPriority($priority);
     }
 
@@ -46,7 +43,7 @@ final class WhereClauseFragment implements Fragment, Parametrized
         if (!isset($statement->where)) {
             throw new InvalidArgumentException(\sprintf(
                 "WhereClauseFragment instances can only be added to Statements containing a WHERE clause, %s given",
-                \get_class($statement)
+                $statement::class
             ));
         }
 

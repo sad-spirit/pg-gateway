@@ -24,7 +24,7 @@ use sad_spirit\pg_gateway\exceptions\InvalidArgumentException;
  *
  * @since 0.2.0
  */
-final class TableName
+final class TableName implements \Stringable
 {
     private string $schema = 'public';
     private string $relation;
@@ -47,7 +47,7 @@ final class TableName
                 break;
 
             case 0:
-                throw new InvalidArgumentException(__CLASS__ . ' constructor expects at least one name part');
+                throw new InvalidArgumentException(self::class . ' constructor expects at least one name part');
             default:
                 throw new InvalidArgumentException("Too many parts in qualified name: " . \implode('.', $nameParts));
         }
@@ -118,7 +118,7 @@ final class TableName
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return $this->asString;
     }

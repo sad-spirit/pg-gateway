@@ -34,6 +34,7 @@ use sad_spirit\pg_gateway\{
     gateways\GenericTableGateway,
     metadata\TableName
 };
+use sad_spirit\pg_gateway\builders\proxies\ColumnsBuilderProxy;
 use sad_spirit\pg_gateway\tests\{
     DatabaseBackedTestCase,
     assets\ParametrizedFragmentImplementation
@@ -79,7 +80,7 @@ class UpdateTest extends DatabaseBackedTestCase
 
     public function testUpdateWithAST(): void
     {
-        $result = self::$gateway->updateWithAST(['title' => 'New title'], function (Update $update) {
+        $result = self::$gateway->updateWithAST(['title' => 'New title'], function (Update $update): void {
             $update->where->and('id = 2');
             $update->returning[] = new Star();
         });
@@ -92,7 +93,7 @@ class UpdateTest extends DatabaseBackedTestCase
     {
         $result = self::$gateway->updateWithAST(
             ['title' => 'Updated title', 'added' => '2022-01-10'],
-            function (Update $update) {
+            function (Update $update): void {
                 $update->where->and('id = :id');
                 $update->returning[] = new Star();
             },
@@ -108,8 +109,8 @@ class UpdateTest extends DatabaseBackedTestCase
     {
         $result = self::$gateway->update(
             ['title' => 'Changed title'],
-            fn(FluentBuilder $fb) => $fb->primaryKey(2)
-                ->returningColumns(fn(ColumnsBuilder $cb) => $cb->all())
+            fn(FluentBuilder $fb): ColumnsBuilderProxy => $fb->primaryKey(2)
+                ->returningColumns(fn(ColumnsBuilder $cb): ColumnsBuilder => $cb->all())
         );
         $row = $result->current();
         $this::assertEquals(2, $row['id']);
@@ -123,7 +124,7 @@ class UpdateTest extends DatabaseBackedTestCase
 
         self::$gateway->updateWithAST(
             ['id' => 666],
-            function (Update $update) {
+            function (Update $update): void {
                 $update->where->and('id = :id');
             },
             ['id' => 3]

@@ -44,7 +44,7 @@ abstract class DatabaseBackedTestCase extends TestCase
             }
             $queries = [...$queries, ...\preg_split('/;\s*/', $contents, -1, \PREG_SPLIT_NO_EMPTY) ?: []];
         }
-        $connection->atomic(static function (Connection $connection) use ($queries) {
+        $connection->atomic(static function (Connection $connection) use ($queries): void {
             foreach ($queries as $query) {
                 $connection->execute($query);
             }

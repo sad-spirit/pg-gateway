@@ -27,9 +27,6 @@ use sad_spirit\pg_wrapper\Connection;
  */
 class OrdinaryTableDefinitionFactory implements TableDefinitionFactory
 {
-    private Connection $connection;
-    private TableOIDMapper $mapper;
-
     private array $relationKindNames = [
         TableOIDMapper::RELKIND_ORDINARY_TABLE    => 'ordinary table',
         TableOIDMapper::RELKIND_VIEW              => 'view',
@@ -38,10 +35,8 @@ class OrdinaryTableDefinitionFactory implements TableDefinitionFactory
         TableOIDMapper::RELKIND_PARTITIONED_TABLE => 'partitioned table'
     ];
 
-    public function __construct(Connection $connection, TableOIDMapper $mapper)
+    public function __construct(private readonly Connection $connection, private readonly TableOIDMapper $mapper)
     {
-        $this->connection = $connection;
-        $this->mapper = $mapper;
     }
 
     public function create(TableName $name): TableDefinition

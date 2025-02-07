@@ -19,14 +19,12 @@ use sad_spirit\pg_gateway\TableLocator;
 /**
  * Finds an alias in explicitly provided mapping 'column name' => 'alias'
  */
-class MapStrategy implements ColumnAliasStrategy
+readonly class MapStrategy implements ColumnAliasStrategy
 {
-    /** @var array<string, string> */
-    private array $columnMap;
-
-    public function __construct(array $columnMap)
-    {
-        $this->columnMap = $columnMap;
+    public function __construct(
+        /** @var array<string, string> */
+        private array $columnMap
+    ) {
     }
 
     public function getAlias(string $column): ?string

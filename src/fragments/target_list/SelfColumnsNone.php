@@ -48,6 +48,6 @@ class SelfColumnsNone extends TargetListManipulator
 
     public function getKey(): ?string
     {
-        return TableLocator::hash(\get_class($this));
+        return TableLocator::hash(static::class);
     }
 }

@@ -22,13 +22,8 @@ use sad_spirit\pg_builder\nodes\TargetElement;
  */
 class TargetListManipulatorImplementation extends TargetListManipulator
 {
-    private TargetElement $item;
-    private ?string $key;
-
-    public function __construct(TargetElement $item, ?string $key = null)
+    public function __construct(private readonly TargetElement $item, private readonly ?string $key = null)
     {
-        $this->item = $item;
-        $this->key = $key;
     }
 
     public function modifyTargetList(TargetList $targetList): void

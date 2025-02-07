@@ -20,7 +20,7 @@ class ClosureStrategyTest extends TestCase
 {
     public function testGetAlias(): void
     {
-        $strategy = new ClosureStrategy(function (string $column) {
+        $strategy = new ClosureStrategy(function (string $column): string {
             $parts = \explode('_', $column);
             return \array_shift($parts) . \implode('', \array_map('ucfirst', $parts));
         });

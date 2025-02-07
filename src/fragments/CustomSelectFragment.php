@@ -26,13 +26,11 @@ abstract class CustomSelectFragment implements SelectFragment
 {
     use VariablePriority;
 
-    private ?string $key;
-    private bool $useForCount;
-
-    public function __construct(?string $key, bool $useForCount = true, int $priority = Fragment::PRIORITY_DEFAULT)
-    {
-        $this->key = $key;
-        $this->useForCount = $useForCount;
+    public function __construct(
+        private readonly ?string $key,
+        private readonly bool $useForCount = true,
+        int $priority = Fragment::PRIORITY_DEFAULT
+    ) {
         $this->setPriority($priority);
     }
 

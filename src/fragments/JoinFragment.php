@@ -38,27 +38,19 @@ class JoinFragment implements SelectFragment, Parametrized
 {
     use VariablePriority;
 
-    private SelectBuilder $joined;
-    private ?Condition $condition;
-    private bool $usedForCount;
-    private JoinStrategy $strategy;
-    private ?string $explicitAlias;
+    private readonly JoinStrategy $strategy;
     private ?string $alias = null;
 
     public function __construct(
-        SelectBuilder $joined,
-        Condition $condition = null,
+        private readonly SelectBuilder $joined,
+        private readonly ?Condition $condition = null,
         JoinStrategy $strategy = null,
-        bool $usedForCount = true,
+        private readonly bool $usedForCount = true,
         int $priority = Fragment::PRIORITY_DEFAULT,
-        ?string $explicitAlias = null
+        private readonly ?string $explicitAlias = null
     ) {
-        $this->joined = $joined;
-        $this->condition = $condition;
         $this->strategy = $strategy ?? new InlineStrategy();
-        $this->usedForCount = $usedForCount;
         $this->setPriority($priority);
-        $this->explicitAlias = $explicitAlias;
     }
 
     /**
@@ -76,7 +68,7 @@ class JoinFragment implements SelectFragment, Parametrized
         if (!isset($statement->where)) {
             throw new InvalidArgumentException(\sprintf(
                 "Joins can only be applied to Statements containing a WHERE clause, instance of %s given",
-                \get_class($statement)
+                $statement::class
             ));
         }
 
@@ -84,7 +76,7 @@ class JoinFragment implements SelectFragment, Parametrized
         $select = clone $this->joined->createSelectAST();
         $select->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_SELF, $alias));
 
-        $condition = null === $this->condition ? null : $this->condition->generateExpression();
+        $condition = $this->condition?->generateExpression();
 
         $this->strategy->join(
             $statement,

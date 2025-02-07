@@ -21,12 +21,9 @@ use sad_spirit\pg_builder\nodes\TargetElement;
 class ParametrizedTargetListManipulatorImplementation extends TargetListManipulatorImplementation implements
     Parametrized
 {
-    private array $parameters;
-
-    public function __construct(TargetElement $item, ?string $key = null, array $parameters = [])
+    public function __construct(TargetElement $item, ?string $key = null, private readonly array $parameters = [])
     {
         parent::__construct($item, $key);
-        $this->parameters = $parameters;
     }
 
     public function getParameterHolder(): ParameterHolder
