@@ -355,7 +355,7 @@ class FluentBuilder extends FragmentListBuilder
      * @param callable(ColumnsBuilder): mixed|null $callback Deprecated since 0.4.0, use methods of the returned object
      * @return proxies\ColumnsBuilderProxy<static>
      */
-    public function outputColumns(callable $callback = null): proxies\ColumnsBuilderProxy
+    public function outputColumns(?callable $callback = null): proxies\ColumnsBuilderProxy
     {
         $builder = new proxies\ColumnsBuilderProxy($this, $this->definition, false);
         $this->addProxy($builder);
@@ -378,7 +378,7 @@ class FluentBuilder extends FragmentListBuilder
      * @param callable(ColumnsBuilder): mixed|null $callback Deprecated since 0.4.0, use methods of the returned object
      * @return proxies\ColumnsBuilderProxy<static>
      */
-    public function returningColumns(callable $callback = null): proxies\ColumnsBuilderProxy
+    public function returningColumns(?callable $callback = null): proxies\ColumnsBuilderProxy
     {
         $builder = new proxies\ColumnsBuilderProxy($this, $this->definition, true);
         $this->addProxy($builder);
@@ -408,7 +408,7 @@ class FluentBuilder extends FragmentListBuilder
      *                                                              of the returned object
      * @return proxies\ScalarSubqueryBuilderProxy<static>
      */
-    public function outputSubquery(SelectProxy $select, callable $callback = null): proxies\ScalarSubqueryBuilderProxy
+    public function outputSubquery(SelectProxy $select, ?callable $callback = null): proxies\ScalarSubqueryBuilderProxy
     {
         $builder = new proxies\ScalarSubqueryBuilderProxy($this, $this->definition, $select);
         $this->addProxy($builder);
@@ -483,7 +483,7 @@ class FluentBuilder extends FragmentListBuilder
      * @param callable(JoinBuilder): mixed|null $callback Deprecated since 0.4.0, use methods of the returned object
      * @return proxies\JoinBuilderProxy<static>
      */
-    public function join($joined, callable $callback = null): proxies\JoinBuilderProxy
+    public function join($joined, ?callable $callback = null): proxies\JoinBuilderProxy
     {
         $normalized = $this->normalizeSelect($joined);
         $builder    = new proxies\JoinBuilderProxy($this, $this->definition, $normalized);
@@ -514,7 +514,7 @@ class FluentBuilder extends FragmentListBuilder
      * @param callable(ExistsBuilder):mixed|null $callback Deprecated since 0.4.0, use methods of the returned object
      * @return proxies\ExistsBuilderProxy<static>
      */
-    public function exists($select, callable $callback = null): proxies\ExistsBuilderProxy
+    public function exists($select, ?callable $callback = null): proxies\ExistsBuilderProxy
     {
         $builder = new proxies\ExistsBuilderProxy($this, $this->definition, $this->normalizeSelect($select));
         $this->addProxy($builder);
@@ -595,7 +595,7 @@ class FluentBuilder extends FragmentListBuilder
     public function withSelect(
         SelectProxy $select,
         string $alias,
-        callable $callback = null
+        ?callable $callback = null
     ): proxies\WithClauseBuilderProxy {
         $builder = new proxies\WithClauseBuilderProxy($this, $select, $alias);
         $this->addProxy($builder);

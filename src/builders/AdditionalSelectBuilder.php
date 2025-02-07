@@ -42,7 +42,7 @@ abstract class AdditionalSelectBuilder implements FragmentBuilder
      *                             on the child side of the join or the parent one. Ignored otherwise.
      * @return ForeignKeyCondition
      */
-    protected function createForeignKeyCondition(array $keyColumns = [], bool $fromChild = null): ForeignKeyCondition
+    protected function createForeignKeyCondition(array $keyColumns = [], ?bool $fromChild = null): ForeignKeyCondition
     {
         if (!$this->additional instanceof TableAccessor) {
             throw new LogicException(\sprintf(

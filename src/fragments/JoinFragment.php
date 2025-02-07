@@ -44,7 +44,7 @@ class JoinFragment implements SelectFragment, Parametrized
     public function __construct(
         private readonly SelectBuilder $joined,
         private readonly ?Condition $condition = null,
-        JoinStrategy $strategy = null,
+        ?JoinStrategy $strategy = null,
         private readonly bool $usedForCount = true,
         int $priority = Fragment::PRIORITY_DEFAULT,
         private readonly ?string $explicitAlias = null

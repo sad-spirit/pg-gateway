@@ -59,8 +59,8 @@ final readonly class TableSelect implements SelectProxy
         private TableLocator $tableLocator,
         private TableGateway $gateway,
         FragmentList $fragments,
-        \Closure $baseSelectAST = null,
-        \Closure $baseCountAST = null
+        ?\Closure $baseSelectAST = null,
+        ?\Closure $baseCountAST = null
     ) {
         // FragmentList instance used here should be immutable
         $this->fragments     = clone $fragments;
