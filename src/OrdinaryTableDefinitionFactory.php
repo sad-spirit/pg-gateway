@@ -15,6 +15,7 @@ namespace sad_spirit\pg_gateway;
 
 use sad_spirit\pg_gateway\{
     exceptions\InvalidArgumentException,
+    metadata\RelationKind,
     metadata\TableName,
     metadata\TableOIDMapper
 };
@@ -25,34 +26,21 @@ use sad_spirit\pg_wrapper\Connection;
  *
  * @since 0.2.0
  */
-class OrdinaryTableDefinitionFactory implements TableDefinitionFactory
+readonly class OrdinaryTableDefinitionFactory implements TableDefinitionFactory
 {
-    private array $relationKindNames = [
-        TableOIDMapper::RELKIND_ORDINARY_TABLE    => 'ordinary table',
-        TableOIDMapper::RELKIND_VIEW              => 'view',
-        TableOIDMapper::RELKIND_MATERIALIZED_VIEW => 'materialized view',
-        TableOIDMapper::RELKIND_FOREIGN_TABLE     => 'foreign table',
-        TableOIDMapper::RELKIND_PARTITIONED_TABLE => 'partitioned table'
-    ];
-
-    public function __construct(private readonly Connection $connection, private readonly TableOIDMapper $mapper)
+    public function __construct(private Connection $connection, private TableOIDMapper $mapper)
     {
     }
 
     public function create(TableName $name): TableDefinition
     {
-        if (TableOIDMapper::RELKIND_ORDINARY_TABLE === ($kind = $this->mapper->findRelationKindForTableName($name))) {
+        if (RelationKind::OrdinaryTable === $kind = $this->mapper->findRelationKindForTableName($name)) {
             return new OrdinaryTableDefinition($this->connection, $name);
         }
         throw new InvalidArgumentException(\sprintf(
             "Cannot create a TableDefinition for %s of type '%s'",
             $name->__toString(),
-            $this->relationKindToName($kind)
+            $kind->toReadable()
         ));
-    }
-
-    protected function relationKindToName(string $relationKind): string
-    {
-        return $this->relationKindNames[$relationKind] ?? 'unknown';
     }
 }

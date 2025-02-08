@@ -16,8 +16,8 @@ namespace sad_spirit\pg_gateway\tests\metadata;
 use sad_spirit\pg_gateway\{
     exceptions\InvalidArgumentException,
     metadata\CachedTableOIDMapper,
+    metadata\RelationKind,
     metadata\TableName,
-    metadata\TableOIDMapper,
     tests\DatabaseBackedTestCase
 };
 
@@ -42,7 +42,7 @@ class CachedTableOIDMapperTest extends DatabaseBackedTestCase
         $this::assertIsNumeric($oid = $mapper->findOIDForTableName(new TableName('insert_test')));
         $this::assertEquals(new TableName('insert_test'), $mapper->findTableNameForOID($oid));
         $this::assertEquals(
-            TableOIDMapper::RELKIND_ORDINARY_TABLE,
+            RelationKind::OrdinaryTable,
             $mapper->findRelationKindForTableName(new TableName('insert_test'))
         );
     }
@@ -63,7 +63,7 @@ class CachedTableOIDMapperTest extends DatabaseBackedTestCase
         $this::assertEquals(new TableName('pg_catalog', 'pg_class'), $mapper->findTableNameForOID(1259));
         $this::assertEquals(1259, $mapper->findOIDForTableName(new TableName('pg_catalog', 'pg_class')));
         $this::assertEquals(
-            TableOIDMapper::RELKIND_ORDINARY_TABLE,
+            RelationKind::OrdinaryTable,
             $mapper->findRelationKindForTableName(new TableName('pg_catalog', 'pg_class'))
         );
     }
@@ -90,14 +90,14 @@ class CachedTableOIDMapperTest extends DatabaseBackedTestCase
     {
         $connection = clone self::$connection;
         $connection->setMetadataCache($this->getMockForCacheHit([
-            'bar' => ['foo' => [666, TableOIDMapper::RELKIND_VIEW]]
+            'bar' => ['foo' => [666, RelationKind::View]]
         ]));
 
         $mapper = new CachedTableOIDMapper($connection);
 
         $this::assertEquals(666, $mapper->findOIDForTableName(new TableName('foo', 'bar')));
         $this::assertEquals(
-            TableOIDMapper::RELKIND_VIEW,
+            RelationKind::View,
             $mapper->findRelationKindForTableName(new TableName('foo', 'bar'))
         );
     }

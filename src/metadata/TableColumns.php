@@ -57,7 +57,7 @@ class TableColumns extends CachedMetadataLoader implements Columns
         }
         foreach ($result as $index => $row) {
             if (0 === $index) {
-                $this->assertCorrectRelkind($row['relkind'], $table);
+                $this->assertCorrectRelkind(RelationKind::tryFrom($row['relkind']), $table);
                 if (null === $row['attname']) {
                     // Zero-column tables are possible in Postgres, but we won't bother with that
                     throw new UnexpectedValueException(\sprintf("Table %s has zero columns", $table->__toString()));
@@ -71,14 +71,10 @@ class TableColumns extends CachedMetadataLoader implements Columns
      * Asserts that the relation we are loading columns for is of the correct kind
      *
      * This is an extension point for subclasses supporting something other than ordinary tables
-     *
-     * @param string $relKind
-     * @param TableName $table
-     * @return void
      */
-    protected function assertCorrectRelkind(string $relKind, TableName $table): void
+    protected function assertCorrectRelkind(?RelationKind $relKind, TableName $table): void
     {
-        if ($relKind !== TableOIDMapper::RELKIND_ORDINARY_TABLE) {
+        if (RelationKind::OrdinaryTable !== $relKind) {
             throw new UnexpectedValueException(\sprintf(
                 "Relation %s is not an ordinary table",
                 $table->__toString()

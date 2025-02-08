@@ -60,7 +60,7 @@ class TablePrimaryKey extends CachedMetadataLoader implements PrimaryKey
         }
         $generated = false;
         foreach ($result as $row) {
-            if (TableOIDMapper::RELKIND_ORDINARY_TABLE !== $row['relkind']) {
+            if (RelationKind::OrdinaryTable !== RelationKind::tryFrom($row['relkind'])) {
                 throw new UnexpectedValueException(\sprintf(
                     "Relation %s is not an ordinary table",
                     $table->__toString()

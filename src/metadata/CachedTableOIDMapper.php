@@ -32,7 +32,7 @@ class CachedTableOIDMapper implements TableOIDMapper
      * First array dimension is relation name, second is schema name. The value is an array of table OID and relkind
      * column
      *
-     * @var array<string, array<string, array{int|numeric-string, TableOIDMapper::RELKIND_*}>>
+     * @var array<string, array<string, array{int|numeric-string, RelationKind}>>
      */
     private array $tableNames = [];
 
@@ -52,7 +52,7 @@ class CachedTableOIDMapper implements TableOIDMapper
     ) {
     }
 
-    public function findOIDForTableName(TableName $name)
+    public function findOIDForTableName(TableName $name): int|string
     {
         return $this->findForTableName($name->getRelation(), $name->getSchema(), __METHOD__)[0];
     }
@@ -76,7 +76,7 @@ class CachedTableOIDMapper implements TableOIDMapper
         ));
     }
 
-    public function findRelationKindForTableName(TableName $name): string
+    public function findRelationKindForTableName(TableName $name): RelationKind
     {
         return $this->findForTableName($name->getRelation(), $name->getSchema(), __METHOD__)[1];
     }
@@ -84,10 +84,7 @@ class CachedTableOIDMapper implements TableOIDMapper
     /**
      * Returns the value from $tableNames array keyed by the given $relation and $schema
      *
-     * @param string $relation
-     * @param string $schema
-     * @param string $method
-     * @return array{int|numeric-string, TableOIDMapper::RELKIND_*}
+     * @return array{int|numeric-string, RelationKind}
      */
     private function findForTableName(string $relation, string $schema, string $method): array
     {
@@ -122,9 +119,6 @@ class CachedTableOIDMapper implements TableOIDMapper
      * Checks whether the given schema name corresponds to a system schema
      *
      * We consider SQL-standard 'information_schema' and names starting with 'pg_' as system
-     *
-     * @param string $schema
-     * @return bool
      */
     private function isSystemSchema(string $schema): bool
     {
@@ -167,23 +161,13 @@ SQL;
             }
             $sql .= "order by 2, 4";
 
-            foreach (
-                $this->connection->executeParams(
-                    $sql,
-                    [[
-                        self::RELKIND_ORDINARY_TABLE,
-                        self::RELKIND_VIEW,
-                        self::RELKIND_MATERIALIZED_VIEW,
-                        self::RELKIND_FOREIGN_TABLE,
-                        self::RELKIND_PARTITIONED_TABLE
-                    ]],
-                    ['text[]']
-                ) as $row
-            ) {
+            $backingValues = \array_map(fn (RelationKind $kind): string => $kind->value, RelationKind::cases());
+            foreach ($this->connection->executeParams($sql, [$backingValues], ['text[]']) as $row) {
+                $relkind = RelationKind::from($row['relkind']);
                 if (!isset($this->tableNames[$row['relname']])) {
-                    $this->tableNames[$row['relname']] = [$row['nspname'] => [$row['oid'], $row['relkind']]];
+                    $this->tableNames[$row['relname']] = [$row['nspname'] => [$row['oid'], $relkind]];
                 } else {
-                    $this->tableNames[$row['relname']][$row['nspname']] = [$row['oid'], $row['relkind']];
+                    $this->tableNames[$row['relname']][$row['nspname']] = [$row['oid'], $relkind];
                 }
             }
 
