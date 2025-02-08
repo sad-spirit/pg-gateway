@@ -115,7 +115,7 @@ public function createInsertStatement(FragmentList $fragments): NativeStatement
             $fragments->applyTo($insert);
             return $insert;
         },
-        $this->generateStatementKey(self::STATEMENT_INSERT, $fragments)
+        $this->generateStatementKey(StatementType::Insert, $fragments)
     );
 }
 ```

@@ -52,7 +52,7 @@ class SelectTransformerTest extends DatabaseBackedTestCase
         $mockSelect = $this::getMockBuilder(SelectProxy::class)
             ->onlyMethods(['getKey', 'createSelectAST'])
             ->getMockForAbstractClass();
-        $mockSelect->expects($this::atLeastOnce())
+        $mockSelect->expects($this::any())
             ->method('getKey')
             ->willReturn('a select key');
         $mockSelect->expects($this::atLeastOnce())

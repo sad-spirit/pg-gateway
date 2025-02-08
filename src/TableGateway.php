@@ -32,13 +32,6 @@ interface TableGateway extends TableAccessor
      */
     public const ALIAS_JOINED = 'joined';
 
-    public const STATEMENT_COUNT  = 'count';
-    public const STATEMENT_DELETE = 'delete';
-    public const STATEMENT_INSERT = 'insert';
-    public const STATEMENT_SELECT = 'select';
-    public const STATEMENT_UPDATE = 'update';
-    public const STATEMENT_UPSERT = 'upsert';
-
     /**
      * Generates a DELETE statement using given fragments and executes it with given parameters
      *

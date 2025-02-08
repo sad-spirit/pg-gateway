@@ -17,6 +17,7 @@ use sad_spirit\pg_gateway\{
     FragmentList,
     PrimaryKeyAccess,
     SelectProxy,
+    StatementType,
     TableSelect,
     builders\PrimaryKeyBuilder,
     conditions\PrimaryKeyCondition,
@@ -106,7 +107,7 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
                 $fragments->applyTo($insert);
                 return $insert;
             },
-            $this->generateStatementKey(self::STATEMENT_UPSERT, $fragments)
+            $this->generateStatementKey(StatementType::Upsert, $fragments)
         );
     }
 
@@ -122,7 +123,7 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
 
         $target            = new IndexParameters();
         $set               = new SetClauseList();
-        /** @var non-empty-array $primaryKeyColumns */
+        /** @var non-empty-array<string> $primaryKeyColumns */
         $primaryKeyColumns = $this->definition->getPrimaryKey()->getNames();
         $nonPrimaryKey     = \array_diff($this->definition->getColumns()->getNames(), $primaryKeyColumns);
 

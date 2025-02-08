@@ -128,7 +128,7 @@ final readonly class TableSelect implements SelectProxy
     {
         return $this->tableLocator->createNativeStatementUsingCache(
             $this->createSelectAST(...),
-            $this->generateStatementKey(TableGateway::STATEMENT_SELECT, $this->baseSelectAST, $this->fragments)
+            $this->generateStatementKey(StatementType::Select, $this->baseSelectAST, $this->fragments)
         );
     }
 
@@ -143,22 +143,22 @@ final readonly class TableSelect implements SelectProxy
                 $fragments->applyTo($select, true);
                 return $select;
             },
-            $this->generateStatementKey(TableGateway::STATEMENT_COUNT, $this->baseCountAST, $fragments)
+            $this->generateStatementKey(StatementType::Count, $this->baseCountAST, $fragments)
         );
     }
 
     /**
      * Returns a cache key for the statement being generated
      */
-    private function generateStatementKey(string $statementType, \Closure $baseAST, FragmentList $fragments): ?string
+    private function generateStatementKey(StatementType $type, \Closure $baseAST, FragmentList $fragments): ?string
     {
-        if (null === ($fragmentKey = $fragments->getKey())) {
+        if (null === $fragmentKey = $fragments->getKey()) {
             return null;
         }
         return \sprintf(
             '%s.%s.%s.%s',
             $this->getConnection()->getConnectionId(),
-            $statementType,
+            $type->value,
             TableLocator::hash([
                 $this->getDefinition()->getName(),
                 (string)(new \ReflectionFunction($baseAST))

@@ -43,8 +43,8 @@ abstract class SelectTransformer implements SelectProxy
     public function getKey(): ?string
     {
         if (
-            null === ($wrappedKey = $this->wrapped->getKey())
-            || null === $this->key
+            null === $this->key
+            || null === $wrappedKey = $this->wrapped->getKey()
         ) {
             return null;
         }
@@ -75,15 +75,15 @@ abstract class SelectTransformer implements SelectProxy
     public function createSelectStatement(): NativeStatement
     {
         if (
-            null === ($wrappedKey = $this->wrapped->getKey())
-            || null === $this->key
+            null === $this->key
+            || null === $wrappedKey = $this->wrapped->getKey()
         ) {
             $cacheKey = null;
         } else {
             $cacheKey = \sprintf(
                 '%s.%s.%s.%s',
                 $this->getConnection()->getConnectionId(),
-                TableGateway::STATEMENT_SELECT,
+                StatementType::Select->value,
                 TableLocator::hash([
                     $this->getDefinition()->getName(),
                     $this->key

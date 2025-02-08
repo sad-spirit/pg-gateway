@@ -20,6 +20,7 @@ use sad_spirit\pg_gateway\{
     FragmentList,
     SelectBuilder,
     SelectProxy,
+    StatementType,
     TableDefinition,
     TableGateway,
     TableLocator,
@@ -139,7 +140,8 @@ class GenericTableGateway implements TableGateway, AdHocStatement
     /**
      * Converts $fragments and $parameters passed to a method defined in TableGateway to an instance of FragmentList
      *
-     * @param FragmentsInput $fragments
+     * @param FragmentsInput       $fragments
+     * @param array<string, mixed> $parameters
      */
     protected function convertFragments(
         null|iterable|\Closure|Fragment|FragmentBuilder $fragments,
@@ -203,7 +205,7 @@ class GenericTableGateway implements TableGateway, AdHocStatement
 
                 return $delete;
             },
-            $this->generateStatementKey(self::STATEMENT_DELETE, $fragments)
+            $this->generateStatementKey(StatementType::Delete, $fragments)
         );
     }
 
@@ -221,7 +223,7 @@ class GenericTableGateway implements TableGateway, AdHocStatement
                 $fragments->applyTo($insert);
                 return $insert;
             },
-            $this->generateStatementKey(self::STATEMENT_INSERT, $fragments)
+            $this->generateStatementKey(StatementType::Insert, $fragments)
         );
     }
 
@@ -242,22 +244,22 @@ class GenericTableGateway implements TableGateway, AdHocStatement
                 $fragments->applyTo($update);
                 return $update;
             },
-            $this->generateStatementKey(self::STATEMENT_UPDATE, $fragments)
+            $this->generateStatementKey(StatementType::Update, $fragments)
         );
     }
 
     /**
      * Returns a cache key for the statement being generated
      */
-    protected function generateStatementKey(string $statementType, FragmentList $fragments): ?string
+    protected function generateStatementKey(StatementType $type, FragmentList $fragments): ?string
     {
-        if (null === ($fragmentKey = $fragments->getKey())) {
+        if (null === $fragmentKey = $fragments->getKey()) {
             return null;
         }
         return \sprintf(
             '%s.%s.%s.%s',
             $this->getConnection()->getConnectionId(),
-            $statementType,
+            $type->value,
             TableLocator::hash($this->definition->getName()),
             $fragmentKey
         );

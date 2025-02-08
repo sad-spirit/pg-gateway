@@ -37,6 +37,7 @@ use sad_spirit\pg_gateway\{
     Fragment,
     OrdinaryTableDefinition,
     OrdinaryTableDefinitionFactory,
+    StatementType,
     TableDefinition,
     TableGateway,
     TableGatewayFactory,
@@ -295,7 +296,7 @@ class TableLocatorTest extends DatabaseBackedTestCase
             $cacheKey = \sprintf(
                 '%s.%s.%s.%s',
                 $tableLocator->getConnection()->getConnectionId(),
-                TableGateway::STATEMENT_DELETE,
+                StatementType::Delete->value,
                 TableLocator::hash($definition->getName()),
                 $fragmentKey
             );
