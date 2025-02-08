@@ -24,7 +24,6 @@ use sad_spirit\pg_gateway\{
     TableLocator,
     builders\ColumnsBuilder,
     builders\FluentBuilder,
-    exceptions\InvalidArgumentException,
     exceptions\UnexpectedValueException,
     gateways\GenericTableGateway,
     metadata\TableName
@@ -75,14 +74,6 @@ class InsertTest extends DatabaseBackedTestCase
             },
             ['id' => 3]
         );
-    }
-
-    public function testDisallowInvalidValues(): void
-    {
-        $this::expectException(InvalidArgumentException::class);
-        $this::expectExceptionMessage('an array, an instance of SelectCommon, an implementation of SelectBuilder');
-
-        self::$gateway->insert(new \stdClass());
     }
 
     public function testInsertWithDefaultValues(): void

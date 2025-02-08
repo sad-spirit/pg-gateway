@@ -22,33 +22,22 @@ interface PrimaryKeyAccess
 {
     /**
      * Deletes a row with the given primary key
-     *
-     * @param mixed $primaryKey
-     * @return Result
      */
-    public function deleteByPrimaryKey($primaryKey): Result;
+    public function deleteByPrimaryKey(mixed $primaryKey): Result;
 
     /**
      * Returns an object that can SELECT a row with the given primary key
-     *
-     * @param mixed $primaryKey
-     * @return SelectProxy
      */
-    public function selectByPrimaryKey($primaryKey): SelectProxy;
+    public function selectByPrimaryKey(mixed $primaryKey): SelectProxy;
 
     /**
      * Updates a row with the given primary key using the given values
-     *
-     * @param mixed $primaryKey
-     * @param array $set
-     * @return Result
      */
-    public function updateByPrimaryKey($primaryKey, array $set): Result;
+    public function updateByPrimaryKey(mixed $primaryKey, array $set): Result;
 
     /**
      * Executes an "UPSERT" (INSERT ... ON CONFLICT DO UPDATE ...) query with the given values
      *
-     * @param array $values
      * @return array Primary key of the row inserted / updated
      */
     public function upsert(array $values): array;

@@ -22,9 +22,11 @@ use sad_spirit\pg_gateway\{
     conditions\PrimaryKeyCondition,
     fragments\SetClauseFragment
 };
-use sad_spirit\pg_builder\Insert;
-use sad_spirit\pg_builder\NativeStatement;
-use sad_spirit\pg_builder\enums\OnConflictAction;
+use sad_spirit\pg_builder\{
+    Insert,
+    NativeStatement,
+    enums\OnConflictAction
+};
 use sad_spirit\pg_builder\nodes\{
     ColumnReference,
     Identifier,
@@ -46,7 +48,7 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
 {
     use PrimaryKeyBuilder;
 
-    public function deleteByPrimaryKey($primaryKey): Result
+    public function deleteByPrimaryKey(mixed $primaryKey): Result
     {
         $list = new FragmentList($this->createPrimaryKey($primaryKey));
 
@@ -54,7 +56,7 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
             ->executeParams($this->getConnection(), $list->getParameters());
     }
 
-    public function selectByPrimaryKey($primaryKey): SelectProxy
+    public function selectByPrimaryKey(mixed $primaryKey): SelectProxy
     {
         $condition = new PrimaryKeyCondition(
             $this->definition->getPrimaryKey(),
@@ -68,7 +70,7 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
         );
     }
 
-    public function updateByPrimaryKey($primaryKey, array $set): Result
+    public function updateByPrimaryKey(mixed $primaryKey, array $set): Result
     {
         $list = new FragmentList(
             new SetClauseFragment($this->definition->getColumns(), $this->tableLocator, $set),
@@ -95,9 +97,6 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
 
     /**
      * Generates an "UPSERT" (INSERT ... ON CONFLICT DO UPDATE ...) statement using given fragments
-     *
-     * @param FragmentList $fragments
-     * @return NativeStatement
      */
     public function createUpsertStatement(FragmentList $fragments): NativeStatement
     {
@@ -113,8 +112,6 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
 
     /**
      * Generates base AST for "INSERT ... ON CONFLICT DO UPDATE ..." statement executed by upsert()
-     *
-     * @return Insert
      */
     protected function createBaseUpsertAST(): Insert
     {

@@ -46,13 +46,10 @@ final readonly class TableSelect implements SelectProxy
     /**
      * Class constructor
      *
-     * @param TableLocator $tableLocator
-     * @param TableGateway $gateway
-     * @param FragmentList $fragments
-     * @param \Closure(): SelectCommon|null $baseSelectAST Overrides the base AST
+     * @param null|\Closure(): SelectCommon $baseSelectAST Overrides the base AST
      *      (corresponding to "SELECT self.* from tablename as self" in SQL) which is used when building
      *      the SELECT query. May be used to add some default calculated fields, default JOINs, etc.
-     * @param \Closure(): SelectCommon|null $baseCountAST Overrides the base AST
+     * @param null|\Closure(): SelectCommon $baseCountAST Overrides the base AST
      *      (corresponding to "SELECT count(self.*) from tablename as self" in SQL) which is used in executeCount()
      */
     public function __construct(
@@ -180,7 +177,7 @@ final readonly class TableSelect implements SelectProxy
         }
     }
 
-    public function executeCount()
+    public function executeCount(): int|string
     {
         $native = $this->createSelectCountStatement();
         if ([] === ($namesHash = $native->getNamedParameterMap())) {

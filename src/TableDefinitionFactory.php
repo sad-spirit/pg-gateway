@@ -24,9 +24,6 @@ interface TableDefinitionFactory
 {
     /**
      * Returns an implementation of TableDefinition for the given table name
-     *
-     * @param TableName $name
-     * @return TableDefinition
      */
     public function create(TableName $name): TableDefinition;
 }

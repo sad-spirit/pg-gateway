@@ -19,11 +19,6 @@ interface TableGatewayFactory
      * Creates a table data gateway for a given table name
      *
      * Should return null if it cannot find a specific gateway so that TableLocator can fall back to a generic one
-     *
-     * @param TableDefinition $definition
-     * @param TableLocator $tableLocator
-     *
-     * @return null|TableGateway
      */
     public function createGateway(TableDefinition $definition, TableLocator $tableLocator): ?TableGateway;
 
@@ -31,10 +26,6 @@ interface TableGatewayFactory
      * Creates a fluent builder for a given table name
      *
      * Should return null if it cannot find a specific builder so that TableLocator can fall back to a generic one
-     *
-     * @param TableDefinition $definition
-     * @param TableLocator $tableLocator
-     * @return builders\FragmentListBuilder|null
      */
     public function createBuilder(
         TableDefinition $definition,

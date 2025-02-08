@@ -29,8 +29,6 @@ interface SelectBuilder extends KeyEquatable
      * Returns the AST representing this SELECT statement
      *
      * This method is used when embedding the select query into a bigger statement via e.g. JOIN or EXISTS(...)
-     *
-     * @return SelectCommon
      */
     public function createSelectAST(): SelectCommon;
 }

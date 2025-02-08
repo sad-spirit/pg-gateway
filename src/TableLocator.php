@@ -16,7 +16,6 @@ namespace sad_spirit\pg_gateway;
 use sad_spirit\pg_gateway\{
     builders\FluentBuilder,
     builders\FragmentListBuilder,
-    exceptions\InvalidArgumentException,
     exceptions\UnexpectedValueException,
     gateways\CompositePrimaryKeyTableGateway,
     gateways\GenericTableGateway,
@@ -68,7 +67,6 @@ class TableLocator
      * Borrowed from Symfony DI component, intended for generating fragment keys.
      *
      * @param mixed $value A serializable value
-     * @return string
      */
     public static function hash($value): string
     {
@@ -79,8 +77,6 @@ class TableLocator
 
     /**
      * Generates a unique alias for a table
-     *
-     * @return string
      */
     public static function generateAlias(): string
     {
@@ -91,10 +87,7 @@ class TableLocator
     /**
      * Constructor, sets up factories
      *
-     * @param Connection $connection
      * @param iterable<TableGatewayFactory> $gatewayFactories
-     * @param StatementFactory|null $statementFactory
-     * @param CacheItemPoolInterface|null $statementCache
      */
     public function __construct(
         private readonly Connection $connection,
@@ -131,9 +124,7 @@ class TableLocator
      * Returns a Factory for TableDefinition implementations
      *
      * If a factory was not set with {@see setTableDefinitionFactory()}, then an instance of
-     * OrdinaryTableDefinitionFactory will be created and returned
-     *
-     * @return TableDefinitionFactory
+     * {@see OrdinaryTableDefinitionFactory} will be created and returned
      */
     public function getTableDefinitionFactory(): TableDefinitionFactory
     {
@@ -146,7 +137,6 @@ class TableLocator
     /**
      * Sets a Factory for TableDefinition implementations
      *
-     * @param TableDefinitionFactory $factory
      * @return $this
      */
     public function setTableDefinitionFactory(TableDefinitionFactory $factory): self
@@ -160,7 +150,6 @@ class TableLocator
     /**
      * Adds a factory for TableGateway (and FragmentListBuilder) implementations
      *
-     * @param TableGatewayFactory $factory
      * @return $this
      */
     public function addTableGatewayFactory(TableGatewayFactory $factory): self
@@ -172,8 +161,6 @@ class TableLocator
 
     /**
      * Returns the DB connection object used by TableLocator
-     *
-     * @return Connection
      */
     public function getConnection(): Connection
     {
@@ -199,8 +186,6 @@ class TableLocator
 
     /**
      * Returns the StatementFactory object used to convert queries from SQL strings to AST and back
-     *
-     * @return StatementFactory
      */
     public function getStatementFactory(): StatementFactory
     {
@@ -209,8 +194,6 @@ class TableLocator
 
     /**
      * Returns the Parser for converting SQL fragments to ASTs
-     *
-     * @return Parser
      */
     public function getParser(): Parser
     {
@@ -220,8 +203,6 @@ class TableLocator
     /**
      * Creates an AST representing a complete statement from SQL string
      *
-     * @param string $sql
-     * @return Statement
      * @throws SyntaxException
      */
     public function createFromString(string $sql): Statement
@@ -231,9 +212,6 @@ class TableLocator
 
     /**
      * Creates an object containing SQL statement string and parameter mappings from AST
-     *
-     * @param Statement $ast
-     * @return NativeStatement
      */
     public function createFromAST(Statement $ast): NativeStatement
     {
@@ -242,8 +220,6 @@ class TableLocator
 
     /**
      * Get the factory object for converters to and from PostgreSQL representation
-     *
-     * @return TypeNameNodeHandler
      */
     public function getTypeConverterFactory(): TypeNameNodeHandler
     {
@@ -254,9 +230,8 @@ class TableLocator
      * Returns TypeName node for query AST based on provided type OID
      *
      * @param int|numeric-string $oid
-     * @return TypeName
      */
-    public function createTypeNameNodeForOID($oid): TypeName
+    public function createTypeNameNodeForOID(int|string $oid): TypeName
     {
         return $this->typeConverterFactory->createTypeNameNodeForOID($oid);
     }
@@ -264,25 +239,24 @@ class TableLocator
     /**
      * Returns the result of calling select() on the table gateway created for the given table name
      *
-     * @param string|TableName|QualifiedName $name
      * @param FragmentsInput $fragments
      * @param array<string, mixed> $parameters
-     * @return SelectProxy
      */
-    public function select($name, $fragments = null, array $parameters = []): SelectProxy
-    {
+    public function select(
+        string|TableName|QualifiedName $name,
+        null|callable|iterable|Fragment|FragmentBuilder $fragments = null,
+        array $parameters = []
+    ): SelectProxy {
         return $this->createGateway($name)->select($fragments, $parameters);
     }
 
     /**
      * Loads the previously generated NativeStatement from cache or generates it using given factory method
      *
-     * @param \Closure(): Statement $factoryMethod This will be used to generate the AST in case of cache miss
+     * @param callable(): Statement $factoryMethod This will be used to generate the AST in case of cache miss
      * @param string|null           $cacheKey      If not null, NativeStatement will be stored in cache under that key
-     *
-     * @return NativeStatement
      */
-    public function createNativeStatementUsingCache(\Closure $factoryMethod, ?string $cacheKey): NativeStatement
+    public function createNativeStatementUsingCache(callable $factoryMethod, ?string $cacheKey): NativeStatement
     {
         $cacheItem = null;
         if (null !== $cacheKey && null !== $this->statementCache) {
@@ -309,11 +283,8 @@ class TableLocator
      *
      * Will use an implementation of TableGatewayFactory if available, falling back to returning
      * GenericTableGateway or its subclass based on table's primary key
-     *
-     * @param string|TableName|QualifiedName $name
-     * @return TableGateway
      */
-    public function createGateway($name): TableGateway
+    public function createGateway(string|TableName|QualifiedName $name): TableGateway
     {
         $definition = $this->getTableDefinition($name);
 
@@ -331,11 +302,8 @@ class TableLocator
 
     /**
      * Returns a fluent builder for a given table name
-     *
-     * @param string|TableName|QualifiedName $name
-     * @return FragmentListBuilder
      */
-    public function createBuilder($name): FragmentListBuilder
+    public function createBuilder(string|TableName|QualifiedName $name): FragmentListBuilder
     {
         $definition = $this->getTableDefinition($name);
 
@@ -348,37 +316,23 @@ class TableLocator
     }
 
     /**
-     * Converts the given name to a TableName instance if possible, throws an exception otherwise
-     *
-     * @param string|TableName|QualifiedName $name
-     * @return TableName
-     * @psalm-suppress RedundantConditionGivenDocblockType
+     * Converts the given name to a TableName instance
      */
-    private function normalizeName($name): TableName
+    private function normalizeName(string|TableName|QualifiedName $name): TableName
     {
         if (\is_string($name)) {
             return $this->names[$name] ??= TableName::createFromNode($this->getParser()->parseQualifiedName($name));
         } elseif ($name instanceof QualifiedName) {
             return TableName::createFromNode($name);
-        } elseif ($name instanceof TableName) {
+        } else {
             return $name;
         }
-        /** @psalm-suppress RedundantConditionGivenDocblockType, DocblockTypeContradiction */
-        throw new InvalidArgumentException(\sprintf(
-            "%s() expects either a string, an instance of QualifiedName, or an instance of TableName"
-            . " for a table name, %s given",
-            __METHOD__,
-            \is_object($name) ? 'object(' . $name::class . ')' : \gettype($name)
-        ));
     }
 
     /**
      * Returns a TableDefinition for a table with the given name
-     *
-     * @param string|TableName|QualifiedName $name
-     * @return TableDefinition
      */
-    public function getTableDefinition($name): TableDefinition
+    public function getTableDefinition(string|TableName|QualifiedName $name): TableDefinition
     {
         $normalized = $this->normalizeName($name);
 

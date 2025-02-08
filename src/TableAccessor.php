@@ -24,15 +24,11 @@ interface TableAccessor
 {
     /**
      * Returns the DB connection object
-     *
-     * @return Connection
      */
     public function getConnection(): Connection;
 
     /**
      * Returns the object containing table metadata
-     *
-     * @return TableDefinition
      */
     public function getDefinition(): TableDefinition;
 }

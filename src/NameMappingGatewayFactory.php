@@ -84,7 +84,7 @@ class NameMappingGatewayFactory implements TableGatewayFactory
     }
 
     /**
-     * Returns namespace for the given schema and index (0 - gateway, 1 - builder), null if not found
+     * Returns namespace for the given schema, null if not found
      */
     private function mapSchemaToNamespace(string $schema): ?string
     {
@@ -103,7 +103,6 @@ class NameMappingGatewayFactory implements TableGatewayFactory
      * Returns a name of an existing gateway/builder class for the given table name
      *
      * @template T of class-string
-     * @param TableName $name
      * @param array<string, ?T> $classMap Existing mapping of table names to class names
      * @param string $template            Template for generated class name, sprintf-style
      * @return ?T
@@ -115,7 +114,7 @@ class NameMappingGatewayFactory implements TableGatewayFactory
             return $classMap[$nameAsString];
         }
         $fqn = null;
-        if (null !== ($namespace = $this->mapSchemaToNamespace($name->getSchema()))) {
+        if (null !== $namespace = $this->mapSchemaToNamespace($name->getSchema())) {
             $className = \sprintf($template, $this->classify($name->getRelation()));
             if (\class_exists($namespace . '\\' . $className, true)) {
                 /** @var T $fqn */
@@ -128,7 +127,6 @@ class NameMappingGatewayFactory implements TableGatewayFactory
     /**
      * Returns a name of an existing gateway class for the given table name
      *
-     * @param TableName $name
      * @return ?class-string<TableGateway>
      */
     private function getGatewayClassNameForTable(TableName $name): ?string
@@ -137,7 +135,8 @@ class NameMappingGatewayFactory implements TableGatewayFactory
     }
 
     /**
-     * @param TableName $name
+     * Returns a name of an existing builder class for the given table name
+     *
      * @return ?class-string<FragmentListBuilder>
      */
     private function getBuilderClassNameForTable(TableName $name): ?string
@@ -147,7 +146,7 @@ class NameMappingGatewayFactory implements TableGatewayFactory
 
     public function createGateway(TableDefinition $definition, TableLocator $tableLocator): ?TableGateway
     {
-        if (null !== ($className = $this->getGatewayClassNameForTable($definition->getName()))) {
+        if (null !== $className = $this->getGatewayClassNameForTable($definition->getName())) {
             return new $className($definition, $tableLocator);
         }
         return null;

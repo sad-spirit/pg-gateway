@@ -21,9 +21,9 @@ use sad_spirit\pg_builder\SelectCommon;
  *
  * @since 0.4.0
  */
-class SqlStringSelectBuilder implements SelectBuilder
+readonly class SqlStringSelectBuilder implements SelectBuilder
 {
-    public function __construct(private readonly Parser $parser, private readonly string $sql)
+    public function __construct(private Parser $parser, private string $sql)
     {
     }
 

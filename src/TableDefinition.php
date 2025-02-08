@@ -20,29 +20,21 @@ interface TableDefinition
 {
     /**
      * Returns table name
-     *
-     * @return metadata\TableName
      */
     public function getName(): metadata\TableName;
 
     /**
      * Returns table columns
-     *
-     * @return metadata\Columns
      */
     public function getColumns(): metadata\Columns;
 
     /**
      * Returns information about table's primary key
-     *
-     * @return metadata\PrimaryKey
      */
     public function getPrimaryKey(): metadata\PrimaryKey;
 
     /**
      * Returns information about foreign keys added to the table / referencing it
-     *
-     * @return metadata\References
      */
     public function getReferences(): metadata\References;
 }

@@ -15,6 +15,8 @@ namespace sad_spirit\pg_gateway\gateways;
 
 use sad_spirit\pg_gateway\{
     AdHocStatement,
+    Fragment,
+    FragmentBuilder,
     FragmentList,
     SelectBuilder,
     SelectProxy,
@@ -23,7 +25,6 @@ use sad_spirit\pg_gateway\{
     TableLocator,
     TableSelect,
     builders\FragmentListBuilder,
-    exceptions\InvalidArgumentException,
     fragments\ClosureFragment,
     fragments\InsertSelectFragment,
     fragments\SetClauseFragment
@@ -80,22 +81,20 @@ class GenericTableGateway implements TableGateway, AdHocStatement
         return $this->tableLocator->createBuilder($this->definition->getName());
     }
 
-    public function delete($fragments = null, array $parameters = []): Result
-    {
+    public function delete(
+        null|iterable|\Closure|Fragment|FragmentBuilder $fragments = null,
+        array $parameters = []
+    ): Result {
         $fragmentList = $this->convertFragments($fragments, $parameters);
 
         return $this->execute($this->createDeleteStatement($fragmentList), $fragmentList);
     }
 
-    /**
-     * {@inheritDoc}
-     * @psalm-suppress RedundantConditionGivenDocblockType
-     * @psalm-suppress TypeDoesNotContainType
-     * @psalm-suppress NoValue
-     * @psalm-suppress RedundantCondition
-     */
-    public function insert($values, $fragments = null, array $parameters = []): Result
-    {
+    public function insert(
+        array|SelectCommon|SelectBuilder $values,
+        null|iterable|\Closure|Fragment|FragmentBuilder $fragments = null,
+        array $parameters = []
+    ): Result {
         $fragmentList = $this->convertFragments($fragments, $parameters);
 
         if ($values instanceof SelectBuilder) {
@@ -106,32 +105,29 @@ class GenericTableGateway implements TableGateway, AdHocStatement
                     $insert->values = $values;
                 }
             ));
-        } elseif (\is_array($values)) {
-            if ([] !== $values) {
-                $fragmentList->add(new SetClauseFragment(
-                    $this->definition->getColumns(),
-                    $this->tableLocator,
-                    $values
-                ));
-            }
-        } else {
-            throw new InvalidArgumentException(sprintf(
-                "\$values should be either of: an array, an instance of SelectCommon,"
-                . " an implementation of SelectBuilder; %s given",
-                \is_object($values) ? 'object(' . $values::class . ')' : \gettype($values)
+        } elseif ([] !== $values) {
+            $fragmentList->add(new SetClauseFragment(
+                $this->definition->getColumns(),
+                $this->tableLocator,
+                $values
             ));
         }
 
         return $this->execute($this->createInsertStatement($fragmentList), $fragmentList);
     }
 
-    public function select($fragments = null, array $parameters = []): TableSelect
-    {
+    public function select(
+        null|iterable|\Closure|Fragment|FragmentBuilder $fragments = null,
+        array $parameters = []
+    ): TableSelect {
         return new TableSelect($this->tableLocator, $this, $this->convertFragments($fragments, $parameters));
     }
 
-    public function update(array $set, $fragments = null, array $parameters = []): Result
-    {
+    public function update(
+        array $set,
+        null|iterable|\Closure|Fragment|FragmentBuilder $fragments = null,
+        array $parameters = []
+    ): Result {
         $native = $this->createUpdateStatement($list = new FragmentList(
             new SetClauseFragment($this->definition->getColumns(), $this->tableLocator, $set),
             $this->convertFragments($fragments, $parameters)
@@ -145,8 +141,10 @@ class GenericTableGateway implements TableGateway, AdHocStatement
      *
      * @param FragmentsInput $fragments
      */
-    protected function convertFragments($fragments, array $parameters): FragmentList
-    {
+    protected function convertFragments(
+        null|iterable|\Closure|Fragment|FragmentBuilder $fragments,
+        array $parameters
+    ): FragmentList {
         if (!$fragments instanceof \Closure) {
             return FragmentList::normalize($fragments)
                 ->mergeParameters($parameters);
@@ -162,8 +160,11 @@ class GenericTableGateway implements TableGateway, AdHocStatement
         return $this->delete(new ClosureFragment($closure), $parameters);
     }
 
-    public function insertWithAST($values, \Closure $closure, array $parameters = []): Result
-    {
+    public function insertWithAST(
+        array|SelectCommon|SelectBuilder $values,
+        \Closure $closure,
+        array $parameters = []
+    ): Result {
         return $this->insert($values, new ClosureFragment($closure), $parameters);
     }
 
@@ -179,10 +180,6 @@ class GenericTableGateway implements TableGateway, AdHocStatement
 
     /**
      * Executes the given $statement possibly using parameters from $fragments
-     *
-     * @param NativeStatement $statement
-     * @param FragmentList $fragments
-     * @return Result
      */
     private function execute(NativeStatement $statement, FragmentList $fragments): Result
     {
@@ -193,9 +190,6 @@ class GenericTableGateway implements TableGateway, AdHocStatement
 
     /**
      * Generates a DELETE statement using given fragments
-     *
-     * @param FragmentList $fragments
-     * @return NativeStatement
      */
     public function createDeleteStatement(FragmentList $fragments): NativeStatement
     {
@@ -215,9 +209,6 @@ class GenericTableGateway implements TableGateway, AdHocStatement
 
     /**
      * Generates an INSERT statement using given fragments
-     *
-     * @param FragmentList $fragments
-     * @return NativeStatement
      */
     public function createInsertStatement(FragmentList $fragments): NativeStatement
     {
@@ -236,9 +227,6 @@ class GenericTableGateway implements TableGateway, AdHocStatement
 
     /**
      * Generates an UPDATE statement using given fragments
-     *
-     * @param FragmentList $fragments
-     * @return NativeStatement
      */
     public function createUpdateStatement(FragmentList $fragments): NativeStatement
     {

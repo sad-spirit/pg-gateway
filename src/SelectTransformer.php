@@ -31,9 +31,7 @@ abstract class SelectTransformer implements SelectProxy
     /**
      * Constructor, sets the Select being decorated and additional dependencies
      *
-     * @param SelectProxy  $wrapped
-     * @param TableLocator $tableLocator
-     * @param string|null  $key          Passing null as the key will make the generated statement non-cacheable
+     * @param string|null $key Passing `null` as the key will make the generated statement non-cacheable
      */
     public function __construct(
         protected readonly SelectProxy $wrapped,
@@ -61,7 +59,7 @@ abstract class SelectTransformer implements SelectProxy
         return $this->wrapped->getParameterHolder();
     }
 
-    public function executeCount()
+    public function executeCount(): int|string
     {
         return $this->wrapped->executeCount();
     }
@@ -117,9 +115,6 @@ abstract class SelectTransformer implements SelectProxy
 
     /**
      * Transforms the given statement returning a new one
-     *
-     * @param SelectCommon $original
-     * @return SelectCommon
      */
     abstract protected function transform(SelectCommon $original): SelectCommon;
 }

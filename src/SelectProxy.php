@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway;
 
-use sad_spirit\pg_builder\SelectCommon;
 use sad_spirit\pg_wrapper\Result;
 
 /**
@@ -51,7 +50,7 @@ interface SelectProxy extends SelectBuilder, Parametrized, TableAccessor, \Itera
      *
      * @return int|numeric-string
      */
-    public function executeCount();
+    public function executeCount(): int|string;
 
     /**
      * Executes the "SELECT [target list]" query with current fragments and returns its result

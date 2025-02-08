@@ -261,9 +261,9 @@ class FragmentListTest extends TestCase
     public static function invalidFragmentsProvider(): array
     {
         return [
-            ['a string'],
-            [666],
-            [new \stdClass()],
+            [(static function () {
+                yield new \stdClass();
+            })()],
             [[new \stdClass()]],
             [[new FragmentImplementation(new KeywordConstant(ConstantName::TRUE), null), 'false']]
         ];

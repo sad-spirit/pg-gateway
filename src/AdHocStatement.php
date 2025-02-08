@@ -53,7 +53,11 @@ interface AdHocStatement
      * @param array<string, mixed> $parameters
      * @return Result
      */
-    public function insertWithAST($values, \Closure $closure, array $parameters = []): Result;
+    public function insertWithAST(
+        array|SelectCommon|SelectBuilder $values,
+        \Closure $closure,
+        array $parameters = []
+    ): Result;
 
     /**
      * Returns an object that can execute SELECT / SELECT COUNT(*) queries using the given closure with given parameters

@@ -54,11 +54,9 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
     /**
      * Converts whatever was passed as $fragments parameter to an instance of FragmentList
      *
-     * @param mixed $fragments
-     * @return FragmentList
      * @throws InvalidArgumentException
      */
-    public static function normalize($fragments): self
+    public static function normalize(null|iterable|Fragment|FragmentBuilder $fragments): self
     {
         $arguments = [];
         if ($fragments instanceof Fragment || $fragments instanceof FragmentBuilder) {
@@ -73,12 +71,6 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
                 }
                 $arguments[] = $fragment;
             }
-        } elseif (null !== $fragments) {
-            throw new InvalidArgumentException(sprintf(
-                'Expecting an implementation of either Fragment or FragmentBuilder'
-                . ' or an iterable containing those, %s given',
-                \is_object($fragments) ? 'object(' . $fragments::class . ')' : \gettype($fragments)
-            ));
         }
 
         return new self(...$arguments);
@@ -86,10 +78,8 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
 
     /**
      * Constructor, accepts Fragments and FragmentBuilders
-     *
-     * @param Fragment|FragmentBuilder ...$fragments
      */
-    public function __construct(...$fragments)
+    public function __construct(Fragment|FragmentBuilder ...$fragments)
     {
         foreach ($fragments as $fragment) {
             $this->add($fragment);
@@ -101,10 +91,9 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
      *
      * Instances of FragmentList will be "flattened" with their items added rather than the list itself
      *
-     * @param Fragment|FragmentBuilder $fragment
      * @return $this
      */
-    public function add(object $fragment): self
+    public function add(Fragment|FragmentBuilder $fragment): self
     {
         if ($fragment instanceof self) {
             $this->mergeParameters($fragment->parameters, $fragment);
@@ -113,7 +102,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
             }
         } elseif ($fragment instanceof FragmentBuilder) {
             $this->add($fragment->getFragment());
-        } elseif ($fragment instanceof Fragment) {
+        } else {
             $fragmentKey = $fragment->getKey();
             if (null !== $fragmentKey && isset($this->fragmentKeys[$fragmentKey])) {
                 $this->mergeDuplicateFragmentParameters($fragment, $this->fragmentKeys[$fragmentKey]);
@@ -123,11 +112,6 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
                     $this->fragmentKeys[$fragmentKey] = \count($this->fragments) - 1;
                 }
             }
-        } else {
-            throw new InvalidArgumentException(\sprintf(
-                "An instance of Fragment or FragmentBuilder expected, object(%s) given",
-                $fragment::class
-            ));
         }
 
         return $this;
@@ -212,7 +196,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
         );
     }
 
-    public function getPriority(): int
+    public function getPriority(): never
     {
         // Priority doesn't make much sense for FragmentList
         throw new LogicException("getPriority() should not be called on FragmentList instances");
@@ -220,10 +204,6 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
 
     /**
      * Adds the contained fragments to the given statement
-     *
-     * @param Statement $statement
-     * @param bool $isCount
-     * @return void
      */
     public function applyTo(Statement $statement, bool $isCount = false): void
     {
@@ -236,7 +216,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
         }
     }
 
-    public function isUsedForCount(): bool
+    public function isUsedForCount(): never
     {
         // Should be called on owning Fragment rather than on FragmentList itself
         throw new LogicException("isUsedForCount() should not be called on FragmentList instances");
@@ -247,8 +227,6 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
      *
      * The string is generated using the sorted fragment keys. If any of these keys is null,
      * this method will return null.
-     *
-     * @return string|null
      */
     public function getKey(): ?string
     {
@@ -258,7 +236,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
 
         $fragmentKeys = [];
         foreach ($this->fragments as $fragment) {
-            if (null === ($key = $fragment->getKey())) {
+            if (null === $key = $fragment->getKey()) {
                 return null;
             }
             $fragmentKeys[] = ['key' => $key, 'priority' => $fragment->getPriority()];
@@ -286,10 +264,9 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
      *
      * This uses array_filter() internally so callback should be compatible to that
      *
-     * @param \Closure(Fragment): bool $callback
-     * @return self
+     * @param callable(Fragment): bool $callback
      */
-    public function filter(\Closure $callback): self
+    public function filter(callable $callback): self
     {
         return (new self(...\array_filter($this->fragments, $callback)))
             ->mergeParameters($this->parameters);

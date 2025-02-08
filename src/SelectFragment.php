@@ -26,9 +26,7 @@ interface SelectFragment extends Fragment
      * The second parameter is intended for the JOIN-type queries: while the join itself may be needed as it affects
      * the number of returned rows, adding fields from the joined table to the target list should be omitted
      *
-     * @param Statement $statement
-     * @param bool      $isCount   Whether a "SELECT COUNT(*)" query is being processed
-     * @return void
+     * @param bool $isCount   Whether a "SELECT COUNT(*)" query is being processed
      */
     public function applyTo(Statement $statement, bool $isCount = false): void;
 
@@ -37,8 +35,6 @@ interface SelectFragment extends Fragment
      *
      * If the fragment does not change the number of returned rows or if it doesn't make sense for "SELECT COUNT(*)"
      * query (e.g. ORDER, LIMIT, OFFSET), then it should be skipped
-     *
-     * @return bool
      */
     public function isUsedForCount(): bool;
 }
