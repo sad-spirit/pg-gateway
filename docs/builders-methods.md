@@ -77,22 +77,22 @@ class FluentBuilder extends FragmentListBuilder
     public function operatorCondition(string $column, string $operator, mixed $value) : $this;
     public function equal(string $column, $value) : $this;
     public function sqlCondition(string $sql, array $parameters = []) : $this;
-    public function exists(string|TableName|QualifiedName|TableGateway|SelectProxy $select, callable(ExistsBuilder) $callback = null) : proxies\ExistsBuilderProxy;
+    public function exists(string|TableName|QualifiedName|TableGateway|SelectBuilder $select) : proxies\ExistsBuilderProxy;
     public function primaryKey(mixed $value) : $this;
 
     // Adding fragments that modify the output expressions list
-    public function outputColumns(callable(ColumnsBuilder) $callback = null) : proxies\ColumnsBuilderProxy;
-    public function returningColumns(callable(ColumnsBuilder) $callback = null) : proxies\ColumnsBuilderProxy;
-    public function outputSubquery(SelectProxy $select, callable(ScalarSubqueryBuilder) $callback = null) : proxies\ScalarSubqueryBuilderProxy;
+    public function outputColumns() : proxies\ColumnsBuilderProxy;
+    public function returningColumns() : proxies\ColumnsBuilderProxy;
+    public function outputSubquery(SelectBuilder $select) : proxies\ScalarSubqueryBuilderProxy;
     public function outputExpression(string|Condition $expression, ?string $alias = null) : $this;
     public function returningExpression(string|Condition $expression, ?string $alias = null) : $this;
     
     // Adding a join
-    public function join(string|TableName|QualifiedName|TableGateway|SelectProxy $joined, callable(JoinBuilder) $callback = null) : proxies\JoinBuilderProxy;
+    public function join(string|TableName|QualifiedName|TableGateway|SelectBuilder $joined) : proxies\JoinBuilderProxy;
 
     // Adding CTEs to the query's WITH clause
     public function withSqlString(string $sql, array $parameters = [], int $priority = Fragment::PRIORITY_DEFAULT) : $this;
-    public function withSelect(SelectProxy $select, string $alias, callable $callback = null) : proxies\WithClauseBuilderProxy;
+    public function withSelect(SelectProxy $select, string $alias) : proxies\WithClauseBuilderProxy;
 
     // Adding fragments to SELECT statements
     public function orderBy(iterable<OrderByElement|string>|string $orderBy) : $this;
@@ -180,14 +180,6 @@ $builder
     ->orderBy('something');
 ```
 
-These methods also accept callbacks that can be used to configure builder objects,
-but their usage is deprecated:
-```PHP
-use sad_spirit\pg_gateway\builders\ExistsBuilder;
-
-$builder->exists(new TableName('example', 'stuff'), fn(ExistsBuilder $eb) => $eb->not()->joinOn('self.klmn @@@ joined.klmn'));
-```
-
 ### Modifying the output expressions list
 
  * `outputColumns()` - configures a list of columns  returned by
@@ -226,13 +218,10 @@ use sad_spirit\pg_gateway\Fragment;
 use sad_spirit\pg_gateway\builders\WithClauseBuilder;
 
 // this will generate 'WITH RECURSIVE foo (bar, baz) AS (...result of $otherGateway...)'
-$builder->withSelect(
-    $otherGateway->select(/* some conditions */),
-    'foo',
-    fn(WithClauseBuilder $wb) => $wb->priority(Fragment::PRIORITY_HIGHEST)
-        ->columnAliases(['bar', 'baz'])
-        ->recursive()
-);
+$builder->withSelect($otherGateway->select(/* some conditions */), 'foo')
+    ->priority(Fragment::PRIORITY_HIGHEST)
+    ->columnAliases(['bar', 'baz'])
+    ->recursive();
 ```
 
 ### Fragments for `SELECT` statements

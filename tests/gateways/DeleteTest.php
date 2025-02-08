@@ -25,7 +25,6 @@ use sad_spirit\pg_builder\nodes\{
 use sad_spirit\pg_gateway\{
     OrdinaryTableDefinition,
     TableLocator,
-    builders\ColumnsBuilder,
     builders\FluentBuilder,
     conditions\SqlStringCondition,
     gateways\GenericTableGateway,
@@ -107,7 +106,8 @@ class DeleteTest extends DatabaseBackedTestCase
         $gateway = $this->createTableGateway('bar');
         $result  = $gateway->delete(
             fn(FluentBuilder $fb): ColumnsBuilderProxy => $fb->equal('id', 2)
-                ->returningColumns(fn(ColumnsBuilder $cb): ColumnsBuilder => $cb->primaryKey())
+                ->returningColumns()
+                    ->primaryKey()
         );
 
         $this::assertEquals(1, $result->getAffectedRows());

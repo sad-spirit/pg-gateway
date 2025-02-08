@@ -28,7 +28,6 @@ use sad_spirit\pg_builder\nodes\{
 use sad_spirit\pg_gateway\{
     OrdinaryTableDefinition,
     TableLocator,
-    builders\ColumnsBuilder,
     builders\FluentBuilder,
     exceptions\UnexpectedValueException,
     gateways\GenericTableGateway,
@@ -110,7 +109,8 @@ class UpdateTest extends DatabaseBackedTestCase
         $result = self::$gateway->update(
             ['title' => 'Changed title'],
             fn(FluentBuilder $fb): ColumnsBuilderProxy => $fb->primaryKey(2)
-                ->returningColumns(fn(ColumnsBuilder $cb): ColumnsBuilder => $cb->all())
+                ->returningColumns()
+                    ->all()
         );
         $row = $result->current();
         $this::assertEquals(2, $row['id']);

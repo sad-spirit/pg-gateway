@@ -22,7 +22,6 @@ use sad_spirit\pg_gateway\{
     OrdinaryTableDefinition,
     TableSelect,
     TableLocator,
-    builders\ColumnsBuilder,
     builders\FluentBuilder,
     conditions\ParametrizedCondition,
     conditions\PrimaryKeyCondition,
@@ -226,7 +225,8 @@ class TableSelectTest extends DatabaseBackedTestCase
         $gateway = $this->createTableGateway('foo');
         $select  = $gateway->select(
             fn (FluentBuilder $fb): ColumnsBuilderProxy => $fb->orderBy('id desc')
-                ->outputColumns(fn (ColumnsBuilder $cb): ColumnsBuilder => $cb->primaryKey())
+                ->outputColumns()
+                    ->primaryKey()
         );
 
         $this::assertEquals(['id' => 3], $select->fetchFirst());

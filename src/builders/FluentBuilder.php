@@ -22,7 +22,6 @@ use sad_spirit\pg_gateway\{
     SqlStringSelectBuilder,
     TableAccessor,
     TableGateway,
-    exceptions\InvalidArgumentException,
     metadata\TableName
 };
 use sad_spirit\pg_gateway\conditions\{
@@ -66,10 +65,6 @@ class FluentBuilder extends FragmentListBuilder
      * A non-fluent version of {@see any()}
      *
      * The returned value can be combined with AND / OR before adding to the list
-     *
-     * @param string $column
-     * @param array $values
-     * @return ParametrizedCondition
      */
     public function createAny(string $column, array $values): ParametrizedCondition
     {
@@ -86,9 +81,6 @@ class FluentBuilder extends FragmentListBuilder
      * A non-fluent version of {@see boolColumn()}
      *
      * The returned value can be combined with AND / OR before adding to the list
-     *
-     * @param string $column
-     * @return BoolCondition
      */
     public function createBoolColumn(string $column): BoolCondition
     {
@@ -99,9 +91,6 @@ class FluentBuilder extends FragmentListBuilder
      * A non-fluent version of {@see notBoolColumn()}
      *
      * The returned value can be combined with AND / OR before adding to the list
-     *
-     * @param string $column
-     * @return NotCondition
      */
     public function createNotBoolColumn(string $column): NotCondition
     {
@@ -112,9 +101,6 @@ class FluentBuilder extends FragmentListBuilder
      * A non-fluent version of {@see isNull()}
      *
      * The returned value can be combined with AND / OR before adding to the list
-     *
-     * @param string $column
-     * @return IsNullCondition
      */
     public function createIsNull(string $column): IsNullCondition
     {
@@ -125,9 +111,6 @@ class FluentBuilder extends FragmentListBuilder
      * A non-fluent version of {@see isNotNull()}
      *
      * The returned value can be combined with AND / OR before adding to the list
-     *
-     * @param string $column
-     * @return NotCondition
      */
     public function createIsNotNull(string $column): NotCondition
     {
@@ -138,10 +121,6 @@ class FluentBuilder extends FragmentListBuilder
      * A non-fluent version of {@see notAll()}
      *
      * The returned value can be combined with AND / OR before adding to the list
-     *
-     * @param string $column
-     * @param array $values
-     * @return ParametrizedCondition
      */
     public function createNotAll(string $column, array $values): ParametrizedCondition
     {
@@ -158,13 +137,8 @@ class FluentBuilder extends FragmentListBuilder
      * A non-fluent version of {@see operatorCondition()}
      *
      * The returned value can be combined with AND / OR before adding to the list
-     *
-     * @param string $column
-     * @param string $operator
-     * @param mixed $value
-     * @return ParametrizedCondition
      */
-    public function createOperatorCondition(string $column, string $operator, $value): ParametrizedCondition
+    public function createOperatorCondition(string $column, string $operator, mixed $value): ParametrizedCondition
     {
         return new ParametrizedCondition(
             new OperatorCondition(
@@ -180,12 +154,8 @@ class FluentBuilder extends FragmentListBuilder
      * A non-fluent version of {@see equal()}
      *
      * The returned value can be combined with AND / OR before adding to the list
-     *
-     * @param string $column
-     * @param mixed $value
-     * @return ParametrizedCondition
      */
-    public function createEqual(string $column, $value): ParametrizedCondition
+    public function createEqual(string $column, mixed $value): ParametrizedCondition
     {
         return $this->createOperatorCondition($column, '=', $value);
     }
@@ -194,10 +164,6 @@ class FluentBuilder extends FragmentListBuilder
      * A non-fluent version of {@see sqlCondition()}
      *
      * The returned value can be combined with AND / OR before adding to the list
-     *
-     * @param string $sql
-     * @param array $parameters
-     * @return ParametrizedCondition
      */
     public function createSqlCondition(string $sql, array $parameters = []): ParametrizedCondition
     {
@@ -211,11 +177,8 @@ class FluentBuilder extends FragmentListBuilder
      * Creates a Builder for configuring a `[NOT] EXISTS(...)` condition
      *
      * The Condition returned by the Builder can be combined with AND / OR before adding to the list
-     *
-     * @param string|TableName|QualifiedName|TableGateway|SelectProxy $select
-     * @return ExistsBuilder
      */
-    public function createExists($select): ExistsBuilder
+    public function createExists(string|TableName|QualifiedName|TableGateway|SelectBuilder $select): ExistsBuilder
     {
         return new ExistsBuilder($this->definition, $this->normalizeSelect($select));
     }
@@ -225,8 +188,6 @@ class FluentBuilder extends FragmentListBuilder
      *
      * This is roughly equivalent to `column IN (...values)` but requires only one placeholder
      *
-     * @param string $column
-     * @param array $values
      * @return $this
      */
     public function any(string $column, array $values): self
@@ -237,7 +198,6 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Adds a `self.column` Condition for a column of `bool` type
      *
-     * @param string $column
      * @return $this
      */
     public function boolColumn(string $column): self
@@ -248,7 +208,6 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Adds a `NOT self.column` Condition for a column of `bool` type
      *
-     * @param string $column
      * @return $this
      */
     public function notBoolColumn(string $column): self
@@ -259,7 +218,6 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Adds a `self.column IS NULL` Condition
      *
-     * @param string $column
      * @return $this
      */
     public function isNull(string $column): self
@@ -270,7 +228,6 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Adds a `self.column IS NOT NULL` Condition
      *
-     * @param string $column
      * @return $this
      */
     public function isNotNull(string $column): self
@@ -283,8 +240,6 @@ class FluentBuilder extends FragmentListBuilder
      *
      * This is roughly equivalent to `self.column NOT IN (...values)` but requires only one placeholder
      *
-     * @param string $column
-     * @param array $values
      * @return $this
      */
     public function notAll(string $column, array $values): self
@@ -297,12 +252,9 @@ class FluentBuilder extends FragmentListBuilder
      *
      * The value will be actually passed separately as a query parameter
      *
-     * @param string $column
-     * @param string $operator
-     * @param mixed $value
      * @return $this
      */
-    public function operatorCondition(string $column, string $operator, $value): self
+    public function operatorCondition(string $column, string $operator, mixed $value): self
     {
         return $this->add($this->createOperatorCondition($column, $operator, $value));
     }
@@ -312,11 +264,9 @@ class FluentBuilder extends FragmentListBuilder
      *
      * The value will be actually passed separately as a query parameter
      *
-     * @param string $column
-     * @param mixed $value
      * @return $this
      */
-    public function equal(string $column, $value): self
+    public function equal(string $column, mixed $value): self
     {
         return $this->add($this->createEqual($column, $value));
     }
@@ -324,8 +274,6 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Adds a Condition based on the given SQL expression
      *
-     * @param string $sql
-     * @param array $parameters
      * @return $this
      */
     public function sqlCondition(string $sql, array $parameters = []): self
@@ -347,22 +295,12 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Configures a list of columns returned by a SELECT statement
      *
-     * $callback is a function that accepts an instance of ColumnsBuilder and should configure it:
-     * <code>
-     * $builder->outputColumns(fn(ColumnsBuilder $cb) => $cb->primaryKey()->replace('/_id$/', 'Identity'));
-     * </code>
-     *
-     * @param callable(ColumnsBuilder): mixed|null $callback Deprecated since 0.4.0, use methods of the returned object
      * @return proxies\ColumnsBuilderProxy<static>
      */
-    public function outputColumns(?callable $callback = null): proxies\ColumnsBuilderProxy
+    public function outputColumns(): proxies\ColumnsBuilderProxy
     {
         $builder = new proxies\ColumnsBuilderProxy($this, $this->definition, false);
         $this->addProxy($builder);
-
-        if (null !== $callback) {
-            $callback($builder);
-        }
 
         return $builder;
     }
@@ -370,22 +308,12 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Configures a list of columns in the RETURNING clause
      *
-     * $callback is a function that accepts an instance of ColumnsBuilder and should configure it:
-     * <code>
-     * $builder->returningColumns(fn(ColumnsBuilder $cb) => $cb->only(['id', 'name']));
-     * </code>
-     *
-     * @param callable(ColumnsBuilder): mixed|null $callback Deprecated since 0.4.0, use methods of the returned object
      * @return proxies\ColumnsBuilderProxy<static>
      */
-    public function returningColumns(?callable $callback = null): proxies\ColumnsBuilderProxy
+    public function returningColumns(): proxies\ColumnsBuilderProxy
     {
         $builder = new proxies\ColumnsBuilderProxy($this, $this->definition, true);
         $this->addProxy($builder);
-
-        if (null !== $callback) {
-            $callback($builder);
-        }
 
         return $builder;
     }
@@ -395,27 +323,12 @@ class FluentBuilder extends FragmentListBuilder
      *
      * While the companion `returningSubquery()` method is possible, it's unlikely to be used.
      *
-     * $callback is a function that accepts an instance of ScalarSubqueryBuilder and should configure it:
-     * <code>
-     * $builder->outputSubquery(
-     *     $select,
-     *     fn(ScalarSubqueryBuilder $sb) => $sb->joinOnForeignKey()->alias('foo')
-     * );
-     * </code>
-     *
-     * @param SelectProxy $select
-     * @param callable(ScalarSubqueryBuilder): mixed|null $callback Deprecated since 0.4.0, use methods
-     *                                                              of the returned object
      * @return proxies\ScalarSubqueryBuilderProxy<static>
      */
-    public function outputSubquery(SelectProxy $select, ?callable $callback = null): proxies\ScalarSubqueryBuilderProxy
+    public function outputSubquery(SelectBuilder $select): proxies\ScalarSubqueryBuilderProxy
     {
         $builder = new proxies\ScalarSubqueryBuilderProxy($this, $this->definition, $select);
         $this->addProxy($builder);
-
-        if (null !== $callback) {
-            $callback($builder);
-        }
 
         return $builder;
     }
@@ -423,11 +336,9 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Adds expression(s) to the list of columns returned by a SELECT statement
      *
-     * @param string|Condition $expression
-     * @param string|null $alias
      * @return $this
      */
-    public function outputExpression($expression, ?string $alias = null): self
+    public function outputExpression(string|Condition $expression, ?string $alias = null): self
     {
         return $this->add(new SelectListFragment($this->expressionToManipulator($expression, $alias)));
     }
@@ -435,35 +346,22 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Adds expression(s) to the list of columns in the RETURNING clause
      *
-     * @param string|Condition $expression
-     * @param string|null $alias
      * @return $this
      */
-    public function returningExpression($expression, ?string $alias = null): self
+    public function returningExpression(string|Condition $expression, ?string $alias = null): self
     {
         return $this->add(new ReturningClauseFragment($this->expressionToManipulator($expression, $alias)));
     }
 
     /**
      * Returns the proper TargetListManipulator for the given expression
-     *
-     * @param string|Condition $expression
-     * @param string|null $alias
-     * @return TargetListManipulator
-     * @psalm-suppress RedundantConditionGivenDocblockType
-     * @psalm-suppress DocblockTypeContradiction
      */
-    private function expressionToManipulator($expression, ?string $alias = null): TargetListManipulator
+    private function expressionToManipulator(string|Condition $expression, ?string $alias = null): TargetListManipulator
     {
         if (\is_string($expression)) {
             return new SqlStringAppender($this->tableLocator->getParser(), $expression, $alias);
-        } elseif ($expression instanceof Condition) {
-            return new ConditionAppender($expression, $alias);
         } else {
-            throw new InvalidArgumentException(\sprintf(
-                "An SQL string or Condition instance expected, %s given",
-                \is_object($expression) ? 'object(' . $expression::class . ')' : \gettype($expression)
-            ));
+            return new ConditionAppender($expression, $alias);
         }
     }
 
@@ -474,16 +372,9 @@ class FluentBuilder extends FragmentListBuilder
      * an SQL string). If an Exception is thrown in that call (due to missing / ambiguous FK), it will be silenced
      * and the join will remain unconditional.
      *
-     * $callback is a function that accepts an instance of JoinBuilder and should configure it:
-     * <code>
-     * $builder->join($table, fn(JoinBuilder $jb) => $jb->left()->onForeignKey());
-     * </code>
-     *
-     * @param string|TableName|QualifiedName|TableGateway|SelectProxy $joined
-     * @param callable(JoinBuilder): mixed|null $callback Deprecated since 0.4.0, use methods of the returned object
      * @return proxies\JoinBuilderProxy<static>
      */
-    public function join($joined, ?callable $callback = null): proxies\JoinBuilderProxy
+    public function join(string|TableName|QualifiedName|TableGateway|SelectBuilder $joined): proxies\JoinBuilderProxy
     {
         $normalized = $this->normalizeSelect($joined);
         $builder    = new proxies\JoinBuilderProxy($this, $this->definition, $normalized);
@@ -495,9 +386,6 @@ class FluentBuilder extends FragmentListBuilder
             } catch (Exception) {
             }
         }
-        if (null !== $callback) {
-            $callback($builder);
-        }
 
         return $builder;
     }
@@ -505,36 +393,21 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Adds a `[NOT] EXISTS(...)` condition
      *
-     * $callback is a function that accepts an instance of ExistsBuilder and should configure it:
-     * <code>
-     * $builder->join($table, fn(ExistsBuilder $eb) => $eb->not()->joinOnForeignKey());
-     * </code>
-     *
-     * @param string|TableName|QualifiedName|TableGateway|SelectProxy $select
-     * @param callable(ExistsBuilder):mixed|null $callback Deprecated since 0.4.0, use methods of the returned object
      * @return proxies\ExistsBuilderProxy<static>
      */
-    public function exists($select, ?callable $callback = null): proxies\ExistsBuilderProxy
-    {
+    public function exists(
+        string|TableName|QualifiedName|TableGateway|SelectBuilder $select
+    ): proxies\ExistsBuilderProxy {
         $builder = new proxies\ExistsBuilderProxy($this, $this->definition, $this->normalizeSelect($select));
         $this->addProxy($builder);
-
-        if (null !== $callback) {
-            $callback($builder);
-        }
 
         return $builder;
     }
 
     /**
-     * Tries to convert a parameter passed to join() or exists() to SelectProxy
-     *
-     * @param string|TableName|QualifiedName|TableGateway|SelectBuilder $select
-     * @return SelectBuilder
-     * @psalm-suppress RedundantConditionGivenDocblockType
-     * @psalm-suppress DocblockTypeContradiction
+     * Tries to convert a parameter passed to `join()` or `exists()` to SelectBuilder
      */
-    private function normalizeSelect($select): SelectBuilder
+    private function normalizeSelect(string|TableName|QualifiedName|TableGateway|SelectBuilder $select): SelectBuilder
     {
         if (\is_string($select)) {
             return new SqlStringSelectBuilder($this->tableLocator->getParser(), $select);
@@ -543,14 +416,9 @@ class FluentBuilder extends FragmentListBuilder
                 ->select();
         } elseif ($select instanceof TableGateway) {
             return $select->select();
-        } elseif ($select instanceof SelectBuilder) {
+        } else {
             return $select;
         }
-
-        throw new InvalidArgumentException(\sprintf(
-            "A table name, TableGateway or SelectBuilder instance expected, %s given",
-            \is_object($select) ? 'object(' . $select::class . ')' : \gettype($select)
-        ));
     }
 
     /**
@@ -559,50 +427,22 @@ class FluentBuilder extends FragmentListBuilder
      * The string may contain either a complete WITH clause `WITH foo AS (...)`, possibly with multiple CTEs,
      * or a single CTE `foo AS (...)`
      *
-     * @param string $sql
-     * @param array $parameters
-     * @param int $priority
      * @return $this
      */
     public function withSqlString(string $sql, array $parameters = [], int $priority = Fragment::PRIORITY_DEFAULT): self
     {
-        return $this->add(new SqlStringFragment(
-            $this->tableLocator->getParser(),
-            $sql,
-            $parameters,
-            $priority
-        ));
+        return $this->add(new SqlStringFragment($this->tableLocator->getParser(), $sql, $parameters, $priority));
     }
 
     /**
      * Adds a SELECT to the WITH clause
      *
-     * $callback is a function that accepts an instance of WithClauseBuilder and should configure it
-     * <code>
-     * $builder->withSelect(
-     *     $select,
-     *     'foo',
-     *     fn(WithClauseBuilder $wb) => $wb->recursive()
-     *         ->columnAliases(['bar', 'baz'])
-     * );
-     * </code>
-     *
-     * @param SelectProxy $select
-     * @param string $alias
-     * @param callable(WithClauseBuilder):mixed|null $callback Deprecated since 0.4.0, use methods of the returned object
      * @return proxies\WithClauseBuilderProxy<static>
      */
-    public function withSelect(
-        SelectProxy $select,
-        string $alias,
-        ?callable $callback = null
-    ): proxies\WithClauseBuilderProxy {
+    public function withSelect(SelectProxy $select, string $alias): proxies\WithClauseBuilderProxy
+    {
         $builder = new proxies\WithClauseBuilderProxy($this, $select, $alias);
         $this->addProxy($builder);
-
-        if (null !== $callback) {
-            $callback($builder);
-        }
 
         return $builder;
     }
@@ -617,7 +457,7 @@ class FluentBuilder extends FragmentListBuilder
      * @param iterable<OrderByElement|string>|string $orderBy
      * @return $this
      */
-    public function orderBy($orderBy): self
+    public function orderBy(string|iterable $orderBy): self
     {
         return $this->add(new OrderByClauseFragment($this->tableLocator->getParser(), $orderBy));
     }
@@ -631,7 +471,7 @@ class FluentBuilder extends FragmentListBuilder
      * @param iterable<OrderByElement|string>|string $orderBy
      * @return $this
      */
-    public function orderByUnsafe($orderBy): self
+    public function orderByUnsafe(string|iterable $orderBy): self
     {
         return $this->add(new OrderByClauseFragment($this->tableLocator->getParser(), $orderBy, false));
     }
@@ -641,7 +481,6 @@ class FluentBuilder extends FragmentListBuilder
      *
      * The actual value for `LIMIT` is not embedded into SQL, but passed as a query parameter
      *
-     * @param int $limit
      * @return $this
      */
     public function limit(int $limit): self
@@ -654,7 +493,6 @@ class FluentBuilder extends FragmentListBuilder
      *
      * The actual value for `OFFSET` is not embedded into SQL, but passed as a query parameter
      *
-     * @param int $offset
      * @return $this
      */
     public function offset(int $offset): self

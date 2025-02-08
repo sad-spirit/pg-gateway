@@ -22,7 +22,6 @@ use sad_spirit\pg_gateway\tests\DatabaseBackedTestCase;
 use sad_spirit\pg_gateway\{
     OrdinaryTableDefinition,
     TableLocator,
-    builders\ColumnsBuilder,
     builders\FluentBuilder,
     exceptions\UnexpectedValueException,
     gateways\GenericTableGateway,
@@ -124,7 +123,8 @@ class InsertTest extends DatabaseBackedTestCase
                 ['id' => -2]
             ),
             fn (FluentBuilder $fb): ColumnsBuilderProxy => $fb
-                ->returningColumns(fn (ColumnsBuilder $cb): ColumnsBuilder => $cb->only(['title']))
+                ->returningColumns()
+                    ->only(['title'])
         );
 
         $this::assertEquals(1, $result->getAffectedRows());
