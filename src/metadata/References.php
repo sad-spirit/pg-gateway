@@ -41,9 +41,7 @@ interface References extends \IteratorAggregate, \Countable
      * Here specifying the constraint column "employee_id" or "boss_id" uniquely identifies the constraint,
      * while specifying referenced "id" column is useless, it will most likely be the primary key.
      *
-     * @param TableName $relatedTable
      * @param string[] $keyColumns
-     * @return ForeignKey
      */
     public function get(TableName $relatedTable, array $keyColumns = []): ForeignKey;
 

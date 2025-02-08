@@ -106,8 +106,6 @@ trait ArrayOfForeignKeys
     /**
      * Finds matching foreign keys using one of $referencing or $referencedBy arrays
      *
-     * @param array    $source
-     * @param string   $tableName
      * @param string[] $keyColumns
      * @return ForeignKey[]
      */

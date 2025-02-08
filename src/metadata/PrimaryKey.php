@@ -36,8 +36,6 @@ interface PrimaryKey extends \IteratorAggregate, \Countable
 
     /**
      * Returns whether table's primary key is automatically generated
-     *
-     * @return bool
      */
     public function isGenerated(): bool;
 }

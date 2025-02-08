@@ -48,33 +48,21 @@ abstract class CachedMetadataLoader
 
     /**
      * Returns the cache key under which this particular metadata will be stored
-     *
-     * @param Connection $connection
-     * @param TableName $table
-     * @return string
      */
     abstract protected function getCacheKey(Connection $connection, TableName $table): string;
 
     /**
      * Loads the metadata from Postgres system catalogs
-     *
-     * @param Connection $connection
-     * @param TableName $table
      */
     abstract protected function loadFromDatabase(Connection $connection, TableName $table): void;
 
     /**
      * Loads the metadata from cache
-     *
-     * @param CacheItemInterface $cacheItem
      */
     abstract protected function loadFromCache(CacheItemInterface $cacheItem): void;
 
     /**
      * Sets the new value for the cached item
-     *
-     * @param CacheItemInterface $cacheItem
-     * @return CacheItemInterface
      */
     abstract protected function setCachedData(CacheItemInterface $cacheItem): CacheItemInterface;
 }

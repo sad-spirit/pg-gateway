@@ -31,8 +31,6 @@ final class Column
 
     /**
      * Returns the column name
-     *
-     * @return string
      */
     public function getName(): string
     {
@@ -41,8 +39,6 @@ final class Column
 
     /**
      * Returns whether the column is nullable
-     *
-     * @return bool
      */
     public function isNullable(): bool
     {

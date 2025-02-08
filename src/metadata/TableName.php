@@ -33,7 +33,6 @@ final class TableName implements \Stringable
     /**
      * Constructor, requires at least relation name, will set schema to 'public' if not given
      *
-     * @param string ...$nameParts
      * @noinspection PhpMissingBreakStatementInspection
      */
     public function __construct(string ...$nameParts)
@@ -58,9 +57,6 @@ final class TableName implements \Stringable
      * Creates an instance of TableName based on QualifiedName node
      *
      * $catalog property is ignored, missing $schema property will default to 'public'
-     *
-     * @param QualifiedName $qualifiedName
-     * @return self
      */
     public static function createFromNode(QualifiedName $qualifiedName): self
     {
@@ -73,8 +69,6 @@ final class TableName implements \Stringable
 
     /**
      * Returns the relation part of a qualified table name
-     *
-     * @return string
      */
     public function getRelation(): string
     {
@@ -83,8 +77,6 @@ final class TableName implements \Stringable
 
     /**
      * Returns the schema part of a qualified table name
-     *
-     * @return string
      */
     public function getSchema(): string
     {
@@ -93,9 +85,6 @@ final class TableName implements \Stringable
 
     /**
      * Checks whether two TableName instances reference the same table
-     *
-     * @param TableName $other
-     * @return bool
      */
     public function equals(self $other): bool
     {
@@ -105,8 +94,6 @@ final class TableName implements \Stringable
 
     /**
      * Creates a QualifiedName node with current schema and relation name
-     *
-     * @return QualifiedName
      */
     public function createNode(): QualifiedName
     {
@@ -115,8 +102,6 @@ final class TableName implements \Stringable
 
     /**
      * Returns the string representation of table name, with double quotes added as needed
-     *
-     * @return string
      */
     public function __toString(): string
     {

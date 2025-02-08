@@ -88,8 +88,6 @@ final class RecursiveParameterHolder implements ParameterHolder, \IteratorAggreg
 
     /**
      * Returns a new instance of RecursiveParameterHolder that does not contain nested instances of self
-     *
-     * @return self
      */
     public function flatten(): self
     {
@@ -100,9 +98,6 @@ final class RecursiveParameterHolder implements ParameterHolder, \IteratorAggreg
 
     /**
      * Recursive part of flatten(), converts a RecursiveParameterHolder to an array of non-recursive holders
-     *
-     * @param RecursiveParameterHolder $holder
-     * @return array
      */
     private function flattenRecursive(self $holder): array
     {

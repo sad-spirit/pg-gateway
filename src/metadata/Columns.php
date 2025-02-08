@@ -38,17 +38,12 @@ interface Columns extends \IteratorAggregate, \Countable
 
     /**
      * Checks whether the column with a given name exists
-     *
-     * @param string $column
-     * @return bool
      */
     public function has(string $column): bool;
 
     /**
      * Returns the given column's properties
      *
-     * @param string $column
-     * @return Column
      * @throws OutOfBoundsException If the column was not found
      */
     public function get(string $column): Column;

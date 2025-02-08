@@ -70,8 +70,6 @@ trait ArrayOfPrimaryKeyColumns
 
     /**
      * Returns whether table's primary key is automatically generated
-     *
-     * @return bool
      */
     public function isGenerated(): bool
     {
