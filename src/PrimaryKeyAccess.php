@@ -38,7 +38,7 @@ interface PrimaryKeyAccess
     /**
      * Executes an "UPSERT" (INSERT ... ON CONFLICT DO UPDATE ...) query with the given values
      *
-     * @return array Primary key of the row inserted / updated
+     * @return array<string, mixed> Primary key of the row inserted / updated
      */
     public function upsert(array $values): array;
 }

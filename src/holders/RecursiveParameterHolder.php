@@ -45,6 +45,11 @@ final class RecursiveParameterHolder implements ParameterHolder, \IteratorAggreg
         $this->holders = $holders;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return \ArrayIterator<array-key, ParameterHolder>
+     */
     public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->holders);
@@ -61,8 +66,10 @@ final class RecursiveParameterHolder implements ParameterHolder, \IteratorAggreg
         $owners     = [];
 
         foreach ($this->flatten() as $holder) {
+            /** @psalm-suppress MixedAssignment */
             foreach ($holder->getParameters() as $k => $v) {
                 if (!\array_key_exists($k, $parameters)) {
+                    /** @psalm-suppress MixedAssignment */
                     $parameters[$k] = $v;
                     $owners[$k]     = $holder->getOwner();
                 } elseif ($v !== $parameters[$k]) {
@@ -98,6 +105,8 @@ final class RecursiveParameterHolder implements ParameterHolder, \IteratorAggreg
 
     /**
      * Recursive part of flatten(), converts a RecursiveParameterHolder to an array of non-recursive holders
+     *
+     * @return ParameterHolder[]
      */
     private function flattenRecursive(self $holder): array
     {

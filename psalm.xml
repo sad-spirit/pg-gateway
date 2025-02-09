@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <psalm
-    errorLevel="2"
+    errorLevel="1"
     resolveFromConfigFile="true"
     findUnusedBaselineEntry="true"
     findUnusedCode="false"
@@ -16,6 +16,16 @@
     </projectFiles>
 
     <issueHandlers>
+        <MixedMethodCall>
+            <!-- psalm doesn't like calling and() on $where property -->
+            <errorLevel type="suppress">
+                <file name="src/conditions/ExistsCondition.php"/>
+                <file name="src/fragments/WhereClauseFragment.php"/>
+                <file name="src/fragments/join_strategies/InlineStrategy.php"/>
+                <file name="src/fragments/target_list/SubqueryAppender.php"/>
+            </errorLevel>
+        </MixedMethodCall>
+        
         <PossiblyNullPropertyAssignmentValue>
             <!-- array_shift() cannot return null there due to count() check -->
             <errorLevel type="suppress">

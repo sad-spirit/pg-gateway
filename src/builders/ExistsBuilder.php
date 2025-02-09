@@ -68,8 +68,8 @@ class ExistsBuilder extends AdditionalSelectBuilder
      *
      * The Condition will be added to the WHERE clause of the query inside EXISTS()
      *
-     * @param array $keyColumns If there are several FOREIGN KEY constraints between the tables,
-     *                          specify the columns on the child side that should be part of the key
+     * @param string[] $keyColumns If there are several FOREIGN KEY constraints between the tables,
+     *                             specify the columns on the child side that should be part of the key
      * @return $this
      */
     public function joinOnForeignKey(array $keyColumns = []): self
@@ -83,8 +83,8 @@ class ExistsBuilder extends AdditionalSelectBuilder
      * The Condition will be added to the WHERE clause of the query inside EXISTS()
      *
      * @param bool $fromChild Whether the base table should be on the child side (default) of the join or the parent one
-     * @param array $keyColumns In the unlikely event that there are several recursive FOREIGN KEY constraints
-     *                          this specifies the columns on the child side that should be part of the key
+     * @param string[] $keyColumns In the unlikely event that there are several recursive FOREIGN KEY constraints
+     *                             this specifies the columns on the child side that should be part of the key
      * @return $this
      */
     public function joinOnRecursiveForeignKey(bool $fromChild = true, array $keyColumns = []): self

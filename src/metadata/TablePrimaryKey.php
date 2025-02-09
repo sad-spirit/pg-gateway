@@ -59,6 +59,16 @@ class TablePrimaryKey extends CachedMetadataLoader implements PrimaryKey
             throw new UnexpectedValueException(\sprintf("Relation %s does not exist", $table->__toString()));
         }
         $generated = false;
+        /**
+         * @var array{
+         *     attname: ?string,
+         *     attnotnull: bool,
+         *     attidentity: string,
+         *     relkind: string,
+         *     defexpr: ?string,
+         *     typeoid: int|numeric-string
+         * } $row
+         */
         foreach ($result as $row) {
             if (RelationKind::OrdinaryTable !== RelationKind::tryFrom($row['relkind'])) {
                 throw new UnexpectedValueException(\sprintf(
@@ -79,6 +89,7 @@ class TablePrimaryKey extends CachedMetadataLoader implements PrimaryKey
 
     protected function loadFromCache(CacheItemInterface $cacheItem): void
     {
+        /** @psalm-suppress MixedAssignment, MixedArrayAccess */
         [$this->columns, $this->generated] = $cacheItem->get();
     }
 

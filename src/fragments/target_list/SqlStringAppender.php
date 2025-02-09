@@ -44,6 +44,7 @@ class SqlStringAppender extends TargetListManipulator
         if (null === $this->alias) {
             $targetList->merge($parsed);
         } elseif (1 === \count($parsed)) {
+            /** @psalm-suppress MixedClone, MixedArgument */
             $targetList[] = new TargetElement(clone $parsed[0]->expression, new Identifier($this->alias));
         } else {
             throw new LogicException("Parsing resulted in multiple expressions, cannot apply alias");

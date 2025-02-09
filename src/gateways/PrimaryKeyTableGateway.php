@@ -82,6 +82,11 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
             ->executeParams($this->getConnection(), $list->getParameters());
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @psalm-suppress MixedReturnTypeCoercion
+     */
     public function upsert(array $values): array
     {
         $valuesClause = new SetClauseFragment($this->definition->getColumns(), $this->tableLocator, $values);

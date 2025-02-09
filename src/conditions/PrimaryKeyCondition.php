@@ -60,9 +60,9 @@ final class PrimaryKeyCondition extends Condition
      *
      * @param mixed $value Either an array ['primary key column' => value, ...] or a value for a
      *                     single-column primary key
-     * @return array Array of the format ['primary key column' => value, ...]
+     * @return array<string, mixed> Array of the format ['primary key column' => value, ...]
      */
-    public function normalizeValue($value): array
+    public function normalizeValue(mixed $value): array
     {
         $columns = $this->primaryKey->getNames();
 
@@ -90,6 +90,7 @@ final class PrimaryKeyCondition extends Condition
             );
         }
 
+        /** @var array<string, mixed> $value */
         return $value;
     }
 

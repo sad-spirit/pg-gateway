@@ -36,8 +36,8 @@ abstract class AdditionalSelectBuilder implements FragmentBuilder
     /**
      * Creates the join condition based on a FOREIGN KEY constraint between the base and the additional tables
      *
-     * @param array $keyColumns If there are several FOREIGN KEY constraints between the tables,
-     *                          specify the columns on the child side that should be part of the key
+     * @param string[] $keyColumns If there are several FOREIGN KEY constraints between the tables,
+     *                             specify the columns on the child side that should be part of the key
      * @param bool|null $fromChild If a self-join is being made, this specifies whether the base table should be
      *                             on the child side of the join or the parent one. Ignored otherwise.
      * @return ForeignKeyCondition

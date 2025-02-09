@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway;
 
 /**
- * Types of statements created in gateways
+ * Contains types of statements created by gateways
  */
 enum StatementType: string
 {

@@ -263,6 +263,7 @@ class TableLocator
             try {
                 $cacheItem = $this->statementCache->getItem($cacheKey);
                 if ($cacheItem->isHit()) {
+                    /** @psalm-suppress MixedReturnStatement */
                     return $cacheItem->get();
                 }
             } catch (PsrException) {

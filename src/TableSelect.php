@@ -180,9 +180,10 @@ final readonly class TableSelect implements SelectProxy
     public function executeCount(): int|string
     {
         $native = $this->createSelectCountStatement();
-        if ([] === ($namesHash = $native->getNamedParameterMap())) {
+        if ([] === $namesHash = $native->getNamedParameterMap()) {
             $result = $this->gateway->getConnection()->execute($native->getSql());
         } else {
+            /** @psalm-suppress MixedArrayTypeCoercion */
             $parameters = \array_filter(
                 $this->fragments->getParameters(),
                 fn($key): bool => isset($namesHash[$key]),
@@ -192,6 +193,7 @@ final readonly class TableSelect implements SelectProxy
         }
 
         $result->setMode(\PGSQL_NUM);
+        /** @psalm-suppress MixedReturnStatement */
         return $result[0][0];
     }
 

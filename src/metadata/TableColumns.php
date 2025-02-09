@@ -55,13 +55,16 @@ class TableColumns extends CachedMetadataLoader implements Columns
         if (0 === \count($result)) {
             throw new UnexpectedValueException(\sprintf("Relation %s does not exist", $table->__toString()));
         }
+        /**
+         * @var array{attname: ?string, attnotnull: bool, relkind: string, typeoid: int|numeric-string} $row
+         */
         foreach ($result as $index => $row) {
             if (0 === $index) {
                 $this->assertCorrectRelkind(RelationKind::tryFrom($row['relkind']), $table);
-                if (null === $row['attname']) {
-                    // Zero-column tables are possible in Postgres, but we won't bother with that
-                    throw new UnexpectedValueException(\sprintf("Table %s has zero columns", $table->__toString()));
-                }
+            }
+            if (null === $row['attname']) {
+                // Zero-column tables are possible in Postgres, but we won't bother with that
+                throw new UnexpectedValueException(\sprintf("Table %s has zero columns", $table->__toString()));
             }
             $this->columns[$row['attname']] = new Column($row['attname'], !$row['attnotnull'], $row['typeoid']);
         }
@@ -84,6 +87,7 @@ class TableColumns extends CachedMetadataLoader implements Columns
 
     protected function loadFromCache(CacheItemInterface $cacheItem): void
     {
+        /** @psalm-suppress MixedAssignment */
         $this->columns = $cacheItem->get();
     }
 

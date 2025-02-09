@@ -39,6 +39,7 @@ final readonly class ReturningClauseFragment implements Fragment, Parametrized
                 $statement::class
             ));
         }
+        /** @psalm-suppress MixedArgument */
         $this->manipulator->modifyTargetList($statement->returning);
     }
 

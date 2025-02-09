@@ -20,6 +20,11 @@ use sad_spirit\pg_gateway\fragments\target_list\ColumnAliasStrategy;
  */
 readonly class ClosureStrategy implements ColumnAliasStrategy
 {
+    /**
+     * Constructor
+     *
+     * @param \Closure(string):(null|string|\Stringable) $closure
+     */
     public function __construct(private \Closure $closure, private ?string $key = null)
     {
     }

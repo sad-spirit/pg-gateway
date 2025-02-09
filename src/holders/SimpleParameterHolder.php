@@ -21,6 +21,11 @@ use sad_spirit\pg_gateway\ParameterHolder;
  */
 final readonly class SimpleParameterHolder implements ParameterHolder
 {
+    /**
+     * Constructor
+     *
+     * @param array<string, mixed> $parameters
+     */
     public function __construct(private KeyEquatable $owner, private array $parameters)
     {
     }

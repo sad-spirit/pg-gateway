@@ -58,10 +58,9 @@ abstract class FragmentListBuilder implements FragmentBuilder
     /**
      * Adds a fragment to the list
      *
-     * @param Fragment|FragmentBuilder $fragment
      * @return $this
      */
-    final public function add(object $fragment): self
+    final public function add(Fragment|FragmentBuilder $fragment): self
     {
         $this->list->add($fragment);
 
@@ -71,8 +70,7 @@ abstract class FragmentListBuilder implements FragmentBuilder
     /**
      * Adds a fragment to the list, wrapping it in a decorator that keeps parameter values
      *
-     * @param Fragment $fragment
-     * @param array $parameters
+     * @param array<string, mixed> $parameters
      * @return $this
      */
     final public function addWithParameters(Fragment $fragment, array $parameters): self
@@ -87,9 +85,6 @@ abstract class FragmentListBuilder implements FragmentBuilder
      *
      * The method is not public as the proxies are not meant to be added directly. They also should always wrap $this,
      * thus a public method will need relevant checks.
-     *
-     * @param Proxy $proxy
-     * @return void
      */
     final protected function addProxy(Proxy $proxy): void
     {

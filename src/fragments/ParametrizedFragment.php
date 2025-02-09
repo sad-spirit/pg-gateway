@@ -32,6 +32,11 @@ final readonly class ParametrizedFragment implements SelectFragment, Parametrize
 {
     private Fragment $wrapped;
 
+    /**
+     * Constructor
+     *
+     * @param array<string, mixed> $parameters
+     */
     public function __construct(Fragment $wrapped, private array $parameters)
     {
         if ($wrapped instanceof Parametrized) {

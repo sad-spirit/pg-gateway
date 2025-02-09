@@ -29,6 +29,11 @@ final class ParametrizedCondition extends Condition implements Parametrized
 {
     private readonly Condition $wrapped;
 
+    /**
+     * Constructor
+     *
+     * @param array<string, mixed> $parameters
+     */
     public function __construct(Condition $wrapped, private readonly array $parameters)
     {
         if ($wrapped instanceof Parametrized) {

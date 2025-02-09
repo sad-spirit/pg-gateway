@@ -99,6 +99,15 @@ class TableReferences extends CachedMetadataLoader implements References
                 [self::QUERY_TO,   false]
             ] as [$query, $from]
         ) {
+            /**
+             * @var array{
+             *     relname: string,
+             *     nspname: string,
+             *     conname: string,
+             *     child_columns: string[],
+             *     referenced_columns: string[]
+             *  } $row
+             */
             foreach (
                 $connection->executeParams(
                     $query,
@@ -128,6 +137,7 @@ class TableReferences extends CachedMetadataLoader implements References
 
     protected function loadFromCache(CacheItemInterface $cacheItem): void
     {
+        /** @psalm-suppress MixedAssignment, MixedArrayAccess */
         [$this->foreignKeys, $this->referencing, $this->referencedBy] = $cacheItem->get();
     }
 

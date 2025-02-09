@@ -241,7 +241,8 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
             }
             $fragmentKeys[] = ['key' => $key, 'priority' => $fragment->getPriority()];
         }
-        \usort($fragmentKeys, fn($a, $b): int => ($b['priority'] <=> $a['priority']) ?: ($a['key'] <=> $b['key']));
+        \usort($fragmentKeys, fn(array $a, array $b): int => ($b['priority'] <=> $a['priority'])
+            ?: ($a['key'] <=> $b['key']));
         return TableLocator::hash(\array_map(fn($a): string => $a['key'], $fragmentKeys));
     }
 
@@ -272,6 +273,11 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
             ->mergeParameters($this->parameters);
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @return \ArrayIterator<int, Fragment>
+     */
     public function getIterator(): \ArrayIterator
     {
         return new \ArrayIterator($this->fragments);

@@ -74,12 +74,11 @@ abstract class SelectTransformer implements SelectProxy
 
     public function createSelectStatement(): NativeStatement
     {
+        $cacheKey = null;
         if (
-            null === $this->key
-            || null === $wrappedKey = $this->wrapped->getKey()
+            null !== $this->key
+            && null !== $wrappedKey = $this->wrapped->getKey()
         ) {
-            $cacheKey = null;
-        } else {
             $cacheKey = \sprintf(
                 '%s.%s.%s.%s',
                 $this->getConnection()->getConnectionId(),

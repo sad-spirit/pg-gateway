@@ -66,9 +66,9 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
      * </code>
      * after that call the basket for the given user will contain only the items from $rows
      *
-     * @param array           $primaryKeyPart Part of primary key for rows, ['field name' => 'field value', ...].
-     * @param iterable<array> $rows    Other fields for rows being stored
-     * @return array Primary keys of stored rows
+     * @param array<string, mixed> $primaryKeyPart Part of primary key for rows, ['field name' => 'field value', ...].
+     * @param iterable<array>      $rows           Other fields for rows being stored
+     * @return list<array<string, mixed>> Primary keys of stored rows
      */
     public function replaceRelated(array $primaryKeyPart, iterable $rows): array
     {
@@ -94,7 +94,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
     /**
      * Returns primary key columns not appearing in $keyPart
      *
-     * @param array $keyPart
+     * @param non-empty-array<string, mixed> $keyPart
      * @return string[]
      */
     private function getAdditionalPrimaryKeyColumns(array $keyPart): array
@@ -127,9 +127,10 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
      * and runs it using primary keys returned by upsert(). This essentially removes all related records,
      * whose keys were not upsert()ed this time.
      *
-     * @param array  $keyPart     Part of primary key for rows, ['column name' => 'column value', ...]
-     * @param string $otherPart   Name of the remaining primary key column
-     * @param array  $primaryKeys Primary keys for stored rows (as returned by upsert())
+     * @param non-empty-array<string, mixed> $keyPart     Part of primary key for rows,
+     *                                                    ['column name' => 'column value', ...]
+     * @param string                         $otherPart   Name of the remaining primary key column
+     * @param list<array<string, mixed>>     $primaryKeys Primary keys for stored rows (as returned by upsert())
      */
     protected function deleteRelatedSingleColumn(array $keyPart, string $otherPart, array $primaryKeys): void
     {
@@ -158,9 +159,10 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
      *
      * The query is not cached as we are adding a closure-based fragment
      *
-     * @param array $keyPart     Part of primary key for rows, ['column name' => 'column value', ...]
-     * @param array $otherParts  Names of the remaining primary key columns
-     * @param array $primaryKeys Primary keys for stored rows (as returned by upsert())
+     * @param non-empty-array<string, mixed> $keyPart     Part of primary key for rows,
+     *                                                    ['column name' => 'column value', ...]
+     * @param string[]                       $otherParts  Names of the remaining primary key columns
+     * @param list<array<string, mixed>>     $primaryKeys Primary keys for stored rows (as returned by upsert())
      */
     protected function deleteRelatedMultipleColumns(array $keyPart, array $otherParts, array $primaryKeys): void
     {

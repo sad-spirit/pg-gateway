@@ -164,6 +164,8 @@ class FluentBuilder extends FragmentListBuilder
      * A non-fluent version of {@see sqlCondition()}
      *
      * The returned value can be combined with AND / OR before adding to the list
+     *
+     * @param array<string, mixed> $parameters
      */
     public function createSqlCondition(string $sql, array $parameters = []): ParametrizedCondition
     {
@@ -274,6 +276,7 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Adds a Condition based on the given SQL expression
      *
+     * @param array<string, mixed> $parameters
      * @return $this
      */
     public function sqlCondition(string $sql, array $parameters = []): self
@@ -427,6 +430,7 @@ class FluentBuilder extends FragmentListBuilder
      * The string may contain either a complete WITH clause `WITH foo AS (...)`, possibly with multiple CTEs,
      * or a single CTE `foo AS (...)`
      *
+     * @param array<string, mixed> $parameters
      * @return $this
      */
     public function withSqlString(string $sql, array $parameters = [], int $priority = Fragment::PRIORITY_DEFAULT): self

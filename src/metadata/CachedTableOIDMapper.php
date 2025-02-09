@@ -144,6 +144,7 @@ class CachedTableOIDMapper implements TableOIDMapper
         }
 
         if (!$force && null !== $cacheItem && $cacheItem->isHit()) {
+            /** @psalm-suppress MixedAssignment */
             $this->tableNames      = $cacheItem->get();
             $this->loadedFromDB    = false;
 
@@ -162,6 +163,7 @@ SQL;
             $sql .= "order by 2, 4";
 
             $backingValues = \array_map(fn (RelationKind $kind): string => $kind->value, RelationKind::cases());
+            /** @var array{oid: int|numeric-string, relname: string, relkind: string, nspname: string} $row */
             foreach ($this->connection->executeParams($sql, [$backingValues], ['text[]']) as $row) {
                 $relkind = RelationKind::from($row['relkind']);
                 if (!isset($this->tableNames[$row['relname']])) {

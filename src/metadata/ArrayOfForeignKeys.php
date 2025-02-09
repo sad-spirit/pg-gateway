@@ -23,7 +23,7 @@ use sad_spirit\pg_gateway\exceptions\InvalidArgumentException;
  */
 trait ArrayOfForeignKeys
 {
-    /** @var ForeignKey[] */
+    /** @var array<int, ForeignKey> */
     private array $foreignKeys  = [];
     /** @var array<string, array<int, int>> */
     private array $referencing  = [];
@@ -54,6 +54,11 @@ trait ArrayOfForeignKeys
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @param string[] $keyColumns
+     */
     public function get(TableName $relatedTable, array $keyColumns = []): ForeignKey
     {
         $relatedStr = (string)$relatedTable;
@@ -86,6 +91,7 @@ trait ArrayOfForeignKeys
     /**
      * {@inheritDoc}
      *
+     * @param string[] $keyColumns
      * @return ForeignKey[]
      */
     public function to(TableName $referencedTable, array $keyColumns = []): array
@@ -96,6 +102,7 @@ trait ArrayOfForeignKeys
     /**
      * {@inheritDoc}
      *
+     * @param string[] $keyColumns
      * @return ForeignKey[]
      */
     public function from(TableName $childTable, array $keyColumns = []): array
@@ -106,6 +113,7 @@ trait ArrayOfForeignKeys
     /**
      * Finds matching foreign keys using one of $referencing or $referencedBy arrays
      *
+     * @param array<string, array<int, int>> $source
      * @param string[] $keyColumns
      * @return ForeignKey[]
      */

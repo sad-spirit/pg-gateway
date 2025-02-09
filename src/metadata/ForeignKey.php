@@ -49,6 +49,8 @@ final readonly class ForeignKey implements \IteratorAggregate
 
     /**
      * Returns the names of the columns in the child table
+     *
+     * @return string[]
      */
     public function getChildColumns(): array
     {
@@ -57,6 +59,8 @@ final readonly class ForeignKey implements \IteratorAggregate
 
     /**
      * Returns the names of the columns in the referenced table
+     *
+     * @return string[]
      */
     public function getReferencedColumns(): array
     {
@@ -77,6 +81,8 @@ final readonly class ForeignKey implements \IteratorAggregate
      * {@inheritDoc}
      *
      * Iterates over a mapping ['child column' => 'referenced column']
+     *
+     * @return \ArrayIterator<string, string>
      */
     public function getIterator(): \ArrayIterator
     {

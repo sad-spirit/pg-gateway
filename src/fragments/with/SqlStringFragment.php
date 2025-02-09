@@ -33,6 +33,11 @@ use sad_spirit\pg_builder\{
  */
 class SqlStringFragment extends WithClauseFragment
 {
+    /**
+     * Constructor
+     *
+     * @param array<string, mixed> $parameters
+     */
     public function __construct(
         private readonly Parser $parser,
         private readonly string $sql,

@@ -35,12 +35,17 @@ final class SelfColumnsList extends SelfColumnsNone
     /** @var string[] */
     private readonly array $columns;
 
+    /**
+     * Constructor
+     *
+     * @param string[] $columns
+     */
     public function __construct(array $columns, private readonly ?ColumnAliasStrategy $strategy = null)
     {
         if ([] === $columns) {
             throw new InvalidArgumentException('$columns array should not be empty');
         }
-        $this->columns  = $columns;
+        $this->columns = $columns;
     }
 
     public function modifyTargetList(TargetList $targetList): void
@@ -70,11 +75,12 @@ final class SelfColumnsList extends SelfColumnsNone
     {
         if (null === $this->strategy) {
             $strategyKey = 'none';
-        } elseif (null === ($strategyKey = $this->strategy->getKey())) {
+        } elseif (null === $strategyKey = $this->strategy->getKey()) {
             return null;
         }
 
-        return parent::getKey()
+        /** @psalm-var string $strategyKey */
+        return (string)parent::getKey()
             . '.' . TableLocator::hash($this->columns)
             . '.' . $strategyKey;
     }
