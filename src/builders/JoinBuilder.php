@@ -52,7 +52,6 @@ class JoinBuilder extends AdditionalSelectBuilder
     /**
      * Uses the explicitly provided strategy for adding the joined table
      *
-     * @param JoinStrategy $strategy
      * @return $this
      */
     public function strategy(JoinStrategy $strategy): self
@@ -162,7 +161,6 @@ class JoinBuilder extends AdditionalSelectBuilder
     /**
      * Sets the join condition between the base and the checked table
      *
-     * @param Condition $condition
      * @return $this
      */
     public function on(Condition $condition): self
@@ -215,7 +213,6 @@ class JoinBuilder extends AdditionalSelectBuilder
      * Order may be important for the parts of the FROM clause, especially LATERAL ones. Fragments with higher
      * priorities will be added earlier.
      *
-     * @param int $priority
      * @return $this
      */
     public function priority(int $priority): self
@@ -228,7 +225,6 @@ class JoinBuilder extends AdditionalSelectBuilder
     /**
      * Sets whether this join should be executed when performing the SELECT COUNT(*) query
      *
-     * @param bool $use
      * @return $this
      */
     public function useForCount(bool $use): self

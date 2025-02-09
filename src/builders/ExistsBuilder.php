@@ -39,8 +39,6 @@ class ExistsBuilder extends AdditionalSelectBuilder
 
     /**
      * Returns the "[NOT] EXISTS(...)" condition
-     *
-     * @return Condition
      */
     public function getCondition(): Condition
     {
@@ -53,7 +51,6 @@ class ExistsBuilder extends AdditionalSelectBuilder
      *
      * The Condition will be added to the WHERE clause of the query inside EXISTS()
      *
-     * @param Condition $condition
      * @return $this
      */
     public function joinOn(Condition $condition): self

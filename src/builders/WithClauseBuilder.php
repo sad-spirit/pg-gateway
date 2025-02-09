@@ -110,7 +110,6 @@ class WithClauseBuilder implements FragmentBuilder
      * https://www.postgresql.org/docs/current/sql-select.html#SQL-WITH
      * > Without RECURSIVE, WITH queries can only reference sibling WITH queries that are earlier in the WITH list.
      *
-     * @param int $priority
      * @return $this
      */
     public function priority(int $priority): self

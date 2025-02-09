@@ -32,11 +32,8 @@ trait PrimaryKeyBuilder
 
     /**
      * Creates a condition on a primary key, can be used to combine with other Fragments
-     *
-     * @param mixed $value
-     * @return ParametrizedCondition
      */
-    public function createPrimaryKey($value): ParametrizedCondition
+    public function createPrimaryKey(mixed $value): ParametrizedCondition
     {
         $condition = new PrimaryKeyCondition(
             $this->definition->getPrimaryKey(),

@@ -77,7 +77,6 @@ abstract class AdditionalSelectBuilder implements FragmentBuilder
      *
      * If not given, a generated alias will be used
      *
-     * @param string $alias
      * @return $this
      */
     public function alias(string $alias): self

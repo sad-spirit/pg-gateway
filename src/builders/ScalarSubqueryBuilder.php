@@ -39,8 +39,6 @@ class ScalarSubqueryBuilder extends AdditionalSelectBuilder
 
     /**
      * Returns object that updates TargetList for usage outside SelectListFragment
-     *
-     * @return TargetListManipulator
      */
     public function getManipulator(): TargetListManipulator
     {
@@ -52,7 +50,6 @@ class ScalarSubqueryBuilder extends AdditionalSelectBuilder
      *
      * The Condition will be added to the WHERE clause of subquery table
      *
-     * @param Condition $condition
      * @return $this
      */
     public function joinOn(Condition $condition): self
@@ -94,7 +91,6 @@ class ScalarSubqueryBuilder extends AdditionalSelectBuilder
     /**
      * Another name for {@see alias()} method, to prevent confusion with {@see columnAlias()}
      *
-     * @param string $alias
      * @return $this
      */
     public function tableAlias(string $alias): self
@@ -105,7 +101,6 @@ class ScalarSubqueryBuilder extends AdditionalSelectBuilder
     /**
      * Sets the alias for subquery expression in the TargetList, `(SELECT ...) as $alias`
      *
-     * @param string $alias
      * @return $this
      */
     public function columnAlias(string $alias): self

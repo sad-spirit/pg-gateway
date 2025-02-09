@@ -185,7 +185,6 @@ class ColumnsBuilder implements FragmentBuilder
     /**
      * The fragment being built will use the explicitly provided strategy for adding aliases
      *
-     * @param ColumnAliasStrategy $strategy
      * @return $this
      */
     public function alias(ColumnAliasStrategy $strategy): self
@@ -205,7 +204,7 @@ class ColumnsBuilder implements FragmentBuilder
      * @param string|string[]                     $replacement
      * @return $this
      */
-    public function replace($pattern, $replacement): self
+    public function replace(string|array $pattern, string|array $replacement): self
     {
         return $this->alias(new PregReplaceStrategy($pattern, $replacement));
     }
@@ -224,8 +223,7 @@ class ColumnsBuilder implements FragmentBuilder
     /**
      * The fragment being built will get aliases by executing the provided callback with column names
      *
-     * @param \Closure(string): ?string $closure
-     * @param string|null $key
+     * @param \Closure(string): (null|string|\Stringable) $closure
      * @return $this
      */
     public function apply(\Closure $closure, ?string $key = null): self

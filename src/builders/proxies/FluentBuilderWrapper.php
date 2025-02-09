@@ -41,8 +41,6 @@ trait FluentBuilderWrapper
 
     /**
      * Returns the fragment list built by a proxied FluentBuilder (including the fragment from the proxy class)
-     *
-     * @return FragmentList
      */
     public function getFragment(): FragmentList
     {
@@ -71,7 +69,7 @@ trait FluentBuilderWrapper
      */
     public function end(): FluentBuilder
     {
-        return $this->owner->add($this);
+        return $this->owner;
     }
 
     /**
