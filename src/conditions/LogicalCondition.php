@@ -27,7 +27,7 @@ use sad_spirit\pg_gateway\{
 abstract class LogicalCondition extends Condition implements Parametrized
 {
     /** @var Condition[] */
-    protected array $children = [];
+    protected readonly array $children;
 
     public function __construct(Condition ...$children)
     {

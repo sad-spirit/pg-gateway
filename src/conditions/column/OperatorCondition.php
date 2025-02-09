@@ -30,7 +30,7 @@ use sad_spirit\pg_gateway\TableLocator;
 /**
  * Generates a "self.foo OPERATOR :foo::foo_type" condition for the "foo" table column
  */
-class OperatorCondition extends TypedCondition
+final class OperatorCondition extends TypedCondition
 {
     public function __construct(
         Column $column,

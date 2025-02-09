@@ -23,7 +23,7 @@ use sad_spirit\pg_builder\{
 /**
  * Condition represented by an SQL string
  */
-class SqlStringCondition extends Condition
+final class SqlStringCondition extends Condition
 {
     public function __construct(private readonly Parser $parser, private readonly string $sql)
     {

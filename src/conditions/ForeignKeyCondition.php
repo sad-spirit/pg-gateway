@@ -30,7 +30,7 @@ use sad_spirit\pg_builder\nodes\{
 /**
  * Generates a join condition using the given foreign key constraint
  */
-class ForeignKeyCondition extends Condition
+final class ForeignKeyCondition extends Condition
 {
     public function __construct(private readonly ForeignKey $foreignKey, private readonly bool $fromChild = true)
     {

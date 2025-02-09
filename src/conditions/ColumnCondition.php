@@ -24,7 +24,7 @@ use sad_spirit\pg_gateway\{
  */
 abstract class ColumnCondition extends Condition
 {
-    public function __construct(protected Column $column)
+    public function __construct(protected readonly Column $column)
     {
     }
 

@@ -20,7 +20,7 @@ use sad_spirit\pg_gateway\metadata\Column;
  */
 abstract class TypedCondition extends ColumnCondition
 {
-    public function __construct(Column $column, protected TypeNameNodeHandler $converterFactory)
+    public function __construct(Column $column, protected readonly TypeNameNodeHandler $converterFactory)
     {
         parent::__construct($column);
     }

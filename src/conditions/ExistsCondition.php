@@ -77,8 +77,6 @@ final class ExistsCondition extends Condition implements Parametrized
      *
      * As we usually need to reference the main table inside EXISTS() by its "self" alias,
      * the "self" alias for the table inside EXISTS() should be changed to something
-     *
-     * @return string
      */
     public function getAlias(): string
     {
