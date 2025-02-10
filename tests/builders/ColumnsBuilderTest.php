@@ -20,14 +20,12 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\builders;
 
 use sad_spirit\pg_gateway\{
-    FragmentList,
     OrdinaryTableDefinition,
     TableLocator,
     builders\ColumnsBuilder,
     exceptions\OutOfBoundsException,
     exceptions\InvalidArgumentException,
     exceptions\UnexpectedValueException,
-    gateways\GenericTableGateway,
     gateways\PrimaryKeyTableGateway,
     metadata\TableName,
     tests\DatabaseBackedTestCase,
@@ -54,12 +52,12 @@ class ColumnsBuilderTest extends DatabaseBackedTestCase
         self::$connection = null;
     }
 
-    public function testStarIsANoOpForSelect(): void
+    public function testStarIsTheDefault(): void
     {
         $gateway = self::$tableLocator->createGateway(new TableName('fkey_test', 'documents'));
-        $fragmentDefault = (new ColumnsBuilder($gateway->getDefinition(), false))
+        $fragmentDefault = (new ColumnsBuilder($gateway->getDefinition()))
             ->getFragment();
-        $fragmentStar = (new ColumnsBuilder($gateway->getDefinition(), false))
+        $fragmentStar = (new ColumnsBuilder($gateway->getDefinition()))
             ->star()
             ->getFragment();
 
@@ -73,31 +71,11 @@ class ColumnsBuilderTest extends DatabaseBackedTestCase
         );
     }
 
-    public function testNoneIsANoOpForReturningClause(): void
-    {
-        /** @var GenericTableGateway $gateway */
-        $gateway = self::$tableLocator->createGateway(new TableName('fkey_test', 'documents'));
-        $fragmentDefault = (new ColumnsBuilder($gateway->getDefinition(), true))
-            ->getFragment();
-        $fragmentNone = (new ColumnsBuilder($gateway->getDefinition(), true))
-            ->none()
-            ->getFragment();
-
-        $this::assertEquals($fragmentNone, $fragmentDefault);
-
-        $delete = $gateway->createDeleteStatement(new FragmentList($fragmentNone));
-
-        $this::assertStringEqualsStringNormalizingWhitespace(
-            'delete from fkey_test.documents as self',
-            $delete->getSql()
-        );
-    }
-
     public function testNoColumns(): void
     {
         $gateway = self::$tableLocator->createGateway('employees');
         $select  = $gateway->select(
-            (new ColumnsBuilder($gateway->getDefinition(), false))
+            (new ColumnsBuilder($gateway->getDefinition()))
                 ->none()
         );
 
@@ -111,7 +89,7 @@ class ColumnsBuilderTest extends DatabaseBackedTestCase
     {
         $gateway = self::$tableLocator->createGateway('employees');
         $select  = $gateway->select(
-            (new ColumnsBuilder($gateway->getDefinition(), false))
+            (new ColumnsBuilder($gateway->getDefinition()))
                 ->all()
                 ->replace('/^/', 'employee_')
         );
@@ -127,7 +105,7 @@ class ColumnsBuilderTest extends DatabaseBackedTestCase
         $this::expectException(InvalidArgumentException::class);
         $this::expectExceptionMessage('should not be empty');
 
-        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition(), false))
+        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition()))
             ->only([]);
     }
 
@@ -136,7 +114,7 @@ class ColumnsBuilderTest extends DatabaseBackedTestCase
         $this::expectException(OutOfBoundsException::class);
         $this::expectExceptionMessage('unknown value');
 
-        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition(), false))
+        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition()))
             ->only(['id', 'fcuk']);
     }
 
@@ -145,7 +123,7 @@ class ColumnsBuilderTest extends DatabaseBackedTestCase
         $this::expectException(InvalidArgumentException::class);
         $this::expectExceptionMessage('should not be empty');
 
-        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition(), false))
+        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition()))
             ->except([]);
     }
 
@@ -154,7 +132,7 @@ class ColumnsBuilderTest extends DatabaseBackedTestCase
         $this::expectException(InvalidArgumentException::class);
         $this::expectExceptionMessage('only a subset');
 
-        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition(), false))
+        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition()))
             ->except(['id', 'name']);
     }
 
@@ -163,7 +141,7 @@ class ColumnsBuilderTest extends DatabaseBackedTestCase
         $this::expectException(OutOfBoundsException::class);
         $this::expectExceptionMessage('unknown value');
 
-        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition(), false))
+        (new ColumnsBuilder(self::$tableLocator->createGateway('employees')->getDefinition()))
             ->except(['id', 'fcuk']);
     }
 
@@ -171,7 +149,7 @@ class ColumnsBuilderTest extends DatabaseBackedTestCase
     {
         $gateway = self::$tableLocator->createGateway(new TableName('fkey_test', 'documents'));
         $select  = $gateway->select(
-            (new ColumnsBuilder($gateway->getDefinition(), false))
+            (new ColumnsBuilder($gateway->getDefinition()))
                 ->except(['contents'])
         );
 
@@ -187,8 +165,8 @@ class ColumnsBuilderTest extends DatabaseBackedTestCase
         $this::expectExceptionMessage('No columns');
 
         (new ColumnsBuilder(
-            self::$tableLocator->createGateway(new TableName('fkey_test', 'documents_tags'))->getDefinition(),
-            false
+            self::$tableLocator->createGateway(new TableName('fkey_test', 'documents_tags'))
+                ->getDefinition()
         ))
             ->primaryKey();
     }
@@ -200,7 +178,7 @@ class ColumnsBuilderTest extends DatabaseBackedTestCase
             self::$tableLocator
         );
         $select  = $gateway->select(
-            (new ColumnsBuilder($gateway->getDefinition(), false))
+            (new ColumnsBuilder($gateway->getDefinition()))
                 ->primaryKey()
         );
 

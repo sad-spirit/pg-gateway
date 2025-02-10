@@ -18,19 +18,28 @@ use sad_spirit\pg_builder\nodes\{
     TargetElement,
     lists\TargetList
 };
-use sad_spirit\pg_gateway\TableGateway;
+use sad_spirit\pg_gateway\{
+    TableGateway,
+    TableLocator,
+    fragments\TargetListFragment,
+};
 
 /**
  * Replaces TargetList elements having "self.column_name" for expression with "self.*" shorthand
  *
  * This is usually a no-op for SELECT output list as that already contains "self.*" by default
  */
-class SelfColumnsShorthand extends SelfColumnsNone
+final class SelfColumnsShorthand extends TargetListFragment
 {
-    public function modifyTargetList(TargetList $targetList): void
+    protected function modifyTargetList(TargetList $targetList): void
     {
-        parent::modifyTargetList($targetList);
+        (new SelfColumnsNone())->modifyTargetList($targetList);
 
         $targetList[] = new TargetElement(new ColumnReference(TableGateway::ALIAS_SELF, '*'));
+    }
+
+    public function getKey(): ?string
+    {
+        return TableLocator::hash(self::class);
     }
 }

@@ -16,7 +16,7 @@ namespace sad_spirit\pg_gateway\fragments\target_list;
 use sad_spirit\pg_gateway\{
     TableGateway,
     TableLocator,
-    fragments\TargetListManipulator
+    fragments\TargetListFragment
 };
 use sad_spirit\pg_builder\nodes\{
     ColumnReference,
@@ -29,9 +29,9 @@ use sad_spirit\pg_builder\nodes\{
  *
  * This is usually a no-op for RETURNING clauses since those are empty by default
  */
-class SelfColumnsNone extends TargetListManipulator
+final class SelfColumnsNone extends TargetListFragment
 {
-    public function modifyTargetList(TargetList $targetList): void
+    protected function modifyTargetList(TargetList $targetList): void
     {
         /** @var TargetElement $item */
         foreach ($targetList as $index => $item) {
@@ -48,6 +48,6 @@ class SelfColumnsNone extends TargetListManipulator
 
     public function getKey(): ?string
     {
-        return TableLocator::hash(static::class);
+        return TableLocator::hash(self::class);
     }
 }

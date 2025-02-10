@@ -20,9 +20,7 @@ use sad_spirit\pg_gateway\{
     exceptions\InvalidArgumentException,
     exceptions\LogicException,
     exceptions\OutOfBoundsException,
-    exceptions\UnexpectedValueException,
-    fragments\ReturningClauseFragment,
-    fragments\SelectListFragment
+    exceptions\UnexpectedValueException
 };
 use sad_spirit\pg_gateway\fragments\target_list\{
     ColumnAliasStrategy,
@@ -41,29 +39,22 @@ class ColumnsBuilder implements FragmentBuilder
 {
     /** @var string[] */
     private array $columns = [];
-    private bool $shorthand;
+    private bool $shorthand = true;
     private ?ColumnAliasStrategy $strategy = null;
 
-    public function __construct(
-        private readonly TableDefinition $definition,
-        private readonly bool $returningClause = false
-    ) {
-        $this->shorthand = !$this->returningClause;
+    public function __construct(private readonly TableDefinition $definition)
+    {
     }
 
     public function getFragment(): Fragment
     {
         if ([] !== $this->columns) {
-            $manipulator = new SelfColumnsList($this->columns, $this->strategy);
+            return new SelfColumnsList($this->columns, $this->strategy);
         } elseif ($this->shorthand) {
-            $manipulator = new SelfColumnsShorthand();
+            return new SelfColumnsShorthand();
         } else {
-            $manipulator = new SelfColumnsNone();
+            return new SelfColumnsNone();
         }
-
-        $fragmentClassName = $this->returningClause ? ReturningClauseFragment::class : SelectListFragment::class;
-
-        return new $fragmentClassName($manipulator);
     }
 
     /**

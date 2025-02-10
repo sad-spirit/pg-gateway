@@ -47,7 +47,7 @@ class SelfColumnsTest extends TestCase
 
     public function testColumnsNone(): void
     {
-        (new SelfColumnsNone())->modifyTargetList($this->select->list);
+        (new SelfColumnsNone())->applyTo($this->select);
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'select two.self, three.self.col',
@@ -57,7 +57,7 @@ class SelfColumnsTest extends TestCase
 
     public function testColumnsShorthand(): void
     {
-        (new SelfColumnsShorthand())->modifyTargetList($this->select->list);
+        (new SelfColumnsShorthand())->applyTo($this->select);
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'select two.self, three.self.col, self.*',
@@ -67,11 +67,11 @@ class SelfColumnsTest extends TestCase
 
     public function testColumnsList(): void
     {
-        $manipulator = new SelfColumnsList(
+        (new SelfColumnsList(
             ['id', 'contents'],
             new MapStrategy(['contents' => 'malcontents'])
-        );
-        $manipulator->modifyTargetList($this->select->list);
+        ))
+            ->applyTo($this->select);
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'select two.self, three.self.col, self.id, self.contents as malcontents',
@@ -88,38 +88,38 @@ class SelfColumnsTest extends TestCase
 
     public function testKeyIsNotNullForMissingAliasStrategy(): void
     {
-        $manipulator = new SelfColumnsList(['id']);
+        $fragment = new SelfColumnsList(['id']);
 
-        $this::assertNotNull($manipulator->getKey());
+        $this::assertNotNull($fragment->getKey());
     }
 
     public function testKeyIsNullForNullAliasStrategyKey(): void
     {
-        $manipulator = new SelfColumnsList(
+        $fragment = new SelfColumnsList(
             ['id'],
             new ClosureStrategy(fn(string $column): string => 'foo_' . $column)
         );
 
-        $this::assertNull($manipulator->getKey());
+        $this::assertNull($fragment->getKey());
     }
 
     public function testSameKeyForSameColumns(): void
     {
-        $manipulatorOne   = new SelfColumnsList(['id']);
-        $manipulatorTwo   = new SelfColumnsList(['id']);
-        $manipulatorThree = new SelfColumnsList(['name']);
+        $fragmentOne   = new SelfColumnsList(['id']);
+        $fragmentTwo   = new SelfColumnsList(['id']);
+        $fragmentThree = new SelfColumnsList(['name']);
 
-        $this::assertNotNull($manipulatorOne->getKey());
-        $this::assertEquals($manipulatorOne->getKey(), $manipulatorTwo->getKey());
-        $this::assertNotEquals($manipulatorTwo->getKey(), $manipulatorThree->getKey());
+        $this::assertNotNull($fragmentOne->getKey());
+        $this::assertEquals($fragmentOne->getKey(), $fragmentTwo->getKey());
+        $this::assertNotEquals($fragmentTwo->getKey(), $fragmentThree->getKey());
     }
 
     public function testKeyDependsOnStrategy(): void
     {
-        $manipulatorOne = new SelfColumnsList(['foo', 'bar'], $strategyOne = new MapStrategy(['foo' => 'bar']));
-        $manipulatorTwo = new SelfColumnsList(['foo', 'bar'], new MapStrategy(['bar' => 'foo']));
+        $fragmentOne = new SelfColumnsList(['foo', 'bar'], $strategyOne = new MapStrategy(['foo' => 'bar']));
+        $fragmentTwo = new SelfColumnsList(['foo', 'bar'], new MapStrategy(['bar' => 'foo']));
 
-        $this::assertNotEquals($manipulatorOne->getKey(), $manipulatorTwo->getKey());
-        $this::assertStringContainsString($strategyOne->getKey(), $manipulatorOne->getKey());
+        $this::assertNotEquals($fragmentOne->getKey(), $fragmentTwo->getKey());
+        $this::assertStringContainsString($strategyOne->getKey(), $fragmentOne->getKey());
     }
 }

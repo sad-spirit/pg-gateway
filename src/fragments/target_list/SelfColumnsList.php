@@ -13,9 +13,12 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\fragments\target_list;
 
-use sad_spirit\pg_gateway\exceptions\InvalidArgumentException;
-use sad_spirit\pg_gateway\TableGateway;
-use sad_spirit\pg_gateway\TableLocator;
+use sad_spirit\pg_gateway\{
+    TableGateway,
+    TableLocator,
+    exceptions\InvalidArgumentException,
+    fragments\TargetListFragment
+};
 use sad_spirit\pg_builder\nodes\{
     ColumnReference,
     Identifier,
@@ -30,7 +33,7 @@ use sad_spirit\pg_builder\nodes\{
  *  - By default SELECT returns all columns using "self.*", it is not possible to apply aliases in this form;
  *  - Other statements have an empty RETURNING clause, it isn't possible to apply aliases either.
  */
-final class SelfColumnsList extends SelfColumnsNone
+final class SelfColumnsList extends TargetListFragment
 {
     /** @var string[] */
     private readonly array $columns;
@@ -48,9 +51,9 @@ final class SelfColumnsList extends SelfColumnsNone
         $this->columns = $columns;
     }
 
-    public function modifyTargetList(TargetList $targetList): void
+    protected function modifyTargetList(TargetList $targetList): void
     {
-        parent::modifyTargetList($targetList);
+        (new SelfColumnsNone())->modifyTargetList($targetList);
 
         foreach ($this->columns as $columnName) {
             $targetList[] = new TargetElement(
@@ -62,10 +65,7 @@ final class SelfColumnsList extends SelfColumnsNone
 
     private function getColumnAlias(string $columnName): ?Identifier
     {
-        if (
-            null === $this->strategy
-            || (null === ($alias = $this->strategy->getAlias($columnName)))
-        ) {
+        if (null === $alias = $this->strategy?->getAlias($columnName)) {
             return null;
         }
         return new Identifier($alias);
@@ -73,14 +73,12 @@ final class SelfColumnsList extends SelfColumnsNone
 
     public function getKey(): ?string
     {
-        if (null === $this->strategy) {
-            $strategyKey = 'none';
-        } elseif (null === $strategyKey = $this->strategy->getKey()) {
+        $strategyKey = null === $this->strategy ? 'none' : $this->strategy->getKey();
+        if (null === $strategyKey) {
             return null;
         }
 
-        /** @psalm-var string $strategyKey */
-        return (string)parent::getKey()
+        return TableLocator::hash(self::class)
             . '.' . TableLocator::hash($this->columns)
             . '.' . $strategyKey;
     }

@@ -290,7 +290,7 @@ class FluentBuilder extends FragmentListBuilder
      * @param mixed $value
      * @return $this
      */
-    public function primaryKey($value): self
+    public function primaryKey(mixed $value): self
     {
         return $this->add($this->createPrimaryKey($value));
     }
@@ -299,23 +299,21 @@ class FluentBuilder extends FragmentListBuilder
      * Configures a list of columns returned by a SELECT statement
      *
      * @return proxies\ColumnsBuilderProxy<static>
+     * @deprecated Since 0.9.0: use {@see returningColumns()} for both SELECT and data-modifying statements
      */
     public function outputColumns(): proxies\ColumnsBuilderProxy
     {
-        $builder = new proxies\ColumnsBuilderProxy($this, $this->definition, false);
-        $this->addProxy($builder);
-
-        return $builder;
+        return $this->returningColumns();
     }
 
     /**
-     * Configures a list of columns in the RETURNING clause
+     * Configures a list of columns returned by SELECT or the RETURNING clause of DELETE / INSERT / UPDATE
      *
      * @return proxies\ColumnsBuilderProxy<static>
      */
     public function returningColumns(): proxies\ColumnsBuilderProxy
     {
-        $builder = new proxies\ColumnsBuilderProxy($this, $this->definition, true);
+        $builder = new proxies\ColumnsBuilderProxy($this, $this->definition);
         $this->addProxy($builder);
 
         return $builder;

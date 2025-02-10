@@ -38,9 +38,9 @@ class ColumnsBuilderProxy extends ColumnsBuilder implements Proxy
     /**
      * @param Owner $owner
      */
-    public function __construct(FluentBuilder $owner, TableDefinition $definition, bool $returningClause = false)
+    public function __construct(FluentBuilder $owner, TableDefinition $definition)
     {
-        parent::__construct($definition, $returningClause);
+        parent::__construct($definition);
         $this->owner = $owner;
     }
 
