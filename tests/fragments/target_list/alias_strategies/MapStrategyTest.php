@@ -22,11 +22,13 @@ class MapStrategyTest extends TestCase
     {
         $strategy = new MapStrategy([
             'user_login' => 'loser_login',
-            'role_name'  => 'chore_name'
+            'role_name'  => 'chore_name',
+            'same_old'   => 'same_old'
         ]);
 
         $this::assertEquals('loser_login', $strategy->getAlias('user_login'));
         $this::assertEquals('chore_name', $strategy->getAlias('role_name'));
+        $this::assertNull($strategy->getAlias('same_old'));
         $this::assertNull($strategy->getAlias('category_title'));
     }
 

@@ -29,7 +29,8 @@ readonly class MapStrategy implements ColumnAliasStrategy
 
     public function getAlias(string $column): ?string
     {
-        return \array_key_exists($column, $this->columnMap) ? $this->columnMap[$column] : null;
+        $mapped = $this->columnMap[$column] ?? null;
+        return (null === $mapped || $column === $mapped) ? null : $mapped;
     }
 
     public function getKey(): ?string

@@ -23,7 +23,6 @@ interface ColumnAliasStrategy extends KeyEquatable
     /**
      * Returns an alias for the given column
      *
-     * @param string $column
      * @return string|null Null means that an alias will not be added
      */
     public function getAlias(string $column): ?string;
