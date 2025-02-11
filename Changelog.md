@@ -1,5 +1,59 @@
 # Changelog
 
+## [Unreleased]
+
+The package now requires PHP 8.2+ and Postgres 12+, BC breaks are possible due to new language features being used.
+It also depends on `sad_spirit/pg_wrapper` and `sad_spirit/pg_builder` version 3, these were upgraded for
+PHP 8.2+ and Postgres 17 support.
+
+### Added
+ * Tested on PHP 8.4 and Postgres 17.
+ * Psalm upgraded to v6, now checks on level 1 (highest).
+ * `builders\FluentBuilder::returningExpression()` now accepts an extra `$parameters` argument that can contain
+   additional query parameters.
+
+### Fixed
+ * Implicitly nullable parameters [deprecated in PHP 8.4](https://www.php.net/manual/en/migration84.deprecated.php)
+   were converted to explicitly nullable.
+ * `MapStrategy` for finding a column alias will no longer return an alias that is equal to the column name,
+   similar to the other strategies.
+
+### Changed
+ * Most of the classes implementing `Fragment` or extending `Condition` are marked `final` / `readonly`.
+ * Added typehints where not previously possible, e.g. signature of `TableGateway::delete()` is now
+   ```PHP
+   public function delete(
+       null|iterable|\Closure|Fragment|FragmentBuilder $fragments = null,
+       array $parameters = []
+   ): Result;
+   ```
+   instead of
+   ```PHP
+   public function delete($fragments = null, array $parameters = []): Result;
+   ```
+ * Enums are used instead of class constants, specifically
+   * `StatementType` instead of `TableGateway::STATEMENT_*`;
+   * `metadata\RelationKind` replaces `metadata\TableOIDMapper::RELKIND_*`;
+   * `fragments\join_strategies\ExplicitJoinType` and `fragments\join_strategies\LateralSubselectJoinType` replace
+     constants from `\sad_spirit\pg_builder\nodes\range\JoinExpression` and
+     `fragments\join_strategies\LateralSubselectStrategy::APPEND`.
+ * Simplified handling the list of columns for `SELECT` / `RETURNING` clause:
+   * There is now an abstract `fragments\TargetListFragment` class that can handle both `SELECT` statements and
+     those having `RETURNING` clause;
+   * Classes from `fragments\target_list` namespace now extend that class instead of `TargetListManipulator`,
+     their instances are created by builders and added directly to fragments list.
+
+### Removed
+ * Methods of `builders\FluentBuilder` that return builder objects no longer accept callbacks,
+   those were deprecated in release 0.4.0. Affected methods: ~~`outputColumns()`~~, `returningColumns()`,
+   ~~`outputSubquery()`~~, `join()`, `exists()`, `withSelect()`
+ * `fragments\ReturningClauseFragment`, `fragments\SelectListFragment`, `fragments\TargetListManipulator` classes
+
+### Deprecated
+ * `outputColumns()`, `outputExpression()`, and `outputSubquery()` methods of `builders\FluentBuilder`.
+   `returning*()` methods should now be used both for changing output of `SELECT` and for `RETURNING` clause
+   of data-modifying statements.
+
 ## [0.4.0] - 2024-08-31
 
 ### Changed
@@ -142,3 +196,4 @@ Initial release on GitHub.
 [0.2.1]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.0...v0.2.1
 [0.3.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.1...v0.3.0
 [0.4.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.3.0...v0.4.0
+[Unreleased]: https://github.com/sad-spirit/pg-gateway/compare/v0.4.0...HEAD
