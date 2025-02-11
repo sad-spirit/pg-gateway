@@ -81,11 +81,9 @@ class FluentBuilder extends FragmentListBuilder
     public function primaryKey(mixed $value) : $this;
 
     // Adding fragments that modify the output expressions list
-    public function outputColumns() : proxies\ColumnsBuilderProxy;
     public function returningColumns() : proxies\ColumnsBuilderProxy;
-    public function outputSubquery(SelectBuilder $select) : proxies\ScalarSubqueryBuilderProxy;
-    public function outputExpression(string|Condition $expression, ?string $alias = null) : $this;
-    public function returningExpression(string|Condition $expression, ?string $alias = null) : $this;
+    public function returningExpression(string|Condition $expression, ?string $alias = null, array $parameters = []) : $this;
+    public function returningSubquery(SelectBuilder $select) : proxies\ScalarSubqueryBuilderProxy;
     
     // Adding a join
     public function join(string|TableName|QualifiedName|TableGateway|SelectBuilder $joined) : proxies\JoinBuilderProxy;
@@ -182,14 +180,14 @@ $builder
 
 ### Modifying the output expressions list
 
- * `outputColumns()` - configures a list of columns  returned by
-    a `SELECT` statement [using a ColumnsBuilder](./builders-classes.md).
- * `returningColumns()` - configures a list of columns in the `RETURNING` clause.
- * `outputSubquery()` - adds a scalar subquery to the output list of a `SELECT` statement,
-    configured with `ScalarSubqueryBuilder`.
- * `outputExpression()` - adds expression(s) to the list of columns returned by a `SELECT` statement.
- * `returningExpression()` - adds expression(s) to the list of columns in the `RETURNING` clause.
-
+ * `returningColumns()` - configures a list of columns returned by
+   a `SELECT` statement or by the `RETURNING` clause of data-modifying statement
+   [using a ColumnsBuilder](./builders-classes.md).
+ * `returningExpression()` - adds expression(s) to the list of columns returned by a `SELECT` statement
+   or to the `RETURNING` clause of `DELETE` / `INSERT` / `UPDATE`.
+ * `returningSubquery()` - adds a scalar subquery to the output list of a `SELECT` statement
+   or (less probably) to the `RETURNING` clause of data-modifying statement,
+   configured with `ScalarSubqueryBuilder`.
 
 ### Adding joins
 

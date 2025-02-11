@@ -1,7 +1,7 @@
 # `FragmentBuilder` implementations
 
-While `Condition` and `TargetListManipulator` do implement the `FragmentBuilder` interface,
-their subclasses do not provide means to configure `Fragment`s returned by
+While `Condition` does implement the `FragmentBuilder` interface,
+its subclasses do not provide means to configure `Fragment`s returned by
 the `getFragment()` method. Only the builders that have special configuration methods are listed below.
 
 Instances of these classes or of their proxy subclasses are created in some [`FluentBuilder` methods](./builders-methods.md) and can be
@@ -43,7 +43,7 @@ use sad_spirit\pg_gateway\fragments\target_list\ColumnAliasStrategy;
 
 class ColumnsBuilder implements FragmentBuilder
 {
-    public function __construct(TableDefinition $definition, bool $returningClause = false);
+    public function __construct(TableDefinition $definition);
 
     // defined in FragmentBuilder
     public function getFragment() : Fragment;
@@ -350,9 +350,7 @@ on a foreign key by default.
 
 ### `ScalarSubqueryBuilder`
 
-This behaves as a `FragmentBuilder` returning an instance of `SelectListFragment`,
-but also has a `getManipulator()` method returning an unwrapped instance of `TargetListManipulator` which can
-be used in `ReturningClauseFragment`.
+This behaves as a `FragmentBuilder` returning an instance of `TargetListFragment`.
 
 ```PHP
 namespace sad_spirit\pg_gateway\builders;
@@ -365,9 +363,6 @@ class ScalarSubqueryBuilder extends AdditionalSelectBuilder
     // inherited from AdditionalSelectBuilder
     public function __construct(TableDefinition $base, SelectProxy $additional);
     public function alias(string $alias) : $this;
-
-    // Returns the unwrapped manipulator
-    public function getManipulator() : TargetListManipulator;
 
     // methods that configure join condition with the base table
     public function joinOn(Condition $condition) : $this;

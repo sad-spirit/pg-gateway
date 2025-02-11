@@ -158,13 +158,12 @@ $gateway->select(
 )
 ```
 
-## `SelectListFragment` and `ReturningClauseFragment`
+## `TargetListFragment` and its subclasses
 
-These fragments modify the output list of `SELECT` statement or the `RETURNING` clause of
-`DELETE` / `INSERT` / `UPDATE`, respectively. Actual modification is performed by an instance of
-`TargetListManipulator` used to configure the fragment.
+`TargetListFragment` is an abstract base class for fragments that modify either the output list of `SELECT` statement
+or the `RETURNING` clause of `DELETE` / `INSERT` / `UPDATE`, whichever is passed to their `applyTo()` method.
 
-It is rarely needed to use these directly as there are builders and builder methods available:
+It is rarely needed to use its subclasses directly as there are builders and builder methods available:
 ```PHP
 $gateway->update(
     $builder->returningColumns()
@@ -173,7 +172,7 @@ $gateway->update(
 );
 
 $gateway->select(
-    $builder->outputExpression("coalesce(self.a, self.b) as ab")
+    $builder->returningExpression("coalesce(self.a, self.b) as ab")
     // ...
 );
 ```

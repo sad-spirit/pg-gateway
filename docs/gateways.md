@@ -29,7 +29,7 @@ Most commonly, `$fragments` will either be a fluent builder object created by `T
 $locator->createGateway('example')
     ->select(
         $locator->createBuilder('example')
-            ->outputColumns()
+            ->returningColumns()
                 ->only(['id', 'name'])
             ->notBoolColumn('deleted')
             ->orderBy('added')
@@ -42,7 +42,7 @@ use sad_spirit\pg_gateway\builders\FluentBuilder;
 
 $locator->createGateway('example')
     ->select(fn(FluentBuilder $builder) => $builder
-         ->outputColumns()
+         ->returningColumns()
             ->only(['id', 'name'])
          ->notBoolColumn('deleted')
          ->orderBy('added')
