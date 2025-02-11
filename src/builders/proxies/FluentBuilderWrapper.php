@@ -52,14 +52,14 @@ trait FluentBuilderWrapper
      *
      * This is needed when the result of the fluent calls should be an instance of FluentBuilder, not Proxy
      * <code>
-     *     $prototype = clone $builder->outputColumns()
+     *     $prototype = clone $builder->returningColumns()
      *          ->primaryKey()
      *          ->end();
      * </code>
      * or when calling methods of the proxied builder having the same names as those of the Proxy:
      * <code>
      *     $builder
-     *          ->outputColumns()
+     *          ->returningColumns()
      *              ->primaryKey()
      *              ->end()
      *          ->primaryKey(123);

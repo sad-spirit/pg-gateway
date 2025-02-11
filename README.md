@@ -80,7 +80,7 @@ $locator    = new TableLocator($connection);
 $adminRoles = $locator->createGateway('example.roles')
     ->select(fn(FluentBuilder $builder) => $builder
         ->operatorCondition('name', '~*', 'admin')
-        ->outputColumns()
+        ->returningColumns()
             ->except(['description'])
             ->replace('/^/', 'role_'));
 
@@ -89,12 +89,12 @@ $activeAdminRoles = $locator->createGateway('example.users_roles')
         ->sqlCondition("current_date between coalesce(self.valid_from, 'yesterday') and coalesce(self.valid_to, 'tomorrow')")
         ->join($adminRoles)
             ->onForeignKey()
-        ->outputColumns()
+        ->returningColumns()
             ->only(['valid_from', 'valid_to']));
 
 $activeAdminUsers = $locator->createGateway('example.users')
     ->select(fn(FluentBuilder $builder) => $builder
-        ->outputColumns()
+        ->returningColumns()
             ->except(['password_hash'])
             ->replace('/^/', 'user_')
         ->join($activeAdminRoles)

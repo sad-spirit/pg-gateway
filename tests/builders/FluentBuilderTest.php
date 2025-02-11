@@ -427,7 +427,7 @@ class FluentBuilderTest extends DatabaseBackedTestCase
         $select = $gateway->select(
             $this->builder->outputSubquery(
                 $unconditional->select(
-                    $ucBuilder->outputColumns()
+                    $ucBuilder->returningColumns()
                         ->only(['id'])
                 )
             )

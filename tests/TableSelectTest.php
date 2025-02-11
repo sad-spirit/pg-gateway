@@ -225,7 +225,7 @@ class TableSelectTest extends DatabaseBackedTestCase
         $gateway = $this->createTableGateway('foo');
         $select  = $gateway->select(
             fn (FluentBuilder $fb): ColumnsBuilderProxy => $fb->orderBy('id desc')
-                ->outputColumns()
+                ->returningColumns()
                     ->primaryKey()
         );
 
