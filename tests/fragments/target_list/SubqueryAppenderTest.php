@@ -39,17 +39,17 @@ class SubqueryAppenderTest extends TestCase
 
     public function testKeyIsNullIfSelectKeyIsNull(): void
     {
-        $manipulator = new SubqueryAppender($this->getMockKeyedSelect(null));
+        $fragment = new SubqueryAppender($this->getMockKeyedSelect(null));
 
-        $this::assertNull($manipulator->getKey());
+        $this::assertNull($fragment->getKey());
     }
 
     public function testKeyDependsOnSelectKey(): void
     {
-        $manipulator = new SubqueryAppender($this->getMockKeyedSelect('selectKey'));
+        $fragment = new SubqueryAppender($this->getMockKeyedSelect('selectKey'));
 
-        $this::assertNotNull($manipulator->getKey());
-        $this::assertStringContainsString('selectKey', $manipulator->getKey());
+        $this::assertNotNull($fragment->getKey());
+        $this::assertStringContainsString('selectKey', $fragment->getKey());
     }
 
     public function testKeyIsNullIfConditionKeyIsNull(): void
@@ -57,8 +57,8 @@ class SubqueryAppenderTest extends TestCase
         $mockSelect = $this->getMockKeyedSelect('selectKey');
         $mockCondition = $this->getMockKeyedCondition(null);
 
-        $manipulator = new SubqueryAppender($mockSelect, $mockCondition);
-        $this::assertNull($manipulator->getKey());
+        $fragment = new SubqueryAppender($mockSelect, $mockCondition);
+        $this::assertNull($fragment->getKey());
     }
 
     public function testKeyDependsOnConditionKey(): void
@@ -66,9 +66,9 @@ class SubqueryAppenderTest extends TestCase
         $mockSelect = $this->getMockKeyedSelect('selectKey');
         $mockCondition = $this->getMockKeyedCondition('conditionKey');
 
-        $manipulator = new SubqueryAppender($mockSelect, $mockCondition);
-        $this::assertNotNull($manipulator->getKey());
-        $this::assertStringContainsString('conditionKey', $manipulator->getKey());
+        $fragment = new SubqueryAppender($mockSelect, $mockCondition);
+        $this::assertNotNull($fragment->getKey());
+        $this::assertStringContainsString('conditionKey', $fragment->getKey());
     }
 
 
@@ -76,24 +76,24 @@ class SubqueryAppenderTest extends TestCase
     {
         $mockSelect = $this->getMockKeyedSelect('selectKey');
 
-        $manipulatorOne   = new SubqueryAppender($mockSelect, null, 'alias_one');
-        $manipulatorTwo   = new SubqueryAppender($mockSelect, null, 'alias_two');
-        $manipulatorThree = new SubqueryAppender($mockSelect, null, 'alias_two');
+        $fragmentOne   = new SubqueryAppender($mockSelect, null, 'alias_one');
+        $fragmentTwo   = new SubqueryAppender($mockSelect, null, 'alias_two');
+        $fragmentThree = new SubqueryAppender($mockSelect, null, 'alias_two');
 
-        $this::assertNotEquals($manipulatorOne->getKey(), $manipulatorTwo->getKey());
-        $this::assertEquals($manipulatorTwo->getKey(), $manipulatorThree->getKey());
+        $this::assertNotEquals($fragmentOne->getKey(), $fragmentTwo->getKey());
+        $this::assertEquals($fragmentTwo->getKey(), $fragmentThree->getKey());
     }
 
     public function testKeyDependsOnColumnAlias(): void
     {
         $mockSelect = $this->getMockKeyedSelect('selectKey');
 
-        $manipulatorOne   = new SubqueryAppender($mockSelect, null, null, 'alias_one');
-        $manipulatorTwo   = new SubqueryAppender($mockSelect, null, null, 'alias_two');
-        $manipulatorThree = new SubqueryAppender($mockSelect, null, null, 'alias_two');
+        $fragmentOne   = new SubqueryAppender($mockSelect, null, null, 'alias_one');
+        $fragmentTwo   = new SubqueryAppender($mockSelect, null, null, 'alias_two');
+        $fragmentThree = new SubqueryAppender($mockSelect, null, null, 'alias_two');
 
-        $this::assertNotEquals($manipulatorOne->getKey(), $manipulatorTwo->getKey());
-        $this::assertEquals($manipulatorTwo->getKey(), $manipulatorThree->getKey());
+        $this::assertNotEquals($fragmentOne->getKey(), $fragmentTwo->getKey());
+        $this::assertEquals($fragmentTwo->getKey(), $fragmentThree->getKey());
     }
 
     public function testModifyTargetList(): void
@@ -111,7 +111,7 @@ class SubqueryAppenderTest extends TestCase
             ->willReturn($factory->createFromString('select 1'));
 
         (new SubqueryAppender($mockSelect))
-            ->modifyTargetList($select->list);
+            ->applyTo($select);
 
         $mockSelect = $this->getMockBuilder(SelectProxy::class)
             ->onlyMethods(['createSelectAST'])
@@ -125,7 +125,7 @@ class SubqueryAppenderTest extends TestCase
         $joinCondition = new SqlStringCondition($factory->getParser(), 'self.quux = joined.foo');
 
         (new SubqueryAppender($mockSelect, $joinCondition, 'custom', 'klmn'))
-            ->modifyTargetList($select->list);
+            ->applyTo($select);
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'select self.foo as bar, quux.xyzzy, ( select 1 ),'
@@ -155,7 +155,7 @@ class SubqueryAppenderTest extends TestCase
         $this::expectException(UnexpectedValueException::class);
         $this::expectExceptionMessage('WHERE clause');
         (new SubqueryAppender($mockSelect, $joinCondition))
-            ->modifyTargetList($select->list);
+            ->applyTo($select);
     }
 
     public function testGetParameters(): void
@@ -169,10 +169,10 @@ class SubqueryAppenderTest extends TestCase
 
         $condition = new ConditionImplementation(new KeywordConstant(ConstantName::TRUE));
 
-        $manipulator = new SubqueryAppender($mockSelect, new ParametrizedCondition($condition, ['name' => 'value']));
+        $fragment = new SubqueryAppender($mockSelect, new ParametrizedCondition($condition, ['name' => 'value']));
         $this::assertEquals(
             ['foo' => 'bar', 'name' => 'value'],
-            $manipulator->getParameterHolder()->getParameters()
+            $fragment->getParameterHolder()->getParameters()
         );
     }
 

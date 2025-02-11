@@ -21,7 +21,7 @@ use sad_spirit\pg_gateway\{
     TableGateway,
     TableLocator,
     exceptions\UnexpectedValueException,
-    fragments\TargetListManipulator,
+    fragments\TargetListFragment,
     holders\ParameterHolderFactory,
     walkers\ReplaceTableAliasWalker
 };
@@ -33,11 +33,11 @@ use sad_spirit\pg_builder\nodes\{
 };
 
 /**
- * Adds a scalar subquery created from SelectProxy to the TargetList
+ * Adds a scalar subquery created using SelectBuilder to the TargetList
  *
  * https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-SCALAR-SUBQUERIES
  */
-class SubqueryAppender extends TargetListManipulator implements Parametrized
+final class SubqueryAppender extends TargetListFragment implements Parametrized
 {
     private ?string $tableAlias = null;
 
@@ -54,15 +54,13 @@ class SubqueryAppender extends TargetListManipulator implements Parametrized
      *
      * As we usually need to reference the outer table within subquery using its default "self" alias,
      * the default "self" alias for the table inside subquery should be changed to something
-     *
-     * @return string
      */
     public function getTableAlias(): string
     {
         return $this->tableAlias ??= $this->explicitTableAlias ?? TableLocator::generateAlias();
     }
 
-    public function modifyTargetList(TargetList $targetList): void
+    protected function modifyTargetList(TargetList $targetList): void
     {
         $select = clone $this->select->createSelectAST();
         $alias  = $this->getTableAlias();
@@ -88,18 +86,20 @@ class SubqueryAppender extends TargetListManipulator implements Parametrized
 
     public function getKey(): ?string
     {
-        $selectKey      = $this->select->getKey();
-        $conditionKey   = null === $this->joinCondition ? 'none' : $this->joinCondition->getKey();
-        $tableAliasKey  = null === $this->explicitTableAlias
-            ? ''
-            : '.' . TableLocator::hash(['table', $this->explicitTableAlias]);
-        $columnAliasKey = null === $this->columnAlias
-            ? ''
-            : '.' . TableLocator::hash(['column', $this->columnAlias]);
+        $selectKey    = $this->select->getKey();
+        $conditionKey = null === $this->joinCondition ? 'none' : $this->joinCondition->getKey();
+        if (null === $selectKey || null === $conditionKey) {
+            return null;
+        }
 
-        return null === $selectKey || null === $conditionKey
-            ? null
-            : 'output.' . $selectKey . '.' . $conditionKey . $tableAliasKey . $columnAliasKey;
+        $key = 'returning.' . $selectKey . '.' . $conditionKey;
+        if (null !== $this->explicitTableAlias) {
+            $key .= '.' . TableLocator::hash(['table', $this->explicitTableAlias]);
+        }
+        if (null !== $this->columnAlias) {
+            $key .= '.' . TableLocator::hash(['column', $this->columnAlias]);
+        }
+        return $key;
     }
 
     public function getParameterHolder(): ParameterHolder

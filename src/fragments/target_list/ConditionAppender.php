@@ -15,8 +15,11 @@ namespace sad_spirit\pg_gateway\fragments\target_list;
 
 use sad_spirit\pg_gateway\{
     Condition,
+    ParameterHolder,
+    Parametrized,
     TableLocator,
-    fragments\TargetListManipulator
+    fragments\TargetListFragment,
+    holders\EmptyParameterHolder
 };
 use sad_spirit\pg_builder\nodes\{
     Identifier,
@@ -27,13 +30,13 @@ use sad_spirit\pg_builder\nodes\{
 /**
  * Adds an expression created by Condition to the TargetList
  */
-class ConditionAppender extends TargetListManipulator
+final class ConditionAppender extends TargetListFragment implements Parametrized
 {
     public function __construct(private readonly Condition $condition, private readonly ?string $alias = null)
     {
     }
 
-    public function modifyTargetList(TargetList $targetList): void
+    protected function modifyTargetList(TargetList $targetList): void
     {
         $targetList[] = new TargetElement(
             $this->condition->generateExpression(),
@@ -43,11 +46,17 @@ class ConditionAppender extends TargetListManipulator
 
     public function getKey(): ?string
     {
-        $conditionKey = $this->condition->getKey();
-        $aliasKey     = null === $this->alias ? '' : '.' . TableLocator::hash($this->alias);
+        if (null === $conditionKey = $this->condition->getKey()) {
+            return null;
+        }
 
-        return null === $conditionKey
-            ? null
-            : 'output.' . $conditionKey . $aliasKey;
+        return 'returning.' . $conditionKey . (null === $this->alias ? '' : '.' . TableLocator::hash($this->alias));
+    }
+
+    public function getParameterHolder(): ParameterHolder
+    {
+        return $this->condition instanceof Parametrized
+            ? $this->condition->getParameterHolder()
+            : new EmptyParameterHolder();
     }
 }

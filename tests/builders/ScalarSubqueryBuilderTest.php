@@ -15,7 +15,6 @@ namespace sad_spirit\pg_gateway\tests\builders;
 
 use sad_spirit\pg_gateway\tests\DatabaseBackedTestCase;
 use sad_spirit\pg_gateway\builders\ScalarSubqueryBuilder;
-use sad_spirit\pg_gateway\fragments\SelectListFragment;
 use sad_spirit\pg_gateway\fragments\target_list\SubqueryAppender;
 use sad_spirit\pg_gateway\TableLocator;
 
@@ -43,11 +42,7 @@ class ScalarSubqueryBuilderTest extends DatabaseBackedTestCase
         $select  = $gateway->select();
         $builder = new ScalarSubqueryBuilder($gateway->getDefinition(), $select);
 
-        $this::assertEquals(new SubqueryAppender($select), $builder->getManipulator());
-        $this::assertEquals(
-            new SelectListFragment(new SubqueryAppender($select)),
-            $builder->getFragment()
-        );
+        $this::assertEquals(new SubqueryAppender($select), $builder->getFragment());
     }
 
     public function testTableAlias(): void
@@ -59,7 +54,7 @@ class ScalarSubqueryBuilderTest extends DatabaseBackedTestCase
 
         $this::assertEquals(
             new SubqueryAppender($select, null, 'custom'),
-            $builder->getManipulator()
+            $builder->getFragment()
         );
     }
 
@@ -72,7 +67,7 @@ class ScalarSubqueryBuilderTest extends DatabaseBackedTestCase
 
         $this::assertEquals(
             new SubqueryAppender($select, null, null, 'klmn'),
-            $builder->getManipulator()
+            $builder->getFragment()
         );
     }
 }

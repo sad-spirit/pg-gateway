@@ -418,14 +418,14 @@ class FluentBuilderTest extends DatabaseBackedTestCase
         );
     }
 
-    public function testOutputSubquery(): void
+    public function testReturningSubquery(): void
     {
         $gateway       = self::$tableLocator->createGateway('update_test');
         $unconditional = self::$tableLocator->createGateway('unconditional');
         $ucBuilder     = new FluentBuilder($unconditional->getDefinition(), self::$tableLocator);
 
         $select = $gateway->select(
-            $this->builder->outputSubquery(
+            $this->builder->returningSubquery(
                 $unconditional->select(
                     $ucBuilder->returningColumns()
                         ->only(['id'])
@@ -443,11 +443,11 @@ class FluentBuilderTest extends DatabaseBackedTestCase
         );
     }
 
-    public function testOutputExpressionUsingString(): void
+    public function testReturningExpressionUsingString(): void
     {
         $gateway = self::$tableLocator->createGateway('update_test');
         $select  = $gateway->select(
-            $this->builder->outputExpression('upper(self.title) as upper_title')
+            $this->builder->returningExpression('upper(self.title) as upper_title')
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
@@ -456,11 +456,11 @@ class FluentBuilderTest extends DatabaseBackedTestCase
         );
     }
 
-    public function testOutputExpressionUsingCondition(): void
+    public function testReturningExpressionUsingCondition(): void
     {
         $gateway = self::$tableLocator->createGateway('update_test');
         $select  = $gateway->select(
-            $this->builder->outputExpression($this->builder->createIsNull('title'), 'null_title')
+            $this->builder->returningExpression($this->builder->createIsNull('title'), 'null_title')
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(

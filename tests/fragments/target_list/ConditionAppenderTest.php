@@ -17,9 +17,11 @@ use PHPUnit\Framework\TestCase;
 use sad_spirit\pg_gateway\fragments\target_list\ConditionAppender;
 use sad_spirit\pg_gateway\tests\NormalizeWhitespace;
 use sad_spirit\pg_gateway\tests\assets\ConditionImplementation;
-use sad_spirit\pg_builder\Select;
-use sad_spirit\pg_builder\StatementFactory;
-use sad_spirit\pg_builder\enums\ConstantName;
+use sad_spirit\pg_builder\{
+    Select,
+    StatementFactory,
+    enums\ConstantName
+};
 use sad_spirit\pg_builder\nodes\expressions\KeywordConstant;
 
 class ConditionAppenderTest extends TestCase
@@ -28,40 +30,40 @@ class ConditionAppenderTest extends TestCase
 
     public function testKeyIsNullIfConditionKeyIsNull(): void
     {
-        $manipulator = new ConditionAppender(
+        $fragment = new ConditionAppender(
             new ConditionImplementation(new KeywordConstant(ConstantName::FALSE), null)
         );
 
-        $this::assertNull($manipulator->getKey());
+        $this::assertNull($fragment->getKey());
     }
 
     public function testKeyDependsOnConditionKey(): void
     {
-        $manipulator = new ConditionAppender(
+        $fragment = new ConditionAppender(
             new ConditionImplementation(new KeywordConstant(ConstantName::FALSE), 'some_key')
         );
 
-        $this::assertNotNull($manipulator->getKey());
-        $this::assertStringContainsString('some_key', $manipulator->getKey());
+        $this::assertNotNull($fragment->getKey());
+        $this::assertStringContainsString('some_key', $fragment->getKey());
     }
 
     public function testKeyDependsOnAlias(): void
     {
-        $manipulatorOne = new ConditionAppender(
+        $fragmentOne = new ConditionAppender(
             new ConditionImplementation(new KeywordConstant(ConstantName::FALSE), 'some_key'),
             'alias_one'
         );
-        $manipulatorTwo = new ConditionAppender(
+        $fragmentTwo = new ConditionAppender(
             new ConditionImplementation(new KeywordConstant(ConstantName::FALSE), 'some_key'),
             'alias_two'
         );
-        $manipulatorThree = new ConditionAppender(
+        $fragmentThree = new ConditionAppender(
             new ConditionImplementation(new KeywordConstant(ConstantName::FALSE), 'some_key'),
             'alias_two'
         );
 
-        $this::assertNotEquals($manipulatorOne->getKey(), $manipulatorTwo->getKey());
-        $this::assertEquals($manipulatorTwo->getKey(), $manipulatorThree->getKey());
+        $this::assertNotEquals($fragmentOne->getKey(), $fragmentTwo->getKey());
+        $this::assertEquals($fragmentTwo->getKey(), $fragmentThree->getKey());
     }
 
     public function testModifyTargetList(): void
@@ -73,11 +75,11 @@ class ConditionAppenderTest extends TestCase
         (new ConditionAppender(
             new ConditionImplementation(new KeywordConstant(ConstantName::NULL)),
             'baz'
-        ))->modifyTargetList($select->list);
+        ))->applyTo($select);
 
         (new ConditionAppender(
             new ConditionImplementation(new KeywordConstant(ConstantName::TRUE)),
-        ))->modifyTargetList($select->list);
+        ))->applyTo($select);
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'select self.foo as bar, quux.xyzzy, null as baz, true',

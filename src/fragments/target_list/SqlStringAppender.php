@@ -16,7 +16,7 @@ namespace sad_spirit\pg_gateway\fragments\target_list;
 use sad_spirit\pg_gateway\{
     TableLocator,
     exceptions\LogicException,
-    fragments\TargetListManipulator
+    fragments\TargetListFragment
 };
 use sad_spirit\pg_builder\Parser;
 use sad_spirit\pg_builder\nodes\{
@@ -28,7 +28,7 @@ use sad_spirit\pg_builder\nodes\{
 /**
  * Parses the given SQL string and merge()s it to the TargetList
  */
-class SqlStringAppender extends TargetListManipulator
+final class SqlStringAppender extends TargetListFragment
 {
     public function __construct(
         private readonly Parser $parser,
@@ -37,7 +37,7 @@ class SqlStringAppender extends TargetListManipulator
     ) {
     }
 
-    public function modifyTargetList(TargetList $targetList): void
+    protected function modifyTargetList(TargetList $targetList): void
     {
         $parsed = $this->parser->parseTargetList($this->sql);
 

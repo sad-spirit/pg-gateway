@@ -38,9 +38,6 @@ use sad_spirit\pg_gateway\fragments\{
     LimitClauseFragment,
     OffsetClauseFragment,
     OrderByClauseFragment,
-    ReturningClauseFragment,
-    SelectListFragment,
-    TargetListManipulator,
     target_list\ConditionAppender,
     target_list\SqlStringAppender,
     with\SqlStringFragment
@@ -322,11 +319,21 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Adds a scalar subquery to the output list of a SELECT statement
      *
-     * While the companion `returningSubquery()` method is possible, it's unlikely to be used.
+     * @return proxies\ScalarSubqueryBuilderProxy<static>
+     * @deprecated Since 0.9.0: use {@see returningSubquery()} for both SELECT and data-modifying statements
+     */
+    public function outputSubquery(SelectBuilder $select): proxies\ScalarSubqueryBuilderProxy
+    {
+        return $this->returningSubquery($select);
+    }
+
+    /**
+     * Adds a scalar subquery to the output list of a SELECT statement or (maybe even) to the RETURNING clause
+     * of DELETE / INSERT / UPDATE
      *
      * @return proxies\ScalarSubqueryBuilderProxy<static>
      */
-    public function outputSubquery(SelectBuilder $select): proxies\ScalarSubqueryBuilderProxy
+    public function returningSubquery(SelectBuilder $select): proxies\ScalarSubqueryBuilderProxy
     {
         $builder = new proxies\ScalarSubqueryBuilderProxy($this, $this->definition, $select);
         $this->addProxy($builder);
@@ -338,31 +345,38 @@ class FluentBuilder extends FragmentListBuilder
      * Adds expression(s) to the list of columns returned by a SELECT statement
      *
      * @return $this
+     * @deprecated Since 0.9.0: use {@see returningExpression()} for both SELECT and data-modifying statements
      */
     public function outputExpression(string|Condition $expression, ?string $alias = null): self
     {
-        return $this->add(new SelectListFragment($this->expressionToManipulator($expression, $alias)));
+        return $this->returningExpression($expression, $alias);
     }
 
     /**
-     * Adds expression(s) to the list of columns in the RETURNING clause
+     * Adds expression(s) to the list returned by a SELECT statement or by RETURNING clause of DELETE / INSERT / UPDATE
      *
+     * @param array<string, mixed> $parameters
      * @return $this
      */
-    public function returningExpression(string|Condition $expression, ?string $alias = null): self
-    {
-        return $this->add(new ReturningClauseFragment($this->expressionToManipulator($expression, $alias)));
-    }
+    public function returningExpression(
+        string|Condition $expression,
+        ?string $alias = null,
+        array $parameters = []
+    ): self {
+        if ($expression instanceof Condition) {
+            return $this->add(new ConditionAppender(
+                [] === $parameters ? $expression : new ParametrizedCondition($expression, $parameters),
+                $alias
+            ));
 
-    /**
-     * Returns the proper TargetListManipulator for the given expression
-     */
-    private function expressionToManipulator(string|Condition $expression, ?string $alias = null): TargetListManipulator
-    {
-        if (\is_string($expression)) {
-            return new SqlStringAppender($this->tableLocator->getParser(), $expression, $alias);
+        } elseif ([] === $parameters) {
+            return $this->add(new SqlStringAppender($this->tableLocator->getParser(), $expression, $alias));
+
         } else {
-            return new ConditionAppender($expression, $alias);
+            return $this->addWithParameters(
+                new SqlStringAppender($this->tableLocator->getParser(), $expression, $alias),
+                $parameters
+            );
         }
     }
 

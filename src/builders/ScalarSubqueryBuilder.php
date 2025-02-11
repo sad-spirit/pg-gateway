@@ -15,17 +15,10 @@ namespace sad_spirit\pg_gateway\builders;
 
 use sad_spirit\pg_gateway\Condition;
 use sad_spirit\pg_gateway\Fragment;
-use sad_spirit\pg_gateway\fragments\{
-    SelectListFragment,
-    TargetListManipulator,
-    target_list\SubqueryAppender
-};
+use sad_spirit\pg_gateway\fragments\target_list\SubqueryAppender;
 
 /**
  * Builder for SubqueryAppender
- *
- * This behaves as a FragmentBuilder returning an instance of SelectListFragment,
- * but also has a getManipulator() method
  */
 class ScalarSubqueryBuilder extends AdditionalSelectBuilder
 {
@@ -33,14 +26,6 @@ class ScalarSubqueryBuilder extends AdditionalSelectBuilder
     private ?string $columnAlias = null;
 
     public function getFragment(): Fragment
-    {
-        return new SelectListFragment($this->getManipulator());
-    }
-
-    /**
-     * Returns object that updates TargetList for usage outside SelectListFragment
-     */
-    public function getManipulator(): TargetListManipulator
     {
         return new SubqueryAppender($this->additional, $this->joinCondition, $this->alias, $this->columnAlias);
     }

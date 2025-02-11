@@ -33,33 +33,33 @@ class SqlStringAppenderTest extends TestCase
 
     public function testKeyDependsOnSql(): void
     {
-        $manipulatorOne   = new SqlStringAppender(self::$factory->getParser(), 'foo as bar');
-        $manipulatorTwo   = new SqlStringAppender(self::$factory->getParser(), 'foo as baz');
-        $manipulatorThree = new SqlStringAppender(self::$factory->getParser(), 'foo as baz');
+        $fragmentOne   = new SqlStringAppender(self::$factory->getParser(), 'foo as bar');
+        $fragmentTwo   = new SqlStringAppender(self::$factory->getParser(), 'foo as baz');
+        $fragmentThree = new SqlStringAppender(self::$factory->getParser(), 'foo as baz');
 
-        $this::assertNotNull($manipulatorOne->getKey());
-        $this::assertNotNull($manipulatorTwo->getKey());
-        $this::assertNotEquals($manipulatorOne->getKey(), $manipulatorTwo->getKey());
-        $this::assertEquals($manipulatorTwo->getKey(), $manipulatorThree->getKey());
+        $this::assertNotNull($fragmentOne->getKey());
+        $this::assertNotNull($fragmentTwo->getKey());
+        $this::assertNotEquals($fragmentOne->getKey(), $fragmentTwo->getKey());
+        $this::assertEquals($fragmentTwo->getKey(), $fragmentThree->getKey());
     }
 
     public function testKeyDependsOnAlias(): void
     {
-        $manipulatorOne   = new SqlStringAppender(self::$factory->getParser(), 'self.foo', 'bar');
-        $manipulatorTwo   = new SqlStringAppender(self::$factory->getParser(), 'self.foo', 'baz');
-        $manipulatorThree = new SqlStringAppender(self::$factory->getParser(), 'self.foo', 'baz');
+        $fragmentOne   = new SqlStringAppender(self::$factory->getParser(), 'self.foo', 'bar');
+        $fragmentTwo   = new SqlStringAppender(self::$factory->getParser(), 'self.foo', 'baz');
+        $fragmentThree = new SqlStringAppender(self::$factory->getParser(), 'self.foo', 'baz');
 
-        $this::assertNotEquals($manipulatorOne->getKey(), $manipulatorTwo->getKey());
-        $this::assertEquals($manipulatorTwo->getKey(), $manipulatorThree->getKey());
+        $this::assertNotEquals($fragmentOne->getKey(), $fragmentTwo->getKey());
+        $this::assertEquals($fragmentTwo->getKey(), $fragmentThree->getKey());
     }
 
     public function testModifyTargetListWithoutSeparateAlias(): void
     {
         /** @var Select $select */
         $select = self::$factory->createFromString('select self.foo as bar, quux.xyzzy');
-        $manipulator = new SqlStringAppender(self::$factory->getParser(), 'other.foo as baz, foobar');
+        $fragment = new SqlStringAppender(self::$factory->getParser(), 'other.foo as baz, foobar');
 
-        $manipulator->modifyTargetList($select->list);
+        $fragment->applyTo($select);
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'select self.foo as bar, quux.xyzzy, other.foo as baz, foobar',
@@ -71,9 +71,9 @@ class SqlStringAppenderTest extends TestCase
     {
         /** @var Select $select */
         $select = self::$factory->createFromString('select self.foo as bar, quux.xyzzy');
-        $manipulator = new SqlStringAppender(self::$factory->getParser(), 'other.foo', 'baz');
+        $fragment = new SqlStringAppender(self::$factory->getParser(), 'other.foo', 'baz');
 
-        $manipulator->modifyTargetList($select->list);
+        $fragment->applyTo($select);
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'select self.foo as bar, quux.xyzzy, other.foo as baz',
@@ -85,10 +85,10 @@ class SqlStringAppenderTest extends TestCase
     {
         /** @var Select $select */
         $select = self::$factory->createFromString('select self.foo as bar, quux.xyzzy');
-        $manipulator = new SqlStringAppender(self::$factory->getParser(), 'foo, bar', 'baz');
+        $fragment = new SqlStringAppender(self::$factory->getParser(), 'foo, bar', 'baz');
 
         $this::expectException(LogicException::class);
         $this::expectExceptionMessage('multiple expressions');
-        $manipulator->modifyTargetList($select->list);
+        $fragment->applyTo($select);
     }
 }
