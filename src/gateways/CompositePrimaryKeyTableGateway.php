@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -140,7 +141,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
                 $this->tableLocator->getTypeConverterFactory()
             ),
             ...\array_map(
-                fn(string $column): OperatorCondition => new OperatorCondition(
+                fn (string $column): OperatorCondition => new OperatorCondition(
                     $this->definition->getColumns()->get($column),
                     $this->tableLocator->getTypeConverterFactory(),
                     '='
@@ -149,7 +150,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
             )
         ))));
 
-        $otherPartValues = \array_map(fn($value): mixed => $value[$otherPart], $primaryKeys);
+        $otherPartValues = \array_map(fn ($value): mixed => $value[$otherPart], $primaryKeys);
 
         $native->executeParams($this->getConnection(), \array_merge([$otherPart => $otherPartValues], $keyPart));
     }
@@ -183,7 +184,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
 
                 $delete->where->and(new InExpression(
                     new RowExpression(\array_map(
-                        fn($value): ColumnReference => new ColumnReference(TableGateway::ALIAS_SELF, $value),
+                        fn ($value): ColumnReference => new ColumnReference(TableGateway::ALIAS_SELF, $value),
                         $otherParts
                     )),
                     $select,
@@ -193,7 +194,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
         ));
 
         $fragments->add(new WhereClauseFragment(Condition::and(...\array_map(
-            fn(string $column): OperatorCondition => new OperatorCondition(
+            fn (string $column): OperatorCondition => new OperatorCondition(
                 $this->definition->getColumns()->get($column),
                 $this->tableLocator->getTypeConverterFactory(),
                 '='
@@ -206,7 +207,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
         $otherPartsValues = [];
         foreach ($otherParts as $column) {
             $otherPartsValues[$column] = \array_map(
-                fn($value): mixed => $value[$column],
+                fn ($value): mixed => $value[$column],
                 $primaryKeys
             );
         }

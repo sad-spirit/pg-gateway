@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -135,7 +136,7 @@ final readonly class TableSelect implements SelectProxy
     public function createSelectCountStatement(): NativeStatement
     {
         $fragments = $this->fragments->filter(
-            fn(Fragment $fragment): bool => !$fragment instanceof SelectFragment || $fragment->isUsedForCount()
+            fn (Fragment $fragment): bool => !$fragment instanceof SelectFragment || $fragment->isUsedForCount()
         );
         return $this->tableLocator->createNativeStatementUsingCache(
             function () use ($fragments): SelectCommon {
@@ -186,7 +187,7 @@ final readonly class TableSelect implements SelectProxy
             /** @psalm-suppress MixedArrayTypeCoercion */
             $parameters = \array_filter(
                 $this->fragments->getParameters(),
-                fn($key): bool => isset($namesHash[$key]),
+                fn ($key): bool => isset($namesHash[$key]),
                 \ARRAY_FILTER_USE_KEY
             );
             $result     = $native->executeParams($this->gateway->getConnection(), $parameters);

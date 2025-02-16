@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -191,7 +192,7 @@ class TableSelectTest extends DatabaseBackedTestCase
                 fn (Select $select) => $select->where->and('self.id = :id')
             )))
                 ->mergeParameters(['id' => 1]),
-            fn(): Statement => self::$tableLocator->createFromString(
+            fn (): Statement => self::$tableLocator->createFromString(
                 "select self.*, bar.name as bar_name from foo as self, bar where self.id = bar.id"
             )
         );

@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -122,7 +123,7 @@ class CachedTableOIDMapper implements TableOIDMapper
      */
     private function isSystemSchema(string $schema): bool
     {
-        return 'information_schema' === $schema || str_starts_with($schema, 'pg_');
+        return 'information_schema' === $schema || \str_starts_with($schema, 'pg_');
     }
 
     /**

@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -40,7 +41,7 @@ class FragmentImplementation implements Fragment
     public function applyTo(Statement $statement): void
     {
         if (!isset($statement->where)) {
-            throw new InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(\sprintf(
                 "This fragment can only be applied to Statements containing a WHERE clause, instance of %s given",
                 $statement::class
             ));

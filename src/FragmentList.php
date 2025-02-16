@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -241,9 +242,9 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
             }
             $fragmentKeys[] = ['key' => $key, 'priority' => $fragment->getPriority()];
         }
-        \usort($fragmentKeys, fn(array $a, array $b): int => ($b['priority'] <=> $a['priority'])
+        \usort($fragmentKeys, fn (array $a, array $b): int => ($b['priority'] <=> $a['priority'])
             ?: ($a['key'] <=> $b['key']));
-        return TableLocator::hash(\array_map(fn($a): string => $a['key'], $fragmentKeys));
+        return TableLocator::hash(\array_map(fn ($a): string => $a['key'], $fragmentKeys));
     }
 
     /**
@@ -254,7 +255,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
     public function getSortedFragments(): array
     {
         $fragments = $this->fragments;
-        \usort($fragments, fn(Fragment $a, Fragment $b): int => ($b->getPriority() <=> $a->getPriority())
+        \usort($fragments, fn (Fragment $a, Fragment $b): int => ($b->getPriority() <=> $a->getPriority())
             ?: (\is_null($a->getKey()) <=> \is_null($b->getKey()))
             ?: ($a->getKey() <=> $b->getKey()));
         return $fragments;

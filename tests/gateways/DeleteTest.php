@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -105,7 +106,7 @@ class DeleteTest extends DatabaseBackedTestCase
     {
         $gateway = $this->createTableGateway('bar');
         $result  = $gateway->delete(
-            fn(FluentBuilder $fb): ColumnsBuilderProxy => $fb->equal('id', 2)
+            fn (FluentBuilder $fb): ColumnsBuilderProxy => $fb->equal('id', 2)
                 ->returningColumns()
                     ->primaryKey()
         );

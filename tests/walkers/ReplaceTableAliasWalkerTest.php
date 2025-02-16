@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -30,7 +31,8 @@ class ReplaceTableAliasWalkerTest extends TestCase
     public function testReplacesTableAlias(): void
     {
         $factory = new StatementFactory();
-        $select  = $factory->createFromString(<<<QRY
+        $select  = $factory->createFromString(
+            <<<QRY
 select foo.one, bar.two
 from sometable as foo, bar
 where foo.id = bar.id
@@ -52,7 +54,8 @@ QRY
     public function testDoesNotReplaceQualifiedTableName(): void
     {
         $factory = new StatementFactory();
-        $select  = $factory->createFromString($original = <<<QRY
+        $select  = $factory->createFromString(
+            $original = <<<QRY
 select foo.bar.baz
 from foo.bar
 where foo.bar.xyzzy is null

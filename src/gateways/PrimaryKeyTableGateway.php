@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -139,7 +140,7 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
 
         // "DO INSTEAD NOTHING" clause leads to no rows returned by RETURNING clause, thus a fake update
         if ([] === $nonPrimaryKey) {
-            $pkey  = reset($primaryKeyColumns);
+            $pkey  = \reset($primaryKeyColumns);
             $set[] = new SingleSetClause(new SetTargetElement($pkey), new ColumnReference('excluded', $pkey));
         } else {
             foreach ($nonPrimaryKey as $column) {

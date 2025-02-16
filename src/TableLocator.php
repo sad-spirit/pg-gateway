@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -181,7 +182,7 @@ class TableLocator
      */
     public function atomic(callable $callback, bool $savepoint = false): mixed
     {
-        return $this->connection->atomic(fn(): mixed => $callback($this, $this->connection), $savepoint);
+        return $this->connection->atomic(fn (): mixed => $callback($this, $this->connection), $savepoint);
     }
 
     /**

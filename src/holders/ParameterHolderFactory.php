@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -30,7 +31,7 @@ class ParameterHolderFactory
     public static function create(?KeyEquatable ...$maybeParametrized): ParameterHolder
     {
         $holders = \array_filter(\array_map(
-            fn(?KeyEquatable $item): ?ParameterHolder => $item instanceof Parametrized
+            fn (?KeyEquatable $item): ?ParameterHolder => $item instanceof Parametrized
                 ? $item->getParameterHolder()
                 : null,
             $maybeParametrized

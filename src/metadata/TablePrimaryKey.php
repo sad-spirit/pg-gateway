@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -82,7 +83,7 @@ class TablePrimaryKey extends CachedMetadataLoader implements PrimaryKey
             $generated = $generated
                 || 'a' === $row['attidentity']
                 || 'd' === $row['attidentity']
-                || str_starts_with((string)$row['defexpr'], 'nextval(');
+                || \str_starts_with((string)$row['defexpr'], 'nextval(');
         }
         $this->generated = $generated && 1 === \count($this->columns);
     }

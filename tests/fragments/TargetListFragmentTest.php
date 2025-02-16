@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -96,7 +97,7 @@ class TargetListFragmentTest extends TestCase
 
     private function createFragment(): TargetListFragment
     {
-        return new class extends TargetListFragment {
+        return new class () extends TargetListFragment {
             protected function modifyTargetList(TargetList $targetList): void
             {
                 $targetList->replace([new TargetElement(new ColumnReference('foo'), new Identifier('bar'))]);

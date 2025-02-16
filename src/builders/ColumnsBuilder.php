@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -118,7 +119,7 @@ class ColumnsBuilder implements FragmentBuilder
         }
         $filtered = \array_intersect($onlyColumns, $this->definition->getColumns()->getNames());
         if ([] !== ($unknown = \array_diff($onlyColumns, $filtered))) {
-            throw new OutOfBoundsException(sprintf(
+            throw new OutOfBoundsException(\sprintf(
                 "\$onlyColumns array should only contain column names; unknown value(s) '%s' found",
                 \implode("', '", $unknown)
             ));
@@ -143,9 +144,9 @@ class ColumnsBuilder implements FragmentBuilder
         $columnNames = $this->definition->getColumns()->getNames();
         $filtered    = \array_diff($columnNames, $exceptColumns);
         if ([] !== ($unknown = \array_diff($exceptColumns, $columnNames))) {
-            throw new OutOfBoundsException(sprintf(
+            throw new OutOfBoundsException(\sprintf(
                 "\$exceptColumns array should only contain column names; unknown value(s) '%s' found",
-                implode("', '", $unknown)
+                \implode("', '", $unknown)
             ));
         }
         if ([] === $filtered) {

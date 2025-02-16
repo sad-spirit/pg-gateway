@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -97,7 +98,7 @@ class SelfColumnsTest extends TestCase
     {
         $fragment = new SelfColumnsList(
             ['id'],
-            new ClosureStrategy(fn(string $column): string => 'foo_' . $column)
+            new ClosureStrategy(fn (string $column): string => 'foo_' . $column)
         );
 
         $this::assertNull($fragment->getKey());

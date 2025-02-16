@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -58,7 +59,7 @@ class SelectTransformerTest extends DatabaseBackedTestCase
         $mockSelect->expects($this::atLeastOnce())
             ->method('createSelectAST')
             ->willReturnCallback(
-                fn(): Statement => $tableLocator->getStatementFactory()
+                fn (): Statement => $tableLocator->getStatementFactory()
                     ->createFromString('select self.* from foo as self')
             );
 
@@ -81,7 +82,7 @@ class SelectTransformerTest extends DatabaseBackedTestCase
         $mockSelect->expects($this::atLeastOnce())
             ->method('createSelectAST')
             ->willReturnCallback(
-                fn(): Statement => $tableLocator->getStatementFactory()
+                fn (): Statement => $tableLocator->getStatementFactory()
                     ->createFromString('select self.* from foo as self')
             );
 

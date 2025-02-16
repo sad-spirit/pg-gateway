@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -96,6 +97,6 @@ abstract class FragmentListBuilder implements FragmentBuilder
      */
     private function getProxyFragments(): FragmentList
     {
-        return new FragmentList(...\array_map(fn(Proxy $proxy): Fragment => $proxy->getOwnFragment(), $this->proxies));
+        return new FragmentList(...\array_map(fn (Proxy $proxy): Fragment => $proxy->getOwnFragment(), $this->proxies));
     }
 }

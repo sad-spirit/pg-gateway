@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -110,7 +111,7 @@ class SetClauseFragment implements Fragment, Parametrized
         }
 
         $this->types = \array_map(
-            fn(Column $column) => $column->getTypeOID(),
+            fn (Column $column) => $column->getTypeOID(),
             $columns->getAll()
         );
     }

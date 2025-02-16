@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -116,7 +117,7 @@ class JoinFragmentTest extends DatabaseBackedTestCase
             StatementFactory::forConnection(self::$connection)->getParser(),
             'relkind = :kind'
         );
-        $strategy  = new class implements JoinStrategy {
+        $strategy  = new class () implements JoinStrategy {
             public function join(
                 Statement $statement,
                 SelectCommon $joined,

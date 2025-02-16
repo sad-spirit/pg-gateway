@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -85,7 +86,7 @@ class TableReferences extends CachedMetadataLoader implements References
 
     protected function getCacheKey(Connection $connection, TableName $table): string
     {
-        return sprintf('%s.references.%x', $connection->getConnectionId(), \crc32((string)$table));
+        return \sprintf('%s.references.%x', $connection->getConnectionId(), \crc32((string)$table));
     }
 
     protected function loadFromDatabase(Connection $connection, TableName $table): void

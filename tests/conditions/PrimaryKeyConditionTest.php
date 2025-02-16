@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -43,7 +44,7 @@ class PrimaryKeyConditionTest extends TestCase
         $mock       = $reflection->newInstanceWithoutConstructor();
         $property   = $reflection->getProperty('columns');
         $property->setValue($mock, \array_map(
-            fn(string $name): Column => new Column($name, true, 25),
+            fn (string $name): Column => new Column($name, true, 25),
             $columnNames
         ));
 
@@ -58,7 +59,7 @@ class PrimaryKeyConditionTest extends TestCase
 
         $mock->expects($this->any())
             ->method('createTypeNameNodeForOID')
-            ->will($this->returnCallback(fn(): TypeName => new TypeName(new QualifiedName('int5'))));
+            ->will($this->returnCallback(fn (): TypeName => new TypeName(new QualifiedName('int5'))));
 
         return $mock;
     }

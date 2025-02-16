@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -32,7 +33,7 @@ abstract class LogicalCondition extends Condition implements Parametrized
     public function __construct(Condition ...$children)
     {
         if ([] === $children) {
-            throw new InvalidArgumentException(sprintf(
+            throw new InvalidArgumentException(\sprintf(
                 '%s: at least one child Condition is required',
                 static::class
             ));
@@ -59,7 +60,7 @@ abstract class LogicalCondition extends Condition implements Parametrized
             }
             $keys[] = $key;
         }
-        \sort($keys, SORT_STRING);
+        \sort($keys, \SORT_STRING);
         return $keys;
     }
 

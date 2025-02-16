@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -40,7 +41,7 @@ class PregReplaceStrategyTest extends TestCase
     {
         $strategy = new PregReplaceStrategy('/^[^_]+_/u', '');
 
-        $this::assertNull($strategy->getAlias('prefix_ident' . chr(240) . 'ifier'));
+        $this::assertNull($strategy->getAlias('prefix_ident' . \chr(240) . 'ifier'));
     }
 
     public function testGetKey(): void

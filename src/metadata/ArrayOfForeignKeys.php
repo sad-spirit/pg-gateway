@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -66,7 +67,7 @@ trait ArrayOfForeignKeys
             $this->getMatchingKeys($this->referencedBy, $relatedStr, $keyColumns),
             \array_filter(
                 $this->getMatchingKeys($this->referencing, $relatedStr, $keyColumns),
-                fn(ForeignKey $key): bool => !$key->isRecursive()
+                fn (ForeignKey $key): bool => !$key->isRecursive()
             )
         );
 
@@ -81,7 +82,7 @@ trait ArrayOfForeignKeys
                 "Several matching foreign keys for %s%s: %s",
                 $relatedStr,
                 [] === $keyColumns ? '' : ' using (' . \implode(', ', $keyColumns) . ')',
-                \implode(', ', \array_map(fn(ForeignKey $key): string => $key->getConstraintName(), $keys))
+                \implode(', ', \array_map(fn (ForeignKey $key): string => $key->getConstraintName(), $keys))
             ));
         }
 

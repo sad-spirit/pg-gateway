@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -42,8 +43,8 @@ class TableReferencesTest extends DatabaseBackedTestCase
         $this::assertCount(2, $references);
         $this::assertEqualsCanonicalizing(
             ['documents_author_fkey', 'documents_approval_fkey'],
-            array_map(
-                fn(ForeignKey $key): string => $key->getConstraintName(),
+            \array_map(
+                fn (ForeignKey $key): string => $key->getConstraintName(),
                 $references->getIterator()->getArrayCopy()
             )
         );
@@ -83,7 +84,7 @@ class TableReferencesTest extends DatabaseBackedTestCase
         $this::assertEqualsCanonicalizing(
             ['documents_author_fkey', 'documents_approval_fkey'],
             \array_map(
-                fn(ForeignKey $key): string => $key->getConstraintName(),
+                fn (ForeignKey $key): string => $key->getConstraintName(),
                 $references->to(new TableName('public', 'employees'))
             )
         );
@@ -110,7 +111,7 @@ class TableReferencesTest extends DatabaseBackedTestCase
         $this::assertEqualsCanonicalizing(
             ['documents_author_fkey', 'documents_approval_fkey'],
             \array_map(
-                fn(ForeignKey $key): string => $key->getConstraintName(),
+                fn (ForeignKey $key): string => $key->getConstraintName(),
                 $references->from(new TableName('fkey_test', 'documents'))
             )
         );

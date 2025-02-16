@@ -1,7 +1,8 @@
 <?php
 
 /*
- * This file is part of sad_spirit/pg_gateway package
+ * This file is part of sad_spirit/pg_gateway:
+ * Table Data Gateway for Postgres - auto-converts types, allows raw SQL, supports joins between gateways
  *
  * (c) Alexey Borzov <avb@php.net>
  *
@@ -246,7 +247,7 @@ class FragmentListTest extends TestCase
         $list = new FragmentList();
         $list->mergeParameters(['foo' => 'bar', 'baz' => 'xyzzy']);
 
-        $filtered = $list->filter(fn($fragment): true => true);
+        $filtered = $list->filter(fn ($fragment): true => true);
         $this::assertEquals(['foo' => 'bar', 'baz' => 'xyzzy'], $filtered->getParameters());
     }
 
