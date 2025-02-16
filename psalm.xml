@@ -16,6 +16,13 @@
     </projectFiles>
 
     <issueHandlers>
+        <ClassMustBeFinal>
+            <!-- Disable this for the time being -->
+            <errorLevel type="suppress">
+                <directory name="src" />
+            </errorLevel>
+        </ClassMustBeFinal>
+
         <MixedMethodCall>
             <!-- psalm doesn't like calling and() on $where property -->
             <errorLevel type="suppress">
