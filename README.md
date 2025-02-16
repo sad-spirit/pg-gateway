@@ -149,9 +149,9 @@ limit $2;
 
 ## Requirements
 
-`pg_gateway` requires at least PHP 7.4 with native [pgsql extension](https://php.net/manual/en/book.pgsql.php).
+`pg_gateway` requires at least PHP 8.2 with native [pgsql extension](https://php.net/manual/en/book.pgsql.php).
 
-Minimum supported PostgreSQL version is 10.
+Minimum supported PostgreSQL version is 12.
 
 It is highly recommended to use [PSR-6 compatible](https://www.php-fig.org/psr/psr-6/) cache in production,
 both for metadata lookup and for generated queries.
