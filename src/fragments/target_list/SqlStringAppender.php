@@ -45,8 +45,11 @@ final class SqlStringAppender extends TargetListFragment
         if (null === $this->alias) {
             $targetList->merge($parsed);
         } elseif (1 === \count($parsed)) {
-            /** @psalm-suppress MixedClone, MixedArgument */
-            $targetList[] = new TargetElement(clone $parsed[0]->expression, new Identifier($this->alias));
+            if ($parsed[0] instanceof TargetElement) {
+                $targetList[] = new TargetElement(clone $parsed[0]->expression, new Identifier($this->alias));
+            } else {
+                throw new LogicException("Cannot apply alias to '*'");
+            }
         } else {
             throw new LogicException("Parsing resulted in multiple expressions, cannot apply alias");
         }

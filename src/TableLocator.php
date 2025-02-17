@@ -81,7 +81,7 @@ class TableLocator
      */
     public static function generateAlias(): string
     {
-        return 'gw_' . ++self::$aliasIndex;
+        return 'gw_' . (string)++self::$aliasIndex;
     }
 
 
