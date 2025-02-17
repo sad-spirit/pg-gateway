@@ -219,12 +219,10 @@ class TableLocatorTest extends DatabaseBackedTestCase
         $this::assertInstanceOf(GenericTableGateway::class, $tableLocator->createGateway('public.cols'));
 
         $specific    = new SpecificTableGateway($tableLocator);
-        $mockFactory = $this->getMockBuilder(TableGatewayFactory::class)
-            ->onlyMethods(['createGateway'])
-            ->getMockForAbstractClass();
+        $mockFactory = $this->createMock(TableGatewayFactory::class);
         $mockFactory->expects($this::once())
             ->method('createGateway')
-            ->will($this::returnValue($specific));
+            ->willReturn($specific);
 
         $tableLocator->addTableGatewayFactory($mockFactory);
         $this::assertSame($specific, $tableLocator->createGateway('public.cols'));
@@ -232,23 +230,17 @@ class TableLocatorTest extends DatabaseBackedTestCase
 
     public function testFirstApplicableFactoryCreatesGateway(): void
     {
-        $gatewayOne = $this->getMockBuilder(TableGateway::class)
-            ->getMockForAbstractClass();
-        $gatewayTwo = $this->getMockBuilder(TableGateway::class)
-            ->getMockForAbstractClass();
+        $gatewayOne = $this->createMock(TableGateway::class);
+        $gatewayTwo = $this->createMock(TableGateway::class);
 
-        $factoryOne = $this->getMockBuilder(TableGatewayFactory::class)
-            ->onlyMethods(['createGateway'])
-            ->getMockForAbstractClass();
+        $factoryOne = $this->createMock(TableGatewayFactory::class);
         $factoryOne->expects($this::once())
             ->method('createGateway')
-            ->will($this::returnValue($gatewayOne));
-        $factoryTwo = $this->getMockBuilder(TableGatewayFactory::class)
-            ->onlyMethods(['createGateway'])
-            ->getMockForAbstractClass();
+            ->willReturn($gatewayOne);
+        $factoryTwo = $this->createMock(TableGatewayFactory::class);
         $factoryTwo->expects($this::once())
             ->method('createGateway')
-            ->will($this::returnValue($gatewayTwo));
+            ->willReturn($gatewayTwo);
 
         $locatorOne = new TableLocator(self::$connection, [$factoryOne, $factoryTwo]);
         $locatorTwo = new TableLocator(self::$connection, [$factoryTwo, $factoryOne]);
@@ -259,25 +251,17 @@ class TableLocatorTest extends DatabaseBackedTestCase
 
     public function testFirstApplicableFactoryCreatesBuilder(): void
     {
-        $builderOne = $this->getMockBuilder(FragmentListBuilder::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
-        $builderTwo = $this->getMockBuilder(FragmentListBuilder::class)
-            ->disableOriginalConstructor()
-            ->getMockForAbstractClass();
+        $builderOne = $this->createMock(FragmentListBuilder::class);
+        $builderTwo = $this->createMock(FragmentListBuilder::class);
 
-        $factoryOne = $this->getMockBuilder(TableGatewayFactory::class)
-            ->onlyMethods(['createBuilder'])
-            ->getMockForAbstractClass();
+        $factoryOne = $this->createMock(TableGatewayFactory::class);
         $factoryOne->expects($this::once())
             ->method('createBuilder')
-            ->will($this::returnValue($builderOne));
-        $factoryTwo = $this->getMockBuilder(TableGatewayFactory::class)
-            ->onlyMethods(['createBuilder'])
-            ->getMockForAbstractClass();
+            ->willReturn($builderOne);
+        $factoryTwo = $this->createMock(TableGatewayFactory::class);
         $factoryTwo->expects($this::once())
             ->method('createBuilder')
-            ->will($this::returnValue($builderTwo));
+            ->willReturn($builderTwo);
 
         $locatorOne = new TableLocator(self::$connection, [$factoryOne, $factoryTwo]);
         $locatorTwo = new TableLocator(self::$connection, [$factoryTwo, $factoryOne]);

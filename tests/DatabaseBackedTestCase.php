@@ -54,9 +54,7 @@ abstract class DatabaseBackedTestCase extends TestCase
 
     protected function getMockForNoCache(): CacheItemPoolInterface
     {
-        $mockPool = $this->getMockBuilder(CacheItemPoolInterface::class)
-            ->onlyMethods(['getItem'])
-            ->getMockForAbstractClass();
+        $mockPool = $this->createMock(CacheItemPoolInterface::class);
 
         $mockPool->expects($this->never())
             ->method('getItem');
@@ -66,17 +64,12 @@ abstract class DatabaseBackedTestCase extends TestCase
 
     protected function getMockForCacheMiss($value): CacheItemPoolInterface
     {
-        $mockPool = $this->getMockBuilder(CacheItemPoolInterface::class)
-            ->onlyMethods(['getItem', 'save'])
-            ->getMockForAbstractClass();
-
-        $mockItem = $this->getMockBuilder(CacheItemInterface::class)
-            ->onlyMethods(['isHit', 'set'])
-            ->getMockForAbstractClass();
+        $mockPool = $this->createMock(CacheItemPoolInterface::class);
+        $mockItem = $this->createMock(CacheItemInterface::class);
 
         $mockPool->expects($this->atLeastOnce())
             ->method('getItem')
-            ->will($this->returnValue($mockItem));
+            ->willReturn($mockItem);
 
         $mockPool->expects($this->once())
             ->method('save')
@@ -84,7 +77,7 @@ abstract class DatabaseBackedTestCase extends TestCase
 
         $mockItem->expects($this->once())
             ->method('isHit')
-            ->will($this->returnValue(false));
+            ->willReturn(false);
 
         $mockItem->expects($this->once())
             ->method('set')
@@ -96,27 +89,22 @@ abstract class DatabaseBackedTestCase extends TestCase
 
     protected function getMockForCacheHit($value): CacheItemPoolInterface
     {
-        $mockPool = $this->getMockBuilder(CacheItemPoolInterface::class)
-            ->onlyMethods(['getItem', 'save'])
-            ->getMockForAbstractClass();
-
-        $mockItem = $this->getMockBuilder(CacheItemInterface::class)
-            ->onlyMethods(['isHit', 'set'])
-            ->getMockForAbstractClass();
+        $mockPool = $this->createMock(CacheItemPoolInterface::class);
+        $mockItem = $this->createMock(CacheItemInterface::class);
 
         $mockPool->expects($this->once())
             ->method('getItem')
-            ->will($this->returnValue($mockItem));
+            ->willReturn($mockItem);
 
         $mockPool->expects($this->never())
             ->method('save');
         $mockItem->expects($this->once())
             ->method('isHit')
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $mockItem->expects($this->once())
             ->method('get')
-            ->will($this->returnValue($value));
+            ->willReturn($value);
 
         $mockItem->expects($this->never())
             ->method('set');

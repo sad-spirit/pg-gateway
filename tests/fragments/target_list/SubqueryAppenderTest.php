@@ -103,9 +103,7 @@ class SubqueryAppenderTest extends TestCase
         /** @var Select $select */
         $select  = $factory->createFromString('select self.foo as bar, quux.xyzzy');
 
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['createSelectAST'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
 
         $mockSelect->expects($this->any())
             ->method('createSelectAST')
@@ -114,9 +112,7 @@ class SubqueryAppenderTest extends TestCase
         (new SubqueryAppender($mockSelect))
             ->applyTo($select);
 
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['createSelectAST'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this->any())
             ->method('createSelectAST')
             ->willReturn($factory->createFromString(
@@ -139,9 +135,7 @@ class SubqueryAppenderTest extends TestCase
     {
         $factory = new StatementFactory();
 
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['createSelectAST'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this->any())
             ->method('createSelectAST')
             ->willReturn($factory->createFromString(
@@ -161,9 +155,7 @@ class SubqueryAppenderTest extends TestCase
 
     public function testGetParameters(): void
     {
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['getParameterHolder'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this->any())
             ->method('getParameterHolder')
             ->willReturn(new SimpleParameterHolder($mockSelect, ['foo' => 'bar']));
@@ -179,9 +171,7 @@ class SubqueryAppenderTest extends TestCase
 
     private function getMockKeyedSelect(?string $key): SelectBuilder
     {
-        $mockSelect = $this->getMockBuilder(SelectBuilder::class)
-            ->onlyMethods(['getKey'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectBuilder::class);
 
         $mockSelect->expects($this->any())
             ->method('getKey')
@@ -192,9 +182,7 @@ class SubqueryAppenderTest extends TestCase
 
     private function getMockKeyedCondition(?string $key): Condition
     {
-        $mockCondition = $this->getMockBuilder(Condition::class)
-            ->onlyMethods(['getKey'])
-            ->getMockForAbstractClass();
+        $mockCondition = $this->createMock(Condition::class);
         $mockCondition->expects($this->any())
             ->method('getKey')
             ->willReturn($key);

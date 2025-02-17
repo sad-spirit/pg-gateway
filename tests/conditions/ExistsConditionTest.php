@@ -54,16 +54,12 @@ class ExistsConditionTest extends DatabaseBackedTestCase
 
     public function testKeyDependsOnConstructorArguments(): void
     {
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['getKey'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this->any())
             ->method('getKey')
             ->willReturn('selectkey');
 
-        $mockCondition = $this->getMockBuilder(Condition::class)
-            ->onlyMethods(['getKey'])
-            ->getMockForAbstractClass();
+        $mockCondition = $this->createMock(Condition::class);
         $mockCondition->expects($this->any())
             ->method('getKey')
             ->willReturn('conditionkey');
@@ -75,16 +71,12 @@ class ExistsConditionTest extends DatabaseBackedTestCase
 
     public function testKeyDependsOnExplicitAlias(): void
     {
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['getKey'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this->any())
             ->method('getKey')
             ->willReturn('selectkey');
 
-        $mockCondition = $this->getMockBuilder(Condition::class)
-            ->onlyMethods(['getKey'])
-            ->getMockForAbstractClass();
+        $mockCondition = $this->createMock(Condition::class);
         $mockCondition->expects($this->any())
             ->method('getKey')
             ->willReturn('conditionkey');
@@ -101,9 +93,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
 
     public function testKeyIsNotNullForMissingCondition(): void
     {
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['getKey'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this->any())
             ->method('getKey')
             ->willReturn('selectkey');
@@ -114,9 +104,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
 
     public function testKeyIsNullForNullSelectKey(): void
     {
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['getKey'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this->any())
             ->method('getKey')
             ->willReturn(null);
@@ -127,16 +115,12 @@ class ExistsConditionTest extends DatabaseBackedTestCase
 
     public function testKeyIsNullForNullConditionKey(): void
     {
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['getKey'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this->any())
             ->method('getKey')
             ->willReturn('selectkey');
 
-        $mockCondition = $this->getMockBuilder(Condition::class)
-            ->onlyMethods(['getKey'])
-            ->getMockForAbstractClass();
+        $mockCondition = $this->createMock(Condition::class);
         $mockCondition->expects($this->any())
             ->method('getKey')
             ->willReturn(null);
@@ -147,9 +131,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
 
     public function testGetParameters(): void
     {
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['getParameterHolder'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this->any())
             ->method('getParameterHolder')
             ->willReturn(new SimpleParameterHolder($mockSelect, ['foo' => 'bar']));
@@ -165,9 +147,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
 
     public function testReplaceTargetListOnSelect(): void
     {
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['createSelectAST'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this->any())
             ->method('createSelectAST')
             ->willReturn(
@@ -186,9 +166,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
 
     public function testDoesNotReplaceTargetListOnSetOpSelect(): void
     {
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['createSelectAST'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this->any())
             ->method('createSelectAST')
             ->willReturn(
@@ -209,9 +187,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
 
     public function testDisallowJoinConditionWithSetOpSelect(): void
     {
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['createSelectAST'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this->any())
             ->method('createSelectAST')
             ->willReturn(
@@ -230,9 +206,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
 
     public function testExplicitAlias(): void
     {
-        $mockSelect = $this->getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['createSelectAST'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this->any())
             ->method('createSelectAST')
             ->willReturn(

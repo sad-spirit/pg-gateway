@@ -50,9 +50,7 @@ class SelectTransformerTest extends DatabaseBackedTestCase
     {
         $tableLocator = new TableLocator(self::$connection, [], null, $this->getMockForNoCache());
 
-        $mockSelect = $this::getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['getKey', 'createSelectAST'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this::any())
             ->method('getKey')
             ->willReturn('a select key');
@@ -73,9 +71,7 @@ class SelectTransformerTest extends DatabaseBackedTestCase
     {
         $tableLocator = new TableLocator(self::$connection, [], null, $this->getMockForNoCache());
 
-        $mockSelect = $this::getMockBuilder(SelectProxy::class)
-            ->onlyMethods(['getKey', 'createSelectAST'])
-            ->getMockForAbstractClass();
+        $mockSelect = $this->createMock(SelectProxy::class);
         $mockSelect->expects($this::atLeastOnce())
             ->method('getKey')
             ->willReturn(null);

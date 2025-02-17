@@ -53,13 +53,11 @@ class PrimaryKeyConditionTest extends TestCase
 
     private function getConverterFactoryMock(): TypeNameNodeHandler
     {
-        $mock = $this->getMockBuilder(TypeNameNodeHandler::class)
-            ->onlyMethods(['createTypeNameNodeForOID'])
-            ->getMockForAbstractClass();
+        $mock = $this->createMock(TypeNameNodeHandler::class);
 
         $mock->expects($this->any())
             ->method('createTypeNameNodeForOID')
-            ->will($this->returnCallback(fn (): TypeName => new TypeName(new QualifiedName('int5'))));
+            ->willReturnCallback(fn (): TypeName => new TypeName(new QualifiedName('int5')));
 
         return $mock;
     }
