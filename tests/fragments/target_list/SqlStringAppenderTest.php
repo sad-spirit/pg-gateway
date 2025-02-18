@@ -92,4 +92,15 @@ class SqlStringAppenderTest extends TestCase
         $this::expectExceptionMessage('multiple expressions');
         $fragment->applyTo($select);
     }
+
+    public function testDisallowAliasForStarNode(): void
+    {
+        /** @var Select $select */
+        $select = self::$factory->createFromString('select self.foo as bar, quux.xyzzy');
+        $fragment = new SqlStringAppender(self::$factory->getParser(), '*', 'baz');
+
+        $this::expectException(LogicException::class);
+        $this::expectExceptionMessage("Cannot apply alias to '*'");
+        $fragment->applyTo($select);
+    }
 }
