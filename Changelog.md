@@ -9,8 +9,12 @@ PHP 8.2+ and Postgres 17 support.
 ### Added
  * Tested on PHP 8.4 and Postgres 17.
  * Psalm upgraded to v6, now checks on level 1 (highest).
- * `builders\FluentBuilder::returningExpression()` now accepts an extra `$parameters` argument that can contain
-   additional query parameters.
+ * `builders\FluentBuilder` additions:
+   * `returningExpression()` now accepts an extra `$parameters` argument that can contain additional query parameters.
+   * Builders created by `returningSubquery()`, `join()`, `exists()` / `createExists()` now have a `parameters()`
+     method that allows passing parameters for a `SELECT` being used (will work if it does not have own parameters,
+     i.e. is represented by SQL string).
+   * `returningColumns(['foo', 'bar'])` is now a shorthand for `returningColumns()->only(['foo', 'bar'])`
 
 ### Fixed
  * Implicitly nullable parameters [deprecated in PHP 8.4](https://www.php.net/manual/en/migration84.deprecated.php)

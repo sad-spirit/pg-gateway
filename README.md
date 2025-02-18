@@ -1,7 +1,6 @@
 # sad_spirit/pg_gateway
 
 [![Continuous Integration](https://github.com/sad-spirit/pg-gateway/actions/workflows/continuous-integration.yml/badge.svg?branch=master)](https://github.com/sad-spirit/pg-gateway/actions/workflows/continuous-integration.yml)
-
 [![Static Analysis](https://github.com/sad-spirit/pg-gateway/actions/workflows/static-analysis.yml/badge.svg?branch=master)](https://github.com/sad-spirit/pg-gateway/actions/workflows/static-analysis.yml)
 
 This is a [Table Data Gateway](https://martinfowler.com/eaaCatalog/tableDataGateway.html) implementation built upon
@@ -77,30 +76,24 @@ use sad_spirit\pg_wrapper\Connection;
 $connection = new Connection('...');
 $locator    = new TableLocator($connection);
 
-$adminRoles = $locator->createGateway('example.roles')
-    ->select(fn(FluentBuilder $builder) => $builder
-        ->operatorCondition('name', '~*', 'admin')
-        ->returningColumns()
-            ->except(['description'])
-            ->replace('/^/', 'role_'));
+$adminRoles = $locator->select('example.roles', fn(FluentBuilder $builder) => $builder
+    ->operatorCondition('name', '~*', 'admin')
+    ->returningColumns()
+        ->except(['description'])
+        ->replace('/^/', 'role_'));
 
-$activeAdminRoles = $locator->createGateway('example.users_roles')
-    ->select(fn(FluentBuilder $builder) => $builder
-        ->sqlCondition("current_date between coalesce(self.valid_from, 'yesterday') and coalesce(self.valid_to, 'tomorrow')")
-        ->join($adminRoles)
-            ->onForeignKey()
-        ->returningColumns()
-            ->only(['valid_from', 'valid_to']));
+$activeAdminRoles = $locator->select('example.users_roles', fn(FluentBuilder $builder) => $builder
+    ->sqlCondition("current_date between coalesce(self.valid_from, 'yesterday') and coalesce(self.valid_to, 'tomorrow')")
+    ->join($adminRoles) // defaults to joining on foreign key
+    ->returningColumns(['valid_from', 'valid_to']));
 
-$activeAdminUsers = $locator->createGateway('example.users')
-    ->select(fn(FluentBuilder $builder) => $builder
-        ->returningColumns()
-            ->except(['password_hash'])
-            ->replace('/^/', 'user_')
-        ->join($activeAdminRoles)
-            ->onForeignKey()
-        ->orderBy('user_login, role_name')
-        ->limit(5));
+$activeAdminUsers = $locator->select('example.users', fn(FluentBuilder $builder) => $builder
+    ->returningColumns()
+        ->except(['password_hash'])
+        ->replace('/^/', 'user_')
+    ->join($activeAdminRoles) // defaults to joining on foreign key
+    ->orderBy('user_login, role_name')
+    ->limit(5));
 
 // Let's assume we want to output that list with pagination
 echo "Total users with active admin roles: " . $activeAdminUsers->executeCount() . "\n\n";
