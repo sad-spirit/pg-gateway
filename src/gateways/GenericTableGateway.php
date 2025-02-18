@@ -260,7 +260,7 @@ class GenericTableGateway implements TableGateway, AdHocStatement
         return \sprintf(
             '%s.%s.%s.%s',
             $this->getConnection()->getConnectionId(),
-            $type->value,
+            $type->name,
             TableLocator::hash($this->definition->getName()),
             $fragmentKey
         );

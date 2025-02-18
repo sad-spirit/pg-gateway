@@ -17,12 +17,12 @@ namespace sad_spirit\pg_gateway;
 /**
  * Contains types of statements created by gateways
  */
-enum StatementType: string
+enum StatementType
 {
-    case Count = 'count';
-    case Delete = 'delete';
-    case Insert = 'insert';
-    case Select = 'select';
-    case Update = 'update';
-    case Upsert = 'upsert';
+    case Count;
+    case Delete;
+    case Insert;
+    case Select;
+    case Update;
+    case Upsert;
 }

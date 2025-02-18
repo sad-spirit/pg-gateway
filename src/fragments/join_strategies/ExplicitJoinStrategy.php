@@ -47,7 +47,7 @@ use sad_spirit\pg_builder\nodes\{
  */
 class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
 {
-    public function __construct(public readonly ExplicitJoinType $joinType = ExplicitJoinType::INNER)
+    public function __construct(public readonly ExplicitJoinType $joinType = ExplicitJoinType::Inner)
     {
     }
 
@@ -134,7 +134,7 @@ class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
         return !$joined instanceof Select
             || \count($joined->from) > 1
             // We can merge the WHERE clauses in case of INNER JOIN, but not with OUTER
-            || ExplicitJoinType::INNER !== $this->joinType
+            || ExplicitJoinType::Inner !== $this->joinType
                 && null !== $joined->where->condition
             || !InlineStrategy::canBeInlined($joined);
     }

@@ -211,13 +211,13 @@ class JoinBuilderTest extends DatabaseBackedTestCase
     {
         return [
             ['inline',        new InlineStrategy()],
-            ['inner',         new ExplicitJoinStrategy(ExplicitJoinType::INNER)],
-            ['left',          new ExplicitJoinStrategy(ExplicitJoinType::LEFT)],
-            ['right',         new ExplicitJoinStrategy(ExplicitJoinType::RIGHT)],
-            ['full',          new ExplicitJoinStrategy(ExplicitJoinType::FULL)],
-            ['lateral',       new LateralSubselectStrategy(LateralSubselectJoinType::APPEND)],
-            ['lateralInner',  new LateralSubselectStrategy(LateralSubselectJoinType::INNER)],
-            ['lateralLeft',   new LateralSubselectStrategy(LateralSubselectJoinType::LEFT)],
+            ['inner',         new ExplicitJoinStrategy(ExplicitJoinType::Inner)],
+            ['left',          new ExplicitJoinStrategy(ExplicitJoinType::Left)],
+            ['right',         new ExplicitJoinStrategy(ExplicitJoinType::Right)],
+            ['full',          new ExplicitJoinStrategy(ExplicitJoinType::Full)],
+            ['lateral',       new LateralSubselectStrategy(LateralSubselectJoinType::Append)],
+            ['lateralInner',  new LateralSubselectStrategy(LateralSubselectJoinType::Inner)],
+            ['lateralLeft',   new LateralSubselectStrategy(LateralSubselectJoinType::Left)],
             ['unconditional', null]
         ];
     }

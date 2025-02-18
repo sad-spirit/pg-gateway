@@ -161,7 +161,7 @@ SQL
             "with cte as (select 1) select m_3.* from quux as m_3"
         );
 
-        (new ExplicitJoinStrategy(ExplicitJoinType::LEFT))->join(
+        (new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
             $base,
             clone $joined,
             $this->factory->getParser()->parseExpression('self.id = joined.id'),
@@ -187,7 +187,7 @@ SQL
             . "where self.id > m_1.id"
         );
 
-        (new ExplicitJoinStrategy(ExplicitJoinType::LEFT))->join(
+        (new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
             $base,
             $joined,
             $this->factory->getParser()->parseExpression('self.id = joined.id'),
@@ -219,7 +219,7 @@ SQL
         $joined = $this->factory->createFromString(
             "select m_2.* from baz as m_2 where m_2.title ~* 'something'"
         );
-        ($strategy = new ExplicitJoinStrategy(ExplicitJoinType::LEFT))->join(
+        ($strategy = new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
             $base,
             $joined,
             $this->factory->getParser()->parseExpression('self.id > joined.id'),

@@ -83,7 +83,7 @@ abstract class SelectTransformer implements SelectProxy
             $cacheKey = \sprintf(
                 '%s.%s.%s.%s',
                 $this->getConnection()->getConnectionId(),
-                StatementType::Select->value,
+                StatementType::Select->name,
                 TableLocator::hash([
                     $this->getDefinition()->getName(),
                     $this->key

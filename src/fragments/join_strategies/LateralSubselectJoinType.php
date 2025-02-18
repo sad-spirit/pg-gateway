@@ -20,7 +20,7 @@ namespace sad_spirit\pg_gateway\fragments\join_strategies;
 enum LateralSubselectJoinType: string
 {
     /** A special "join type" that triggers adding the subselect as a separate item of FROM clause */
-    case APPEND = 'append';
-    case INNER = 'inner';
-    case LEFT = 'left';
+    case Append = 'append';
+    case Inner = 'inner';
+    case Left = 'left';
 }

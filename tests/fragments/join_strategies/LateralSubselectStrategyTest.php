@@ -104,7 +104,7 @@ SQL
         $joined = $this->factory->createFromString(
             "select array_agg(gw_1.field) from gw_1"
         );
-        ($strategy = new LateralSubselectStrategy(LateralSubselectJoinType::LEFT))->join(
+        ($strategy = new LateralSubselectStrategy(LateralSubselectJoinType::Left))->join(
             $base,
             clone $joined,
             $this->factory->getParser()->parseExpression('self.id = joined.foo_id'),
@@ -128,7 +128,7 @@ SQL
         $base   = $this->factory->createFromString(
             "select count(self.*) from foo as self"
         );
-        ($strategy = new LateralSubselectStrategy(LateralSubselectJoinType::LEFT))->join(
+        ($strategy = new LateralSubselectStrategy(LateralSubselectJoinType::Left))->join(
             $base,
             clone $joined,
             $this->factory->getParser()->parseExpression('self.id = joined.foo_id'),

@@ -159,7 +159,7 @@ final readonly class TableSelect implements SelectProxy
         return \sprintf(
             '%s.%s.%s.%s',
             $this->getConnection()->getConnectionId(),
-            $type->value,
+            $type->name,
             TableLocator::hash([
                 $this->getDefinition()->getName(),
                 (string)(new \ReflectionFunction($baseAST))

@@ -19,8 +19,8 @@ namespace sad_spirit\pg_gateway\fragments\join_strategies;
  */
 enum ExplicitJoinType: string
 {
-    case LEFT = 'left';
-    case RIGHT = 'right';
-    case INNER = 'inner';
-    case FULL = 'full';
+    case Left = 'left';
+    case Right = 'right';
+    case Inner = 'inner';
+    case Full = 'full';
 }

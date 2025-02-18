@@ -81,7 +81,7 @@ class JoinBuilder extends AdditionalSelectBuilder
      */
     public function inner(): self
     {
-        $this->strategy = new ExplicitJoinStrategy(ExplicitJoinType::INNER);
+        $this->strategy = new ExplicitJoinStrategy(ExplicitJoinType::Inner);
 
         return $this;
     }
@@ -93,7 +93,7 @@ class JoinBuilder extends AdditionalSelectBuilder
      */
     public function left(): self
     {
-        $this->strategy = new ExplicitJoinStrategy(ExplicitJoinType::LEFT);
+        $this->strategy = new ExplicitJoinStrategy(ExplicitJoinType::Left);
 
         return $this;
     }
@@ -105,7 +105,7 @@ class JoinBuilder extends AdditionalSelectBuilder
      */
     public function right(): self
     {
-        $this->strategy = new ExplicitJoinStrategy(ExplicitJoinType::RIGHT);
+        $this->strategy = new ExplicitJoinStrategy(ExplicitJoinType::Right);
 
         return $this;
     }
@@ -117,7 +117,7 @@ class JoinBuilder extends AdditionalSelectBuilder
      */
     public function full(): self
     {
-        $this->strategy = new ExplicitJoinStrategy(ExplicitJoinType::FULL);
+        $this->strategy = new ExplicitJoinStrategy(ExplicitJoinType::Full);
 
         return $this;
     }
@@ -130,7 +130,7 @@ class JoinBuilder extends AdditionalSelectBuilder
      */
     public function lateral(): self
     {
-        $this->strategy = new LateralSubselectStrategy(LateralSubselectJoinType::APPEND);
+        $this->strategy = new LateralSubselectStrategy(LateralSubselectJoinType::Append);
 
         return $this;
     }
@@ -142,7 +142,7 @@ class JoinBuilder extends AdditionalSelectBuilder
      */
     public function lateralInner(): self
     {
-        $this->strategy = new LateralSubselectStrategy(LateralSubselectJoinType::INNER);
+        $this->strategy = new LateralSubselectStrategy(LateralSubselectJoinType::Inner);
 
         return $this;
     }
@@ -154,7 +154,7 @@ class JoinBuilder extends AdditionalSelectBuilder
      */
     public function lateralLeft(): self
     {
-        $this->strategy = new LateralSubselectStrategy(LateralSubselectJoinType::LEFT);
+        $this->strategy = new LateralSubselectStrategy(LateralSubselectJoinType::Left);
 
         return $this;
     }

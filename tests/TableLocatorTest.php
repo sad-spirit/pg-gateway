@@ -281,7 +281,7 @@ class TableLocatorTest extends DatabaseBackedTestCase
             $cacheKey = \sprintf(
                 '%s.%s.%s.%s',
                 $tableLocator->getConnection()->getConnectionId(),
-                StatementType::Delete->value,
+                StatementType::Delete->name,
                 TableLocator::hash($definition->getName()),
                 $fragmentKey
             );

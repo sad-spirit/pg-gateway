@@ -48,7 +48,7 @@ use sad_spirit\pg_builder\nodes\{
  */
 class LateralSubselectStrategy extends SelectOnlyJoinStrategy
 {
-    public function __construct(public readonly LateralSubselectJoinType $joinType = LateralSubselectJoinType::APPEND)
+    public function __construct(public readonly LateralSubselectJoinType $joinType = LateralSubselectJoinType::Append)
     {
     }
 
@@ -68,7 +68,7 @@ class LateralSubselectStrategy extends SelectOnlyJoinStrategy
 
         $subSelect = $this->prepareSubselect($joined, $condition, $alias);
 
-        if (LateralSubselectJoinType::APPEND === $this->joinType) {
+        if (LateralSubselectJoinType::Append === $this->joinType) {
             $statement->from[] = $subSelect;
         } else {
             $this->findNodeForJoin($statement->from, 'self')
