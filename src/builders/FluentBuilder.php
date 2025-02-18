@@ -307,12 +307,17 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Configures a list of columns returned by SELECT or the RETURNING clause of DELETE / INSERT / UPDATE
      *
+     * @param string[] $only
      * @return proxies\ColumnsBuilderProxy<static>
      */
-    public function returningColumns(): proxies\ColumnsBuilderProxy
+    public function returningColumns(array $only = []): proxies\ColumnsBuilderProxy
     {
         $builder = new proxies\ColumnsBuilderProxy($this, $this->definition);
         $this->addProxy($builder);
+
+        if ([] !== $only) {
+            $builder->only($only);
+        }
 
         return $builder;
     }

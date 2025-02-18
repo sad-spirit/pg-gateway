@@ -428,8 +428,7 @@ class FluentBuilderTest extends DatabaseBackedTestCase
         $select = $gateway->select(
             $this->builder->returningSubquery(
                 $unconditional->select(
-                    $ucBuilder->returningColumns()
-                        ->only(['id'])
+                    $ucBuilder->returningColumns(['id'])
                 )
             )
                 ->alias('custom')
