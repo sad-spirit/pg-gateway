@@ -43,7 +43,7 @@ class ExistsBuilder extends AdditionalSelectBuilder
      */
     public function getCondition(): Condition
     {
-        $exists = new ExistsCondition($this->additional, $this->joinCondition, $this->alias);
+        $exists = new ExistsCondition($this->wrapAdditional(), $this->joinCondition, $this->alias);
         return $this->not ? new NotCondition($exists) : $exists;
     }
 

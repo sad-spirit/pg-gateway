@@ -14,10 +14,14 @@ declare(strict_types=1);
 
 namespace sad_spirit\pg_gateway\tests\builders;
 
-use sad_spirit\pg_gateway\tests\DatabaseBackedTestCase;
-use sad_spirit\pg_gateway\builders\ScalarSubqueryBuilder;
+use sad_spirit\pg_gateway\{
+    SqlStringSelectBuilder,
+    TableLocator,
+    builders\ScalarSubqueryBuilder,
+    exceptions\LogicException,
+    tests\DatabaseBackedTestCase
+};
 use sad_spirit\pg_gateway\fragments\target_list\SubqueryAppender;
-use sad_spirit\pg_gateway\TableLocator;
 
 class ScalarSubqueryBuilderTest extends DatabaseBackedTestCase
 {
@@ -70,5 +74,29 @@ class ScalarSubqueryBuilderTest extends DatabaseBackedTestCase
             new SubqueryAppender($select, null, null, 'klmn'),
             $builder->getFragment()
         );
+    }
+
+    /** @noinspection SqlResolve */
+    public function testParameters(): void
+    {
+        $gateway = self::$tableLocator->createGateway('fkey_test.documents');
+        $builder = (new ScalarSubqueryBuilder(
+            $gateway->getDefinition(),
+            new SqlStringSelectBuilder(self::$tableLocator->getParser(), 'select 1 from some_table where :foo')
+        ))
+            ->parameters(['foo' => 'bar']);
+
+        $this::assertEquals(
+            ['foo' => 'bar'],
+            $builder->getFragment()->getParameterHolder()->getParameters()
+        );
+
+        $this::expectException(LogicException::class);
+        $this::expectExceptionMessage('already contains parameters');
+        (new ScalarSubqueryBuilder(
+            self::$tableLocator->getTableDefinition('fkey_test.documents'),
+            self::$tableLocator->select('fkey_test.documents')
+        ))
+            ->parameters(['foo' => 'bar']);
     }
 }

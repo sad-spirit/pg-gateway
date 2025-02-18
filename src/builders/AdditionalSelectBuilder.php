@@ -16,11 +16,13 @@ namespace sad_spirit\pg_gateway\builders;
 
 use sad_spirit\pg_gateway\{
     FragmentBuilder,
+    Parametrized,
     SelectBuilder,
     TableAccessor,
     TableDefinition,
     conditions\ForeignKeyCondition,
-    exceptions\LogicException
+    exceptions\LogicException,
+    fragments\ParametrizedSelectBuilder
 };
 
 /**
@@ -29,6 +31,8 @@ use sad_spirit\pg_gateway\{
 abstract class AdditionalSelectBuilder implements FragmentBuilder
 {
     protected ?string $alias = null;
+    /** @var array<string, mixed> */
+    private array $parameters = [];
 
     public function __construct(protected TableDefinition $base, protected SelectBuilder $additional)
     {
@@ -85,5 +89,37 @@ abstract class AdditionalSelectBuilder implements FragmentBuilder
         $this->alias = $alias;
 
         return $this;
+    }
+
+    /**
+     * Sets additional parameters to pass with the select being joined
+     *
+     * This should be used when the class creating SELECT cannot contain parameters itself,
+     * e.g. SqlStringSelectBuilder that is a wrapper around SQL string
+     *
+     * @param array<string, mixed> $parameters
+     * @return $this
+     */
+    public function parameters(array $parameters): self
+    {
+        if ([] !== $parameters && $this->additional instanceof Parametrized) {
+            throw new LogicException(\sprintf(
+                "The class representing additional SELECT (%s) already contains parameters",
+                $this->additional::class
+            ));
+        }
+        $this->parameters = $parameters;
+
+        return $this;
+    }
+
+    /**
+     * Wraps {@see $additional} with {@see ParametrizedSelectBuilder} if {@see parameters()} were given
+     */
+    protected function wrapAdditional(): SelectBuilder
+    {
+        return [] === $this->parameters
+            ? $this->additional
+            : new ParametrizedSelectBuilder($this->additional, $this->parameters);
     }
 }

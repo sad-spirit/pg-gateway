@@ -41,7 +41,7 @@ class JoinBuilder extends AdditionalSelectBuilder
     public function getFragment(): Fragment
     {
         return new JoinFragment(
-            $this->additional,
+            $this->wrapAdditional(),
             $this->condition,
             $this->strategy ?? new InlineStrategy(),
             $this->usedForCount,

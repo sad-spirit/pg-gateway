@@ -28,7 +28,7 @@ class ScalarSubqueryBuilder extends AdditionalSelectBuilder
 
     public function getFragment(): Fragment
     {
-        return new SubqueryAppender($this->additional, $this->joinCondition, $this->alias, $this->columnAlias);
+        return new SubqueryAppender($this->wrapAdditional(), $this->joinCondition, $this->alias, $this->columnAlias);
     }
 
     /**

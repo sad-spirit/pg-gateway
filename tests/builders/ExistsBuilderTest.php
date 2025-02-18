@@ -81,4 +81,26 @@ class ExistsBuilderTest extends DatabaseBackedTestCase
         $this::expectExceptionMessage('does not contain table metadata');
         $builder->joinOnForeignKey();
     }
+
+    /** @noinspection SqlResolve */
+    public function testParameters()
+    {
+        $builder = (new ExistsBuilder(
+            self::$tableLocator->getTableDefinition('fkey_test.documents'),
+            new SqlStringSelectBuilder(self::$tableLocator->getParser(), 'select 1 from some_table where :foo')
+        ))
+            ->parameters(['foo' => 'bar']);
+
+        $this::assertEquals(
+            ['foo' => 'bar'],
+            $builder->getFragment()->getParameterHolder()->getParameters()
+        );
+
+        $this::expectException(LogicException::class);
+        $this::expectExceptionMessage('already contains parameters');
+        (new ExistsBuilder(
+            self::$tableLocator->getTableDefinition('fkey_test.documents'),
+            self::$tableLocator->select('fkey_test.documents')
+        ))->parameters(['foo' => 'bar']);
+    }
 }

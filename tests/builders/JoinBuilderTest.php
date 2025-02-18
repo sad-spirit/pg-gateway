@@ -16,6 +16,7 @@ namespace sad_spirit\pg_gateway\tests\builders;
 
 use sad_spirit\pg_gateway\{
     Fragment,
+    SqlStringSelectBuilder,
     TableLocator,
     builders\JoinBuilder,
     conditions\ForeignKeyCondition,
@@ -205,6 +206,31 @@ class JoinBuilderTest extends DatabaseBackedTestCase
             new JoinFragment($select, null, null, true, Fragment::PRIORITY_DEFAULT, 'foo'),
             $builder->getFragment()
         );
+    }
+
+    /** @noinspection SqlResolve */
+    public function testParameters(): void
+    {
+        $gateway = self::$tableLocator->createGateway('fkey_test.documents');
+        $builder = (new JoinBuilder(
+            $gateway->getDefinition(),
+            new SqlStringSelectBuilder(
+                self::$tableLocator->getParser(),
+                'select * from fkey_test.employees where name = :custom',
+            ),
+        ))
+            ->parameters(['custom' => 'John Doe']);
+
+        $this::assertEquals(
+            ['custom' => 'John Doe'],
+            $builder->getFragment()->getParameterHolder()->getParameters()
+        );
+
+        $this::expectException(LogicException::class);
+        $this::expectExceptionMessage('already contains parameters');
+
+        (new JoinBuilder($gateway->getDefinition(), $gateway->select()))
+            ->parameters(['custom' => 'John Doe']);
     }
 
     public static function strategiesProvider(): array
