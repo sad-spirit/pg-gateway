@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.9.0] - 2025-02-25
 
 The package now requires PHP 8.2+ and Postgres 12+, BC breaks are possible due to new language features being used.
 It also depends on `sad_spirit/pg_wrapper` and `sad_spirit/pg_builder` version 3, these were upgraded for
@@ -200,4 +200,4 @@ Initial release on GitHub.
 [0.2.1]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.0...v0.2.1
 [0.3.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.1...v0.3.0
 [0.4.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.3.0...v0.4.0
-[Unreleased]: https://github.com/sad-spirit/pg-gateway/compare/v0.4.0...HEAD
+[0.9.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.4.0...0.9.0
