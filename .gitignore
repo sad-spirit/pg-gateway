@@ -3,3 +3,4 @@
 /tests/config.php
 /vendor/
 /.phpcs-cache
+/docs/_build/
