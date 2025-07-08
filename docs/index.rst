@@ -16,3 +16,4 @@ maybe sacrificing some flexibility.
     :caption: Contents:
 
     overview
+    tutorial
