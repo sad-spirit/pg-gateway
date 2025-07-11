@@ -245,7 +245,7 @@ class TableLocator
      */
     public function select(
         string|TableName|QualifiedName $name,
-        null|callable|iterable|Fragment|FragmentBuilder $fragments = null,
+        null|iterable|\Closure|Fragment|FragmentBuilder $fragments = null,
         array $parameters = []
     ): SelectProxy {
         return $this->createGateway($name)->select($fragments, $parameters);
