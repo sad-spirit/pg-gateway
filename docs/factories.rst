@@ -90,4 +90,4 @@ where ``%s`` will be substituted by a table name converted to "StudlyCaps". Thus
     $factory->setGatewayClassNameTemplate('gateways\\%s');
     $factory->createGateway('rbac.users');
 
-the factory will try the ``\app\modules\rbac\database\gateways\BarBaz`` class instead.
+the factory will try the ``\app\modules\rbac\database\gateways\Users`` class instead.
