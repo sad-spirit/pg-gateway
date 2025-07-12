@@ -41,8 +41,8 @@ class TableNameTest extends TestCase
     {
         $name = new TableName('foo');
 
-        $this::assertEquals('foo', $name->getRelation());
-        $this::assertEquals('public', $name->getSchema());
+        $this::assertEquals('foo', $name->relation);
+        $this::assertEquals('public', $name->schema);
     }
 
     public function testCreateFromNode(): void
@@ -51,9 +51,9 @@ class TableNameTest extends TestCase
         $two   = TableName::createFromNode(new QualifiedName('one', 'two'));
         $three = TableName::createFromNode(new QualifiedName('one', 'two', 'three'));
 
-        $this::assertEquals(['public', 'one'], [$one->getSchema(), $one->getRelation()]);
-        $this::assertEquals(['one', 'two'], [$two->getSchema(), $two->getRelation()]);
-        $this::assertEquals(['two', 'three'], [$three->getSchema(), $three->getRelation()]);
+        $this::assertEquals(['public', 'one'], [$one->schema, $one->relation]);
+        $this::assertEquals(['one', 'two'], [$two->schema, $two->relation]);
+        $this::assertEquals(['two', 'three'], [$three->schema, $three->relation]);
     }
 
     public function testCreateNode(): void

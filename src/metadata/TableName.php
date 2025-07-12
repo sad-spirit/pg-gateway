@@ -27,9 +27,13 @@ use sad_spirit\pg_gateway\exceptions\InvalidArgumentException;
  */
 final class TableName implements \Stringable
 {
-    private string $schema = 'public';
-    private string $relation;
-    private string $asString;
+    /**
+     * Cache for string representations of TableName objects
+     * @var array<string, array<string, string>>
+     */
+    private static array $strings = [];
+    public readonly string $schema;
+    public readonly string $relation;
 
     /**
      * Constructor, requires at least relation name, will set schema to 'public' if not given
@@ -38,12 +42,17 @@ final class TableName implements \Stringable
      */
     public function __construct(string ...$nameParts)
     {
+        $schema = 'public';
         switch (\count($nameParts)) {
             case 2:
-                $this->schema = \array_shift($nameParts);
+                if ('' === $schema = \array_shift($nameParts)) {
+                    throw new InvalidArgumentException('Schema name cannot be an empty string');
+                }
                 // fall-through is intentional
             case 1:
-                $this->relation = \array_shift($nameParts);
+                if ('' === $relation = \array_shift($nameParts)) {
+                    throw new InvalidArgumentException('Table name cannot be an empty string');
+                }
                 break;
 
             case 0:
@@ -51,7 +60,8 @@ final class TableName implements \Stringable
             default:
                 throw new InvalidArgumentException("Too many parts in qualified name: " . \implode('.', $nameParts));
         }
-        $this->asString = $this->createNode()->__toString();
+        $this->schema   = $schema;
+        $this->relation = $relation;
     }
 
     /**
@@ -70,17 +80,31 @@ final class TableName implements \Stringable
 
     /**
      * Returns the relation part of a qualified table name
+     *
+     * @deprecated Since 0.10.0: use {@see $relation} property
      */
     public function getRelation(): string
     {
+        @\trigger_error(\sprintf(
+            'The "%s()" method is deprecated since release 0.10.0, '
+            . 'use $relation property instead.',
+            __METHOD__
+        ), \E_USER_DEPRECATED);
         return $this->relation;
     }
 
     /**
      * Returns the schema part of a qualified table name
+     *
+     * @deprecated Since 0.10.0: use {@see $schema} property
      */
     public function getSchema(): string
     {
+        @\trigger_error(\sprintf(
+            'The "%s()" method is deprecated since release 0.10.0, '
+            . 'use $schema property instead.',
+            __METHOD__
+        ), \E_USER_DEPRECATED);
         return $this->schema;
     }
 
@@ -89,8 +113,8 @@ final class TableName implements \Stringable
      */
     public function equals(self $other): bool
     {
-        return $this->getRelation() === $other->getRelation()
-            && $this->getSchema() === $other->getSchema();
+        return $this->relation === $other->relation
+            && $this->schema === $other->schema;
     }
 
     /**
@@ -106,7 +130,7 @@ final class TableName implements \Stringable
      */
     public function __toString(): string
     {
-        return $this->asString;
+        return self::$strings[$this->relation][$this->schema] ??= $this->createNode()->__toString();
     }
 
     /**
@@ -123,6 +147,5 @@ final class TableName implements \Stringable
     public function __unserialize(array $data): void
     {
         [$this->schema, $this->relation] = $data;
-        $this->asString = $this->createNode()->__toString();
     }
 }

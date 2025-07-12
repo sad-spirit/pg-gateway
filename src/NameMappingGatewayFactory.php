@@ -115,8 +115,8 @@ class NameMappingGatewayFactory implements TableGatewayFactory
             return $classMap[$nameAsString];
         }
         $fqn = null;
-        if (null !== $namespace = $this->mapSchemaToNamespace($name->getSchema())) {
-            $className = \sprintf($template, $this->classify($name->getRelation()));
+        if (null !== $namespace = $this->mapSchemaToNamespace($name->schema)) {
+            $className = \sprintf($template, $this->classify($name->relation));
             if (\class_exists($namespace . '\\' . $className, true)) {
                 /** @var T $fqn */
                 $fqn = $namespace . '\\' . $className;

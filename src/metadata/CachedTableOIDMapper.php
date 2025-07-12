@@ -55,7 +55,7 @@ class CachedTableOIDMapper implements TableOIDMapper
 
     public function findOIDForTableName(TableName $name): int|string
     {
-        return $this->findForTableName($name->getRelation(), $name->getSchema(), __METHOD__)[0];
+        return $this->findForTableName($name->relation, $name->schema, __METHOD__)[0];
     }
 
     public function findTableNameForOID($oid): TableName
@@ -79,7 +79,7 @@ class CachedTableOIDMapper implements TableOIDMapper
 
     public function findRelationKindForTableName(TableName $name): RelationKind
     {
-        return $this->findForTableName($name->getRelation(), $name->getSchema(), __METHOD__)[1];
+        return $this->findForTableName($name->relation, $name->schema, __METHOD__)[1];
     }
 
     /**

@@ -52,10 +52,7 @@ class TablePrimaryKey extends CachedMetadataLoader implements PrimaryKey
 
     protected function loadFromDatabase(Connection $connection, TableName $table): void
     {
-        $result = $connection->executeParams(self::QUERY, [
-            $table->getRelation(),
-            $table->getSchema()
-        ]);
+        $result = $connection->executeParams(self::QUERY, [$table->relation, $table->schema]);
         if (0 === \count($result)) {
             throw new UnexpectedValueException(\sprintf("Relation %s does not exist", $table->__toString()));
         }

@@ -109,12 +109,7 @@ class TableReferences extends CachedMetadataLoader implements References
              *     referenced_columns: string[]
              *  } $row
              */
-            foreach (
-                $connection->executeParams(
-                    $query,
-                    [$table->getRelation(), $table->getSchema()]
-                ) as $row
-            ) {
+            foreach ($connection->executeParams($query, [$table->relation, $table->schema]) as $row) {
                 $relatedTable    = new TableName($row['nspname'], $row['relname']);
                 $relatedTableStr = (string)$relatedTable;
 
