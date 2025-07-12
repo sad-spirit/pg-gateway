@@ -301,6 +301,11 @@ class FluentBuilder extends FragmentListBuilder
      */
     public function outputColumns(): proxies\ColumnsBuilderProxy
     {
+        @\trigger_error(\sprintf(
+            'The "%s()" method is deprecated since release 0.9.0, '
+            . 'use returningColumns() instead.',
+            __METHOD__
+        ), \E_USER_DEPRECATED);
         return $this->returningColumns();
     }
 
@@ -330,6 +335,11 @@ class FluentBuilder extends FragmentListBuilder
      */
     public function outputSubquery(SelectBuilder $select): proxies\ScalarSubqueryBuilderProxy
     {
+        @\trigger_error(\sprintf(
+            'The "%s()" method is deprecated since release 0.9.0, '
+            . 'use returningSubquery() instead.',
+            __METHOD__
+        ), \E_USER_DEPRECATED);
         return $this->returningSubquery($select);
     }
 
@@ -355,6 +365,11 @@ class FluentBuilder extends FragmentListBuilder
      */
     public function outputExpression(string|Condition $expression, ?string $alias = null): self
     {
+        @\trigger_error(\sprintf(
+            'The "%s()" method is deprecated since release 0.9.0, '
+            . 'use returningExpression() instead.',
+            __METHOD__
+        ), \E_USER_DEPRECATED);
         return $this->returningExpression($expression, $alias);
     }
 
