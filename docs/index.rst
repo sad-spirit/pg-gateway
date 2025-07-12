@@ -17,3 +17,6 @@ maybe sacrificing some flexibility.
 
     overview
     tutorial
+    table-locator
+    factories
+    oid-mapper

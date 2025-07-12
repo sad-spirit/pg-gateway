@@ -17,7 +17,7 @@ namespace sad_spirit\pg_gateway\metadata;
 /**
  * Represents possible kinds of relations that gateways can access
  *
- * The backing values directly correspond in `pg_class.relkind` column.
+ * The backing values directly correspond to those in `pg_class.relkind` column.
  * We don't care about indexes and sequences, so cases for these are not available.
  *
  * This cannot be used with EnumConverter as the type of `relkind` field is not enum, it's `char` (a single character).
