@@ -82,7 +82,7 @@ trait ArrayOfForeignKeys
                 "Several matching foreign keys for %s%s: %s",
                 $relatedStr,
                 [] === $keyColumns ? '' : ' using (' . \implode(', ', $keyColumns) . ')',
-                \implode(', ', \array_map(fn (ForeignKey $key): string => $key->getConstraintName(), $keys))
+                \implode(', ', \array_map(fn (ForeignKey $key): string => $key->constraintName, $keys))
             ));
         }
 
@@ -125,7 +125,7 @@ trait ArrayOfForeignKeys
             $foreignKey = $this->foreignKeys[$index];
             if (
                 [] === $keyColumns
-                || $keyColumns === \array_intersect($keyColumns, $foreignKey->getChildColumns())
+                || $keyColumns === \array_intersect($keyColumns, $foreignKey->childColumns)
             ) {
                 $result[] = $foreignKey;
             }

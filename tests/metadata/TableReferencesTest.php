@@ -44,7 +44,7 @@ class TableReferencesTest extends DatabaseBackedTestCase
         $this::assertEqualsCanonicalizing(
             ['documents_author_fkey', 'documents_approval_fkey'],
             \array_map(
-                fn (ForeignKey $key): string => $key->getConstraintName(),
+                fn (ForeignKey $key): string => $key->constraintName,
                 $references->getIterator()->getArrayCopy()
             )
         );
@@ -65,16 +65,16 @@ class TableReferencesTest extends DatabaseBackedTestCase
 
         $this::assertEquals(
             'documents_hierarchy_fkey',
-            $references->get(new TableName('fkey_test', 'documents'))->getConstraintName()
+            $references->get(new TableName('fkey_test', 'documents'))->constraintName
         );
 
         $from = $references->from(new TableName('fkey_test', 'documents'));
         $this::assertCount(1, $from);
-        $this::assertEquals('documents_hierarchy_fkey', $from[0]->getConstraintName());
+        $this::assertEquals('documents_hierarchy_fkey', $from[0]->constraintName);
 
         $to = $references->to(new TableName('fkey_test', 'documents'));
         $this::assertCount(1, $to);
-        $this::assertEquals('documents_hierarchy_fkey', $to[0]->getConstraintName());
+        $this::assertEquals('documents_hierarchy_fkey', $to[0]->constraintName);
     }
 
     public function testAmbiguousChildSide(): void
@@ -84,7 +84,7 @@ class TableReferencesTest extends DatabaseBackedTestCase
         $this::assertEqualsCanonicalizing(
             ['documents_author_fkey', 'documents_approval_fkey'],
             \array_map(
-                fn (ForeignKey $key): string => $key->getConstraintName(),
+                fn (ForeignKey $key): string => $key->constraintName,
                 $references->to(new TableName('public', 'employees'))
             )
         );
@@ -100,7 +100,7 @@ class TableReferencesTest extends DatabaseBackedTestCase
 
         $this::assertEquals(
             'documents_approval_fkey',
-            $references->get(new TableName('public', 'employees'), ['boss_id'])->getConstraintName()
+            $references->get(new TableName('public', 'employees'), ['boss_id'])->constraintName
         );
     }
 
@@ -111,7 +111,7 @@ class TableReferencesTest extends DatabaseBackedTestCase
         $this::assertEqualsCanonicalizing(
             ['documents_author_fkey', 'documents_approval_fkey'],
             \array_map(
-                fn (ForeignKey $key): string => $key->getConstraintName(),
+                fn (ForeignKey $key): string => $key->constraintName,
                 $references->from(new TableName('fkey_test', 'documents'))
             )
         );
@@ -127,7 +127,7 @@ class TableReferencesTest extends DatabaseBackedTestCase
 
         $this::assertEquals(
             'documents_author_fkey',
-            $references->get(new TableName('fkey_test', 'documents'), ['employee_id'])->getConstraintName()
+            $references->get(new TableName('fkey_test', 'documents'), ['employee_id'])->constraintName
         );
     }
 
@@ -137,7 +137,7 @@ class TableReferencesTest extends DatabaseBackedTestCase
 
         $this::assertMatchesRegularExpression(
             '/_fkey$/',
-            $references->get(new TableName('fkey_test', 'documents'))->getConstraintName()
+            $references->get(new TableName('fkey_test', 'documents'))->constraintName
         );
     }
 

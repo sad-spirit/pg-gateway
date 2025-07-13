@@ -69,8 +69,8 @@ abstract class AdditionalSelectBuilder implements FragmentBuilder
             throw new LogicException(\sprintf(
                 "Cannot join on recursive foreign key without specifying whether to join"
                 . " from child side (%s) or parent side (%s) of the key",
-                "'" . \implode("', '", $foreignKey->getChildColumns()) . "'",
-                "'" . \implode("', '", $foreignKey->getReferencedColumns()) . "'"
+                "'" . \implode("', '", $foreignKey->childColumns) . "'",
+                "'" . \implode("', '", $foreignKey->referencedColumns) . "'"
             ));
         }
 
