@@ -172,7 +172,7 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
                 $unnestArgs = new FunctionArgumentList();
                 foreach ($otherParts as $column) {
                     $typeName = $this->tableLocator->createTypeNameNodeForOID(
-                        $this->definition->getColumns()->get($column)->getTypeOID()
+                        $this->definition->getColumns()->get($column)->typeOID
                     );
                     $typeName->bounds = [-1];
 

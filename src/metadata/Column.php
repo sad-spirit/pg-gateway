@@ -17,7 +17,7 @@ namespace sad_spirit\pg_gateway\metadata;
 /**
  * Represents properties of a table column
  */
-final class Column
+final readonly class Column
 {
     /**
      * Constructor, sets the column's properties
@@ -26,23 +26,37 @@ final class Column
      * @param bool               $nullable Whether column is nullable
      * @param int|numeric-string $typeOID  OID of the column data type
      */
-    public function __construct(private readonly string $name, private readonly bool $nullable, private $typeOID)
+    public function __construct(public string $name, public bool $nullable, public int|string $typeOID)
     {
     }
 
     /**
      * Returns the column name
+     *
+     * @deprecated Since 0.10.0: use {@see $name} property
      */
     public function getName(): string
     {
+        @\trigger_error(\sprintf(
+            'The "%s()" method is deprecated since release 0.10.0, '
+            . 'use $name property instead.',
+            __METHOD__
+        ), \E_USER_DEPRECATED);
         return $this->name;
     }
 
     /**
      * Returns whether the column is nullable
+     *
+     * @deprecated Since 0.10.0: use {@see $nullable} property
      */
     public function isNullable(): bool
     {
+        @\trigger_error(\sprintf(
+            'The "%s()" method is deprecated since release 0.10.0, '
+            . 'use $nullable property instead.',
+            __METHOD__
+        ), \E_USER_DEPRECATED);
         return $this->nullable;
     }
 
@@ -52,9 +66,16 @@ final class Column
      * If the column type is a domain, then OID of the base type will be returned
      *
      * @return int|numeric-string
+     *
+     * @deprecated Since 0.10.0: use {@see $typeOID} property
      */
-    public function getTypeOID()
+    public function getTypeOID(): int|string
     {
+        @\trigger_error(\sprintf(
+            'The "%s()" method is deprecated since release 0.10.0, '
+            . 'use $typeOID property instead.',
+            __METHOD__
+        ), \E_USER_DEPRECATED);
         return $this->typeOID;
     }
 }

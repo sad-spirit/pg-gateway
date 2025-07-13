@@ -32,14 +32,14 @@ final class BoolCondition extends ColumnCondition
 
     public function __construct(Column $column)
     {
-        if (self::BOOL_OID !== (int)$column->getTypeOID()) {
-            throw new LogicException("Column '{$column->getName()}' is not of type 'bool'");
+        if (self::BOOL_OID !== (int)$column->typeOID) {
+            throw new LogicException("Column '$column->name' is not of type 'bool'");
         }
         parent::__construct($column);
     }
 
     protected function generateExpressionImpl(): ScalarExpression
     {
-        return new ColumnReference(TableGateway::ALIAS_SELF, $this->column->getName());
+        return new ColumnReference(TableGateway::ALIAS_SELF, $this->column->name);
     }
 }

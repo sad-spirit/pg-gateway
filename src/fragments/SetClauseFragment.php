@@ -110,10 +110,7 @@ class SetClauseFragment implements Fragment, Parametrized
             ));
         }
 
-        $this->types = \array_map(
-            fn (Column $column) => $column->getTypeOID(),
-            $columns->getAll()
-        );
+        $this->types = \array_map(fn (Column $column) => $column->typeOID, $columns->getAll());
     }
 
     public function getParameterHolder(): SimpleParameterHolder

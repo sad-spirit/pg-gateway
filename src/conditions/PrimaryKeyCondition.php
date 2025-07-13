@@ -101,10 +101,10 @@ final class PrimaryKeyCondition extends Condition
         foreach ($this->primaryKey as $column) {
             $expression[] = new OperatorExpression(
                 '=',
-                new ColumnReference(TableGateway::ALIAS_SELF, $column->getName()),
+                new ColumnReference(TableGateway::ALIAS_SELF, $column->name),
                 new TypecastExpression(
-                    new NamedParameter($column->getName()),
-                    $this->converterFactory->createTypeNameNodeForOID($column->getTypeOID())
+                    new NamedParameter($column->name),
+                    $this->converterFactory->createTypeNameNodeForOID($column->typeOID)
                 )
             );
         }

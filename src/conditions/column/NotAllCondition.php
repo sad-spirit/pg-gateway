@@ -34,15 +34,15 @@ final class NotAllCondition extends TypedCondition
 {
     protected function generateExpressionImpl(): ScalarExpression
     {
-        $typeName = $this->converterFactory->createTypeNameNodeForOID($this->column->getTypeOID());
+        $typeName = $this->converterFactory->createTypeNameNodeForOID($this->column->typeOID);
         $typeName->bounds = [-1];
 
         return new OperatorExpression(
             '<>',
-            new ColumnReference(TableGateway::ALIAS_SELF, $this->column->getName()),
+            new ColumnReference(TableGateway::ALIAS_SELF, $this->column->name),
             new ArrayComparisonExpression(
                 ArrayComparisonConstruct::ALL,
-                new TypecastExpression(new NamedParameter($this->column->getName()), $typeName)
+                new TypecastExpression(new NamedParameter($this->column->name), $typeName)
             )
         );
     }

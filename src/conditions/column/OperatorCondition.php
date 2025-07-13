@@ -45,10 +45,10 @@ final class OperatorCondition extends TypedCondition
     {
         return new OperatorExpression(
             $this->operator,
-            new ColumnReference(TableGateway::ALIAS_SELF, $this->column->getName()),
+            new ColumnReference(TableGateway::ALIAS_SELF, $this->column->name),
             new TypecastExpression(
-                new NamedParameter($this->column->getName()),
-                $this->converterFactory->createTypeNameNodeForOID($this->column->getTypeOID())
+                new NamedParameter($this->column->name),
+                $this->converterFactory->createTypeNameNodeForOID($this->column->typeOID)
             )
         );
     }

@@ -31,7 +31,7 @@ final class IsNullCondition extends ColumnCondition
     protected function generateExpressionImpl(): ScalarExpression
     {
         return new IsExpression(
-            new ColumnReference(TableGateway::ALIAS_SELF, $this->column->getName()),
+            new ColumnReference(TableGateway::ALIAS_SELF, $this->column->name),
             IsPredicate::NULL
         );
     }

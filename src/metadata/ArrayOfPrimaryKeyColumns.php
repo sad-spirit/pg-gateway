@@ -66,7 +66,7 @@ trait ArrayOfPrimaryKeyColumns
      */
     public function getNames(): array
     {
-        return \array_map(fn (Column $column): string => $column->getName(), $this->columns);
+        return \array_map(fn (Column $column): string => $column->name, $this->columns);
     }
 
     /**
