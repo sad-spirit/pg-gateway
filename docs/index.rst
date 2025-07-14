@@ -20,3 +20,4 @@ maybe sacrificing some flexibility.
     table-locator
     factories
     oid-mapper
+    metadata
