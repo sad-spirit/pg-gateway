@@ -5,6 +5,8 @@ Tutorial
 In this tutorial we will use the default classes of the package with minimal configuration to add and
 retrieve data from tables.
 
+.. _tutorial-schema:
+
 Database schema
 ===============
 

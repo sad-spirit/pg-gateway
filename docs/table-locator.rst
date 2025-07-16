@@ -119,6 +119,8 @@ Facade methods
     Calls the same method of ``TypeNameNodeHandler``, returns ``TypeName`` node
     corresponding to database type OID that can be used in statement AST.
 
+.. _table-locator-factories:
+
 Getting metadata and creating gateways (the ``Locator`` part)
 =============================================================
 

@@ -187,6 +187,8 @@ or foreign tables. All of these extend base ``CachedMetadataLoader`` class, whic
 
 Of course, it is highly recommended to use metadata cache in production.
 
+.. _metadata-containers:
+
 Metadata containers
 ===================
 

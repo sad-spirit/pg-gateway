@@ -21,3 +21,4 @@ maybe sacrificing some flexibility.
     factories
     oid-mapper
     metadata
+    gateways
