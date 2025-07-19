@@ -48,7 +48,7 @@ and defines four methods corresponding to SQL statements:
     }
 
 ``$fragments`` parameter for the above methods provides additional parts for the query being generated. Most commonly,
-it will either be a fluent builder object created by ``TableLocator::createBuilder()``
+it will either be a :ref:`fluent builder object <default-builder>` created by ``TableLocator::createBuilder()``
 
 .. code-block:: php
 

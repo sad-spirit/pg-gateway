@@ -1,6 +1,6 @@
-=============================
-Table metadata representation
-=============================
+========================
+Accessing table metadata
+========================
 
 The package loads and uses the following metadata:
 
