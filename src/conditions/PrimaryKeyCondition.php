@@ -51,7 +51,7 @@ final class PrimaryKeyCondition extends Condition
         $this->primaryKey = $primaryKey;
     }
 
-    public function getFragment(): Fragment
+    public function getFragment(): WhereClauseFragment
     {
         return new WhereClauseFragment($this, Fragment::PRIORITY_HIGHEST);
     }

@@ -32,11 +32,9 @@ abstract class Condition implements KeyEquatable, FragmentBuilder
      *
      * Implementing the FragmentBuilder interface allows directly using the Condition in a list of Fragments
      * passed to a Gateway query method. This returns a WhereClauseFragment wrapping around the Condition,
-     * so it will eventually be appended to the query's WHERE clause.
-     *
-     * @return Fragment
+     * so it will eventually be appended to the WHERE clause of the query.
      */
-    public function getFragment(): Fragment
+    public function getFragment(): fragments\WhereClauseFragment
     {
         return new fragments\WhereClauseFragment($this);
     }
@@ -46,8 +44,6 @@ abstract class Condition implements KeyEquatable, FragmentBuilder
      *
      * The same ScalarExpression instance should not be returned on consecutive calls: it is a feature of the Node
      * to keep track of its parent, so it will be removed from one parent if added to the other.
-     *
-     * @return ScalarExpression
      */
     final public function generateExpression(): ScalarExpression
     {
@@ -59,16 +55,11 @@ abstract class Condition implements KeyEquatable, FragmentBuilder
      *
      * Method name starts with "generate" as a hint: it should preferably generate the ScalarExpression on "as needed"
      * basis rather than pre-generate and store that. Real world Conditions will use Parser and parsing may be slow.
-     *
-     * @return ScalarExpression
      */
     abstract protected function generateExpressionImpl(): ScalarExpression;
 
     /**
      * Creates a Condition that combines several other Conditions using AND operator
-     *
-     * @param Condition ...$children
-     * @return conditions\AndCondition
      */
     final public static function and(self ...$children): conditions\AndCondition
     {
@@ -77,9 +68,6 @@ abstract class Condition implements KeyEquatable, FragmentBuilder
 
     /**
      * Creates a Condition that combines several other Conditions using OR operator
-     *
-     * @param Condition ...$children
-     * @return conditions\OrCondition
      */
     final public static function or(self ...$children): conditions\OrCondition
     {
@@ -88,9 +76,6 @@ abstract class Condition implements KeyEquatable, FragmentBuilder
 
     /**
      * Creates a negated Condition
-     *
-     * @param Condition $child
-     * @return conditions\NotCondition
      */
     final public static function not(self $child): conditions\NotCondition
     {
