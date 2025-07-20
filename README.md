@@ -129,16 +129,7 @@ limit $2;
 
 ## Documentation
 
-* [Package overview](./docs/index.md)
-* [`TableLocator` class](./docs/locator.md)
-* [Working with table metadata](./docs/metadata.md)
-* [`TableGateway` interface and its implementations](./docs/gateways.md)
-* [Fluent Builders](./docs/builders-methods.md)
-* [`FragmentBuilder` implementations](./docs/builders-classes.md)
-
-* [Query fragments: base interfaces, parameters, aliases](./docs/fragments-base.md)
-* [`Fragment` implementations](./docs/fragments-implementations.md)
-* [`Condition` classes](./docs/conditions.md)
+For in-depth description of package features, visit [pg_gateway manual](https://pg-gateway.readthedocs.io/).
 
 ## Requirements
 
