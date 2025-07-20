@@ -1,5 +1,21 @@
 # Changelog
 
+## [Unreleased]
+
+Package manual is now published on [Read the Docs](https://pg-gateway.readthedocs.io)
+
+### Fixed
+ * Typehint for `$fragments` argument of `TableLocator::select()` is now the same as in `TableGateway::select()`
+
+### Changed
+ * Metadata value objects `TableName`, `Column`, and `ForeignKey` now use public readonly properties.
+   The getters are still available, but deprecated.
+ * Methods deprecated in 0.9.0 now actually trigger a silenced `E_USER_DEPRECATED` error.
+   Getters of the above value objects do the same.
+ * `TableName` uses a static variable for caching string representations of its instances,
+   populating it on demand.
+ * `Condition::getFragment()` now has a narrower return type of `WhereClauseFragment` instead of `Fragment`.
+
 ## [0.9.0] - 2025-02-25
 
 The package now requires PHP 8.2+ and Postgres 12+, BC breaks are possible due to new language features being used.
@@ -200,4 +216,5 @@ Initial release on GitHub.
 [0.2.1]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.0...v0.2.1
 [0.3.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.1...v0.3.0
 [0.4.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.3.0...v0.4.0
-[0.9.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.4.0...0.9.0
+[0.9.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.4.0...v0.9.0
+[Unreleased]: https://github.com/sad-spirit/pg-gateway/compare/v0.9.0...HEAD
