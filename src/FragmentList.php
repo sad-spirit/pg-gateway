@@ -124,7 +124,6 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
      *
      * @param Fragment $fragment    Fragment being added
      * @param int      $existingIdx Index of the Fragment having the same key in $fragments array
-     * @return void
      */
     private function mergeDuplicateFragmentParameters(Fragment $fragment, int $existingIdx): void
     {
