@@ -202,8 +202,8 @@ verbatim into the generated SQL, e.g.
 will have the special ``self`` alias replaced as needed, named ``:foo`` placeholder will be converted
 to positional one, and its type info ``foo_type`` extracted and used to properly convert the given ``$fooValue``.
 
-Modifying the output expressions list
-=====================================
+Modifying the returned values
+=============================
 
 ``returningColumns()``
     Configures a list of columns returned by

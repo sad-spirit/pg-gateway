@@ -25,3 +25,4 @@ maybe sacrificing some flexibility.
     default-builder
     fragment-builders
     conditions
+    fragments-base
