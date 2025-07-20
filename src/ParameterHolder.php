@@ -24,8 +24,6 @@ interface ParameterHolder
 {
     /**
      * Returns the Fragment/Condition using the parameters
-     *
-     * @return KeyEquatable
      */
     public function getOwner(): KeyEquatable;
 

@@ -24,8 +24,6 @@ interface Parametrized
 {
     /**
      * Returns values for named parameters
-     *
-     * @return ParameterHolder
      */
     public function getParameterHolder(): ParameterHolder;
 }

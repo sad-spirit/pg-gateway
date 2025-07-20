@@ -24,8 +24,6 @@ interface FragmentBuilder
 {
     /**
      * Returns the built fragment
-     *
-     * @return Fragment
      */
     public function getFragment(): Fragment;
 }

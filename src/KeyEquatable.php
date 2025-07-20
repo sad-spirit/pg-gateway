@@ -34,8 +34,6 @@ interface KeyEquatable
      *
      * Returning null means that this fragment (and consequently the query using it) cannot be cached.
      * This is the case with e.g. ad-hoc queries using Closures.
-     *
-     * @return string|null
      */
     public function getKey(): ?string;
 }

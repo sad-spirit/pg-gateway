@@ -37,8 +37,6 @@ interface Fragment extends KeyEquatable
 
     /**
      * Applies the fragment to the given Statement
-     *
-     * @param Statement $statement
      */
     public function applyTo(Statement $statement): void;
 
@@ -47,8 +45,6 @@ interface Fragment extends KeyEquatable
      *
      * Fragments with higher priority will be processed earlier, this may be relevant for CTEs, joins,
      * and parts of ORDER BY / GROUP BY clauses
-     *
-     * @return int
      */
     public function getPriority(): int;
 }
