@@ -122,7 +122,7 @@ class TableLocatorTest extends DatabaseBackedTestCase
         $connection->setTypeConverterFactory(new StubTypeConverterFactory());
 
         $this::expectException(UnexpectedValueException::class);
-        $this::expectExceptionMessage('TypeNameNodeHandler');
+        $this::expectExceptionMessage('ConfigurableTypeConverterFactory');
         new TableLocator($connection);
     }
 

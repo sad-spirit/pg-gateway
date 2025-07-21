@@ -56,7 +56,7 @@ Class API
         public function getParser() : Parser;
         public function createFromString(string $sql) : Statement;
         public function createFromAST(Statement $ast) : NativeStatement;
-        public function getTypeConverterFactory() : TypeNameNodeHandler;
+        public function getTypeConverterFactory() : TypeNameNodeHandler&ConfigurableTypeConverterFactory;
         public function createTypeNameNodeForOID($oid) : TypeName;
 
         // creating statements

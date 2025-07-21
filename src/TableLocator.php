@@ -26,7 +26,7 @@ use sad_spirit\pg_gateway\{
 };
 use sad_spirit\pg_wrapper\{
     Connection,
-    converters\DefaultTypeConverterFactory
+    converters\ConfigurableTypeConverterFactory
 };
 use sad_spirit\pg_builder\{
     NativeStatement,
@@ -53,7 +53,7 @@ class TableLocator
     /** @var array<TableGatewayFactory>  */
     private array $gatewayFactories = [];
     private readonly StatementFactory $statementFactory;
-    private TypeNameNodeHandler $typeConverterFactory;
+    private TypeNameNodeHandler&ConfigurableTypeConverterFactory $typeConverterFactory;
 
     private ?TableDefinitionFactory $definitionFactory = null;
 
@@ -103,8 +103,14 @@ class TableLocator
 
         $converterFactory = $this->connection->getTypeConverterFactory();
         if ($converterFactory instanceof TypeNameNodeHandler) {
+            if (!$converterFactory instanceof ConfigurableTypeConverterFactory) {
+                throw new UnexpectedValueException(
+                    "Connection object is using an implementation of TypeNameNodeHandler"
+                    . " that does not also implement ConfigurableTypeConverterFactory. This is no longer supported."
+                );
+            }
             $this->typeConverterFactory = $converterFactory;
-        } elseif ($converterFactory instanceof DefaultTypeConverterFactory) {
+        } elseif ($converterFactory instanceof ConfigurableTypeConverterFactory) {
             // Add a decorator ourselves, if possible...
             $this->typeConverterFactory = new BuilderSupportDecorator(
                 $converterFactory,
@@ -114,8 +120,8 @@ class TableLocator
         } else {
             // ...error if not
             throw new UnexpectedValueException(
-                "Connection object should be configured either with an implementation"
-                . " of TypeNameNodeHandler or an instance of DefaultTypeConverterFactory, this is required"
+                "Connection object should have an implementation"
+                . " of ConfigurableTypeConverterFactory set up for type conversion, this is required"
                 . " for handling of type information extracted from SQL and for generating type names."
             );
         }
@@ -222,7 +228,7 @@ class TableLocator
     /**
      * Get the factory object for converters to and from PostgreSQL representation
      */
-    public function getTypeConverterFactory(): TypeNameNodeHandler
+    public function getTypeConverterFactory(): TypeNameNodeHandler&ConfigurableTypeConverterFactory
     {
         return $this->typeConverterFactory;
     }

@@ -8,8 +8,12 @@ Package manual is now published on [Read the Docs](https://pg-gateway.readthedoc
  * Typehint for `$fragments` argument of `TableLocator::select()` is now the same as in `TableGateway::select()`
 
 ### Changed
- * Metadata value objects `TableName`, `Column`, and `ForeignKey` now use public readonly properties.
-   The getters are still available, but deprecated.
+ * `sad_spirit/pg_wrapper` and `sad_spirit/pg_builder` version 3.1 now required; the package checks for a new
+   `ConfigurableTypeConverterFactory` interface rather than for `DefaultTypeConverterFactory` implementation.
+ * Return type of `TableLocator::getTypeConverterFactory()` is now 
+   `TypeNameNodeHandler&ConfigurableTypeConverterFactory`
+ * Metadata value objects `metadata\TableName`, `metadata\Column`, and `metadata\ForeignKey` now use
+   public readonly properties. The getters are still available, but deprecated.
  * Methods deprecated in 0.9.0 now actually trigger a silenced `E_USER_DEPRECATED` error.
    Getters of the above value objects do the same.
  * `TableName` uses a static variable for caching string representations of its instances,
