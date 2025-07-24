@@ -156,6 +156,8 @@ these were added (either in constructor or with ``addTableGatewayFactory()``).
 * If no factories are available or if all of them returned ``null``, default gateway / builder implementations
   are created and returned.
 
+.. _table-locator-statements:
+
 Creating statements
 ===================
 

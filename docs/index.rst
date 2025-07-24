@@ -24,6 +24,7 @@ maybe sacrificing some flexibility.
     gateways
     default-builder
     fragment-builders
-    conditions
+    select-transformer
     fragments-base
     fragments-implementations
+    conditions

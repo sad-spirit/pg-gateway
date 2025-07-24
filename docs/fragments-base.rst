@@ -36,6 +36,8 @@ It is possible to set up a dependency between ``Fragment``\ s
 via priority, but without explicit priority it should be assumed that the fragments can be applied in any order and
 to any ``Statement``. It is a job of a ``Fragment`` to check whether it can be applied in the first place.
 
+.. _fragments-base-key:
+
 ``KeyEquatable`` interface
 ==========================
 

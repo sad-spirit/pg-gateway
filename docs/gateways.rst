@@ -346,6 +346,8 @@ assigned to the user after e.g. editing user's profile:
             ->replaceRelated($pkey, $roles);
     });
 
+.. _gateways-table-select:
+
 ``TableSelect``
 ---------------
 
