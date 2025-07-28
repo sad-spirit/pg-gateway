@@ -96,6 +96,7 @@ This class represents properties of a foreign key between two tables.
         public function isRecursive() : bool;
     }
 
+.. _metadata-interfaces:
 
 Base interfaces
 ===============

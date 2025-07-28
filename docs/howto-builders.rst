@@ -1,3 +1,5 @@
+.. _howto-builders:
+
 =============================
 How to create custom builders
 =============================
@@ -26,6 +28,8 @@ and ``byThat()`` methods.
 
 You can later create a repository class with ``selectWithExtraStuffByThisAndThat()`` method calling the above
 three.
+
+.. _howto-builders-steps:
 
 Required steps
 ==============

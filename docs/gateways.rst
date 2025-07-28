@@ -245,6 +245,8 @@ But having a proxy object allows less common cases as well:
   the given conditions (e.g. for pagination), this is done with ``executeCount()``;
 - The configured object can be used inside a more complex query, this is covered by ``createSelectAST()`` method.
 
+.. _gateways-implementations:
+
 Implementations
 ===============
 

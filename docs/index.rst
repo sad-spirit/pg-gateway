@@ -26,6 +26,7 @@ maybe sacrificing some flexibility.
     fragment-builders
     select-transformer
     howto-builders
+    howto-gateways
     fragments-base
     fragments-implementations
     conditions
