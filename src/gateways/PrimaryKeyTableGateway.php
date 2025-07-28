@@ -19,9 +19,7 @@ use sad_spirit\pg_gateway\{
     PrimaryKeyAccess,
     SelectProxy,
     StatementType,
-    TableSelect,
     builders\PrimaryKeyBuilder,
-    conditions\PrimaryKeyCondition,
     fragments\SetClauseFragment
 };
 use sad_spirit\pg_builder\{
@@ -60,16 +58,7 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
 
     public function selectByPrimaryKey(mixed $primaryKey): SelectProxy
     {
-        $condition = new PrimaryKeyCondition(
-            $this->definition->getPrimaryKey(),
-            $this->tableLocator->getTypeConverterFactory()
-        );
-
-        return new TableSelect(
-            $this->tableLocator,
-            $this,
-            (new FragmentList($condition))->mergeParameters($condition->normalizeValue($primaryKey))
-        );
+        return $this->select($this->createPrimaryKey($primaryKey));
     }
 
     public function updateByPrimaryKey(mixed $primaryKey, array $set): Result
