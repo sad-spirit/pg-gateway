@@ -5,6 +5,8 @@ Query Fragments: base concepts
 This chapter describes the base interfaces for query Fragments and related concepts. It is mostly intended for those
 wanting to create custom Fragments and / or wishing to understand the inner workings of the package.
 
+.. _fragments-overview:
+
 Fragments overview
 ==================
 

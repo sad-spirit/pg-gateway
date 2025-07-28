@@ -43,6 +43,8 @@ This is the default implementation of ``TableDefinitionFactory``, its ``create()
     is usually configured to ignore system schemas, so you'll get an exception trying to get metadata for tables
     from e.g. ``pg_catalog``.
 
+.. _factory-gateway:
+
 ``TableGatewayFactory`` interface
 =================================
 
@@ -63,6 +65,8 @@ given ``$definition``. They shouldn't throw exceptions: ``TableLocator`` can con
 of ``TableGatewayFactory`` and will sequentially call the relevant methods of them until
 a non-``null`` value is returned.
 
+.. _factory-gateway-mapping:
+
 ``NameMappingGatewayFactory``
 -----------------------------
 
@@ -78,8 +82,8 @@ The following code
     $factory = new NameMappingGatewayFactory(['rbac' => '\\app\\modules\\rbac\\database']);
     $factory->createGateway('rbac.users');
 
-will try to load and instantiate ``\app\modules\rbac\database\UsersGateway`` class. It will return
-``null`` if one does not exist.
+will check for existence of ``\app\modules\rbac\database\UsersGateway`` using autoloading and return either an instance
+of that or ``null`` if the class does not exist.
 
 ``setGatewayClassNameTemplate()`` and ``setBuilderClassNameTemplate()`` methods
 allow setting the templates for class names. Those default to ``'%sGateway'`` and ``'%sBuilder'``, respectively,
@@ -91,3 +95,8 @@ where ``%s`` will be substituted by a table name converted to "StudlyCaps". Thus
     $factory->createGateway('rbac.users');
 
 the factory will try the ``\app\modules\rbac\database\gateways\Users`` class instead.
+
+.. tip::
+
+    You can add several instances of ``NameMappingGatewayFactory`` mapping the same schema to different namespaces
+    and / or using different classname templates.
