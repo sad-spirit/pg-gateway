@@ -43,4 +43,9 @@ final class SelfColumnsShorthand extends TargetListFragment
     {
         return TableLocator::hash(self::class);
     }
+
+    public function getPriority(): int
+    {
+        return self::PRIORITY_HIGHEST;
+    }
 }

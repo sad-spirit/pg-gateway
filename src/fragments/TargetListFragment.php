@@ -55,6 +55,6 @@ abstract class TargetListFragment implements SelectFragment
 
     public function getPriority(): int
     {
-        return Fragment::PRIORITY_LOWER;
+        return Fragment::PRIORITY_HIGHER;
     }
 }

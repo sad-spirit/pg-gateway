@@ -83,4 +83,9 @@ final class SelfColumnsList extends TargetListFragment
             . '.' . TableLocator::hash($this->columns)
             . '.' . $strategyKey;
     }
+
+    public function getPriority(): int
+    {
+        return self::PRIORITY_HIGHEST;
+    }
 }
