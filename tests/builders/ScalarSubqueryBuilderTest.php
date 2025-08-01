@@ -76,6 +76,32 @@ class ScalarSubqueryBuilderTest extends DatabaseBackedTestCase
         );
     }
 
+    public function testArrayConstructor(): void
+    {
+        $gateway = self::$tableLocator->createGateway('fkey_test.documents');
+        $select  = $gateway->select();
+        $builder = (new ScalarSubqueryBuilder($gateway->getDefinition(), $select))
+            ->asArray();
+
+        $this::assertEquals(
+            new SubqueryAppender($select, asArray: true),
+            $builder->getFragment()
+        );
+    }
+
+    public function testReturningRow(): void
+    {
+        $gateway = self::$tableLocator->createGateway('fkey_test.documents');
+        $select  = $gateway->select();
+        $builder = (new ScalarSubqueryBuilder($gateway->getDefinition(), $select))
+            ->returningRow();
+
+        $this::assertEquals(
+            new SubqueryAppender($select, returningRow: true),
+            $builder->getFragment()
+        );
+    }
+
     /** @noinspection SqlResolve */
     public function testParameters(): void
     {

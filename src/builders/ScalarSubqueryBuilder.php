@@ -25,10 +25,19 @@ class ScalarSubqueryBuilder extends AdditionalSelectBuilder
 {
     private ?Condition $joinCondition = null;
     private ?string $columnAlias = null;
+    private bool $asArray = false;
+    private bool $returningRow = false;
 
     public function getFragment(): Fragment
     {
-        return new SubqueryAppender($this->wrapAdditional(), $this->joinCondition, $this->alias, $this->columnAlias);
+        return new SubqueryAppender(
+            $this->wrapAdditional(),
+            $this->joinCondition,
+            $this->alias,
+            $this->columnAlias,
+            $this->returningRow,
+            $this->asArray
+        );
     }
 
     /**
@@ -92,6 +101,35 @@ class ScalarSubqueryBuilder extends AdditionalSelectBuilder
     public function columnAlias(string $alias): self
     {
         $this->columnAlias = $alias;
+
+        return $this;
+    }
+
+    /**
+     * Wraps the subquery in an ARRAY() constructor, allowing to return more than one row
+     *
+     * @link https://github.com/sad-spirit/pg-gateway/issues/1
+     * @since 0.10.0
+     * @return $this
+     */
+    public function asArray(): self
+    {
+        $this->asArray = true;
+
+        return $this;
+    }
+
+    /**
+     * Replaces the column list of the SELECT by a ROW() constructor with these columns
+     *
+     * This allows returning more than one column from a (formerly) scalar subquery
+     *
+     * @since 0.10.0
+     * @return $this
+     */
+    public function returningRow(): self
+    {
+        $this->returningRow = true;
 
         return $this;
     }

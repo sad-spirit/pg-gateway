@@ -26,9 +26,11 @@ use sad_spirit\pg_gateway\{
     holders\ParameterHolderFactory,
     walkers\ReplaceTableAliasWalker
 };
+use sad_spirit\pg_builder\enums\SubselectConstruct;
 use sad_spirit\pg_builder\nodes\{
     Identifier,
     TargetElement,
+    expressions\RowExpression,
     expressions\SubselectExpression,
     lists\TargetList
 };
@@ -46,7 +48,9 @@ final class SubqueryAppender extends TargetListFragment implements Parametrized
         private readonly SelectBuilder $select,
         private readonly ?Condition $joinCondition = null,
         private readonly ?string $explicitTableAlias = null,
-        private readonly ?string $columnAlias = null
+        private readonly ?string $columnAlias = null,
+        private readonly bool $returningRow = false,
+        private readonly bool $asArray = false
     ) {
     }
 
@@ -79,8 +83,23 @@ final class SubqueryAppender extends TargetListFragment implements Parametrized
             $select->where->and($condition);
         }
 
+        if (false !== $this->returningRow) {
+            if (!isset($select->list)) {
+                throw new UnexpectedValueException(\sprintf(
+                    "Statement containing a target list needed for ROW() wrapping, instance of %s given",
+                    $select::class
+                ));
+            }
+            $row = new RowExpression();
+            /** @var TargetElement $item */
+            foreach ($select->list as $item) {
+                $row[] = clone $item->expression;
+            }
+            $select->list->replace([new TargetElement($row)]);
+        }
+
         $targetList[] = new TargetElement(
-            new SubselectExpression($select),
+            new SubselectExpression($select, $this->asArray ? SubselectConstruct::ARRAY : null),
             null === $this->columnAlias ? null : new Identifier($this->columnAlias)
         );
     }

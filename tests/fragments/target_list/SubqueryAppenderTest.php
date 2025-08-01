@@ -153,6 +153,49 @@ class SubqueryAppenderTest extends TestCase
             ->applyTo($select);
     }
 
+    public function testArrayConstructor(): void
+    {
+        $factory = new StatementFactory();
+        /** @var Select $select */
+        $select  = $factory->createFromString('select self.foo as bar, quux.xyzzy');
+
+        $mockSelect = $this->createMock(SelectProxy::class);
+
+        $mockSelect->expects($this->any())
+            ->method('createSelectAST')
+            ->willReturn($factory->createFromString('select baz from bazbaz'));
+
+        (new SubqueryAppender($mockSelect, asArray: true))
+            ->applyTo($select);
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'select self.foo as bar, quux.xyzzy,'
+            . ' array( select baz from bazbaz )',
+            $factory->createFromAST($select)->getSql()
+        );
+    }
+
+    public function testReturningRow(): void
+    {
+        $factory = new StatementFactory();
+        /** @var Select $select */
+        $select  = $factory->createFromString('select self.foo as bar');
+
+        $mockSelect = $this->createMock(SelectProxy::class);
+
+        $mockSelect->expects($this->any())
+            ->method('createSelectAST')
+            ->willReturn($factory->createFromString('select baz, quux, xyzzy from meta.syntactic'));
+
+        (new SubqueryAppender($mockSelect, returningRow: true))
+            ->applyTo($select);
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'select self.foo as bar, ( select (baz, quux, xyzzy) from meta.syntactic )',
+            $factory->createFromAST($select)->getSql()
+        );
+    }
+
     public function testGetParameters(): void
     {
         $mockSelect = $this->createMock(SelectProxy::class);
