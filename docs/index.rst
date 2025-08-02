@@ -24,6 +24,7 @@ maybe sacrificing some flexibility.
     select-transformer
     howto-builders
     howto-gateways
+    howto-mapping
     fragments-base
     fragments-implementations
     conditions
