@@ -18,9 +18,6 @@ maybe sacrificing some flexibility.
     overview
     tutorial
     table-locator
-    factories
-    oid-mapper
-    metadata
     gateways
     default-builder
     fragment-builders
@@ -30,3 +27,6 @@ maybe sacrificing some flexibility.
     fragments-base
     fragments-implementations
     conditions
+    factories
+    oid-mapper
+    metadata

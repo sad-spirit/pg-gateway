@@ -63,6 +63,20 @@ were provided as strings initially.
 The obvious downside is that parsing SQL and building SQL from AST are expensive operations, so we provide means
 to cache the complete query.
 
+Reusable query fragments
+------------------------
+
+The main concept of the package is ``Fragment``: it serves as a sort of proxy to a part of query AST.
+Every query being built starts from the base AST (e.g. corresponding to ``SELECT self.* from table_name as self``
+query) and then Fragments are applied to it. Those may modify the list of returned columns or add conditions to the
+``WHERE`` clause.
+
+Fragments are expected to be immutable and (generally) independent from one another.
+
+Fragments and related classes implement ``getKey()`` method that should return a string uniquely identifying
+the Fragment based on its contents. It is assumed that applying Fragments having the same keys will result in the same
+changes to query. These keys are combined to generate a cache key for the complete query and possibly skip
+the parse / build operations.
 
 Preferring parametrized queries
 -------------------------------
@@ -75,18 +89,6 @@ There are also means to pass parameter values alongside query parts that use the
 
 These feature make it easy to combine a query from several parts having parameter placeholders, instead of
 substituting literals into query. Parametrized queries can be cached and reused later with different parameter values.
-
-Reusable query fragments
-------------------------
-
-The main concept of the package is ``Fragment``: it serves as a sort of proxy to a part of query AST.
-Every query being built starts from the base AST (e.g. ``SELECT self.* from table_name as self``) and then
-Fragments are applied to it. Those may modify the list of returned columns or add conditions to the ``WHERE`` clause.
-
-Fragments and related classes have a ``getKey()`` method that should return a string uniquely identifying the Fragment
-based on its contents. It is assumed that applying Fragments having the same keys will result in the same changes
-to query. These keys are combined to generate a cache key for the complete query and possibly skip
-the parse / build operations.
 
 
 Requirements
