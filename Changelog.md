@@ -1,15 +1,21 @@
 # Changelog
 
-## [Unreleased]
+## [0.10.0] - 2025-08-03
 
 Package manual is now published on [Read the Docs](https://pg-gateway.readthedocs.io)
+
+### Added
+ * It is now possible to return essentially non-scalar values when using scalar subqueries, see
+   [request #1](https://github.com/sad-spirit/pg-gateway/issues/1). Enabled by `asArray()` and `returningRow()`
+   methods of `ScalarSubueryBuilder` and consequently `$asArray` and `$returningRow` constructor arguments
+   of `SubqueryAppender`.
 
 ### Fixed
  * Typehint for `$fragments` argument of `TableLocator::select()` is now the same as in `TableGateway::select()`
 
 ### Changed
- * `sad_spirit/pg_wrapper` and `sad_spirit/pg_builder` version 3.1 now required; the package checks for a new
-   `ConfigurableTypeConverterFactory` interface rather than for `DefaultTypeConverterFactory` implementation.
+ * `sad_spirit/pg_wrapper` version 3.2 and `sad_spirit/pg_builder` version 3.1 now required; the package checks for
+   a new `ConfigurableTypeConverterFactory` interface rather than for `DefaultTypeConverterFactory` implementation.
  * Return type of `TableLocator::getTypeConverterFactory()` is now 
    `TypeNameNodeHandler&ConfigurableTypeConverterFactory`
  * Metadata value objects `metadata\TableName`, `metadata\Column`, and `metadata\ForeignKey` now use
@@ -19,6 +25,8 @@ Package manual is now published on [Read the Docs](https://pg-gateway.readthedoc
  * `TableName` uses a static variable for caching string representations of its instances,
    populating it on demand.
  * `Condition::getFragment()` now has a narrower return type of `WhereClauseFragment` instead of `Fragment`.
+ * Raised priority of `TargetListFragment` and its subclasses. The default target list order should now be: 
+   columns of base table, calculated values, target lists of joined tables.
 
 ## [0.9.0] - 2025-02-25
 
@@ -221,4 +229,5 @@ Initial release on GitHub.
 [0.3.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.2.1...v0.3.0
 [0.4.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.3.0...v0.4.0
 [0.9.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.4.0...v0.9.0
-[Unreleased]: https://github.com/sad-spirit/pg-gateway/compare/v0.9.0...HEAD
+[0.10.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.9.0...v0.10.0
+
