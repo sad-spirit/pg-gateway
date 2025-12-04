@@ -79,36 +79,6 @@ final class TableName implements \Stringable
     }
 
     /**
-     * Returns the relation part of a qualified table name
-     *
-     * @deprecated Since 0.10.0: use {@see $relation} property
-     */
-    public function getRelation(): string
-    {
-        @\trigger_error(\sprintf(
-            'The "%s()" method is deprecated since release 0.10.0, '
-            . 'use $relation property instead.',
-            __METHOD__
-        ), \E_USER_DEPRECATED);
-        return $this->relation;
-    }
-
-    /**
-     * Returns the schema part of a qualified table name
-     *
-     * @deprecated Since 0.10.0: use {@see $schema} property
-     */
-    public function getSchema(): string
-    {
-        @\trigger_error(\sprintf(
-            'The "%s()" method is deprecated since release 0.10.0, '
-            . 'use $schema property instead.',
-            __METHOD__
-        ), \E_USER_DEPRECATED);
-        return $this->schema;
-    }
-
-    /**
      * Checks whether two TableName instances reference the same table
      */
     public function equals(self $other): bool

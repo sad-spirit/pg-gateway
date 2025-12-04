@@ -294,22 +294,6 @@ class FluentBuilder extends FragmentListBuilder
     }
 
     /**
-     * Configures a list of columns returned by a SELECT statement
-     *
-     * @return proxies\ColumnsBuilderProxy<static>
-     * @deprecated Since 0.9.0: use {@see returningColumns()} for both SELECT and data-modifying statements
-     */
-    public function outputColumns(): proxies\ColumnsBuilderProxy
-    {
-        @\trigger_error(\sprintf(
-            'The "%s()" method is deprecated since release 0.9.0, '
-            . 'use returningColumns() instead.',
-            __METHOD__
-        ), \E_USER_DEPRECATED);
-        return $this->returningColumns();
-    }
-
-    /**
      * Configures a list of columns returned by SELECT or the RETURNING clause of DELETE / INSERT / UPDATE
      *
      * @param string[] $only
@@ -328,22 +312,6 @@ class FluentBuilder extends FragmentListBuilder
     }
 
     /**
-     * Adds a scalar subquery to the output list of a SELECT statement
-     *
-     * @return proxies\ScalarSubqueryBuilderProxy<static>
-     * @deprecated Since 0.9.0: use {@see returningSubquery()} for both SELECT and data-modifying statements
-     */
-    public function outputSubquery(SelectBuilder $select): proxies\ScalarSubqueryBuilderProxy
-    {
-        @\trigger_error(\sprintf(
-            'The "%s()" method is deprecated since release 0.9.0, '
-            . 'use returningSubquery() instead.',
-            __METHOD__
-        ), \E_USER_DEPRECATED);
-        return $this->returningSubquery($select);
-    }
-
-    /**
      * Adds a scalar subquery to the output list of a SELECT statement or (maybe even) to the RETURNING clause
      * of DELETE / INSERT / UPDATE
      *
@@ -355,22 +323,6 @@ class FluentBuilder extends FragmentListBuilder
         $this->addProxy($builder);
 
         return $builder;
-    }
-
-    /**
-     * Adds expression(s) to the list of columns returned by a SELECT statement
-     *
-     * @return $this
-     * @deprecated Since 0.9.0: use {@see returningExpression()} for both SELECT and data-modifying statements
-     */
-    public function outputExpression(string|Condition $expression, ?string $alias = null): self
-    {
-        @\trigger_error(\sprintf(
-            'The "%s()" method is deprecated since release 0.9.0, '
-            . 'use returningExpression() instead.',
-            __METHOD__
-        ), \E_USER_DEPRECATED);
-        return $this->returningExpression($expression, $alias);
     }
 
     /**
