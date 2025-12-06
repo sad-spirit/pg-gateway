@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\fragments\join_strategies;
 
 use PHPUnit\Framework\TestCase;
+use sad_spirit\pg_gateway\exceptions\LogicException;
 use sad_spirit\pg_gateway\tests\NormalizeWhitespace;
 use sad_spirit\pg_gateway\fragments\join_strategies\ExplicitJoinType;
 use sad_spirit\pg_gateway\fragments\join_strategies\ExplicitJoinStrategy;
@@ -234,6 +235,52 @@ from foo as self inner join bar as m_1 on self.id = m_1.id
             select m_2.* from baz as m_2 where m_2.title ~* 'something'
         ) as {$strategy->getSubselectAlias()} on self.id > {$strategy->getSubselectAlias()}.id
 order by self.title limit 10
+SQL
+            ,
+            $this->factory->createFromAST($base)->getSql()
+        );
+    }
+
+    public function testSubselectJoinWithMissingJoinFields(): void
+    {
+        /** @var Select $base */
+        $base = $this->factory->createFromString('select self.* from foo as self order by self.title');
+        /** @var Select $joined */
+        $joined = $this->factory->createFromString('select self.not_id from bar as self limit 10');
+
+        $this::expectException(LogicException::class);
+        $this::expectExceptionMessage("column 'id' for joined table is not selected, but present in join condition");
+
+        (new ExplicitJoinStrategy(ExplicitJoinType::Inner))->join(
+            $base,
+            $joined,
+            $this->factory->getParser()->parseExpression('self.id = joined.id'),
+            'e_1',
+            false
+        );
+    }
+
+    public function testSubselectJoinWithRenamedJoinFields(): void
+    {
+        /** @var Select $base */
+        $base = $this->factory->createFromString('select self.* from foo as self order by self.title');
+        /** @var Select $joined */
+        $joined = $this->factory->createFromString('select r_1.id as alias from bar as r_1 limit 10');
+
+        ($strategy = new ExplicitJoinStrategy(ExplicitJoinType::Inner))->join(
+            $base,
+            $joined,
+            $this->factory->getParser()->parseExpression('self.id = joined.id'),
+            'r_1',
+            false
+        );
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            <<<SQL
+select self.*, {$strategy->getSubselectAlias()}.*
+from foo as self inner join (
+            select r_1.id as alias from bar as r_1 limit 10
+        ) as {$strategy->getSubselectAlias()} on self.id = {$strategy->getSubselectAlias()}.alias
+order by self.title
 SQL
             ,
             $this->factory->createFromAST($base)->getSql()

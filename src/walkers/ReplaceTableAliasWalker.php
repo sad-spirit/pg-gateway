@@ -18,6 +18,7 @@ use sad_spirit\pg_builder\BlankWalker;
 use sad_spirit\pg_builder\nodes\{
     ColumnReference,
     Identifier,
+    Star,
     range\FromElement
 };
 
@@ -29,22 +30,27 @@ use sad_spirit\pg_builder\nodes\{
  */
 class ReplaceTableAliasWalker extends BlankWalker
 {
-    public function __construct(private readonly string $oldAlias, private readonly string $newAlias)
-    {
+    public function __construct(
+        private readonly string $oldAlias,
+        private readonly string $newAlias,
+        /** @var array<string, string> */
+        private readonly array $columnAliases = []
+    ) {
     }
 
     public function walkColumnReference(ColumnReference $node): null
     {
         if (
-            null !== $node->relation
-            && $this->oldAlias === $node->relation->value
+            $this->oldAlias === $node->relation?->value
             && null !== ($parent = $node->getParentNode())
             // If not null, then probably a field of a real table named "self" (e.g. "foo.self.bar") is accessed
             && null === $node->schema
         ) {
             $parent->replaceChild($node, new ColumnReference(
                 new Identifier($this->newAlias),
-                clone $node->column
+                $node->column instanceof Star
+                    ? clone $node->column
+                    : new Identifier($this->columnAliases[$node->column->value] ?? $node->column->value)
             ));
         }
         return null;
