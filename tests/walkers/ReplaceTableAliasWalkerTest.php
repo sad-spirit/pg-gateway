@@ -51,6 +51,29 @@ QRY
         );
     }
 
+    public function testReplacesTableAliasAndColumnNames(): void
+    {
+        $factory = new StatementFactory();
+        $select  = $factory->createFromString(
+            <<<QRY
+select foo.one, foo.two, bar.one, bar.two
+from sometable as foo, bar
+where foo.id = bar.id
+QRY
+        );
+        $select->dispatch(new ReplaceTableAliasWalker('foo', 'xyzzy', ['one' => 'alias']));
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            <<<QRY
+select xyzzy.alias, xyzzy.two, bar.one, bar.two
+from sometable as xyzzy, bar
+where xyzzy.id = bar.id
+QRY
+            ,
+            $factory->createFromAST($select)->getSql()
+        );
+    }
+
     public function testDoesNotReplaceQualifiedTableName(): void
     {
         $factory = new StatementFactory();

@@ -56,13 +56,10 @@ class ReplaceTableAliasWalker extends BlankWalker
         return null;
     }
 
-    public function walkRangeItemAliases(FromElement $rangeItem): void
+    protected function walkRangeItemAliases(FromElement $rangeItem): void
     {
-        if (
-            null !== $rangeItem->tableAlias
-            && $this->oldAlias === $rangeItem->tableAlias->value
-        ) {
-            $rangeItem->setTableAlias(new Identifier($this->newAlias));
+        if ($this->oldAlias === $rangeItem->tableAlias?->value) {
+            $rangeItem->tableAlias = new Identifier($this->newAlias);
         }
     }
 }
