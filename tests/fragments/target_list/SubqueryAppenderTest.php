@@ -153,6 +153,30 @@ class SubqueryAppenderTest extends TestCase
             ->applyTo($select);
     }
 
+    public function testJoinConditionWithOnlyAJoinedField(): void
+    {
+        $factory = new StatementFactory();
+        /** @var Select $select */
+        $select  = $factory->createFromString('select self.foo as bar, quux.xyzzy');
+
+        $mockSelect = $this->createMock(SelectProxy::class);
+        $mockSelect->expects($this->any())
+            ->method('createSelectAST')
+            ->willReturn($factory->createFromString(
+                'select foo from baz as self'
+            ));
+
+        $joinCondition = new SqlStringCondition($factory->getParser(), 'joined.foo');
+
+        (new SubqueryAppender($mockSelect, $joinCondition, 'stupid'))
+            ->applyTo($select);
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'select self.foo as bar, quux.xyzzy, ( select foo from baz as stupid where stupid.foo )',
+            $factory->createFromAST($select)->getSql()
+        );
+    }
+
     public function testArrayConstructor(): void
     {
         $factory = new StatementFactory();

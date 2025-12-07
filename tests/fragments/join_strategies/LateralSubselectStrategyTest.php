@@ -149,4 +149,36 @@ SQL
             $this->factory->createFromAST($base)->getSql()
         );
     }
+
+    public function testJoinConditionWithOnlyAJoinedField(): void
+    {
+        /** @var Select $base */
+        $base   = $this->factory->createFromString(
+            "select self.* from foo as self"
+        );
+        /** @var Select $joined */
+        $joined = $this->factory->createFromString(
+            "select array_agg(gw_1.field) from gw_1"
+        );
+        ($strategy = new LateralSubselectStrategy(LateralSubselectJoinType::Left))->join(
+            $base,
+            clone $joined,
+            $this->factory->getParser()->parseExpression('joined.foo'),
+            'gw_1',
+            false
+        );
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            <<<SQL
+select self.*, {$strategy->getSubselectAlias()}.*
+from foo as self left join lateral (
+        select array_agg(gw_1.field)
+        from gw_1
+        where gw_1.foo
+    ) as {$strategy->getSubselectAlias()} on true
+SQL
+            ,
+            $this->factory->createFromAST($base)->getSql()
+        );
+    }
 }

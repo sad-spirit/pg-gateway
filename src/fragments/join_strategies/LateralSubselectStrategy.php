@@ -87,8 +87,9 @@ class LateralSubselectStrategy extends SelectOnlyJoinStrategy
             if (!$joined instanceof Select) {
                 throw new LogicException("Conditions can only be applied to simple SELECT statements");
             }
-            $condition->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
             $joined->where->and($condition);
+            // Done after adding the condition, as it should have the parent node set
+            $condition->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
         }
 
         $subSelect = new Subselect($joined);

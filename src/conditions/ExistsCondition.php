@@ -65,9 +65,9 @@ final class ExistsCondition extends Condition implements Parametrized
                     $select::class
                 ));
             }
-            $condition = $this->joinCondition->generateExpression();
+            $select->where->and($condition = $this->joinCondition->generateExpression());
+            // Done after adding the condition, as it should have the parent node set
             $condition->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
-            $select->where->and($condition);
         }
 
         return new SubselectExpression($select, SubselectConstruct::EXISTS);

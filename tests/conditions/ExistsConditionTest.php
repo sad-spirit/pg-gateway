@@ -229,4 +229,27 @@ class ExistsConditionTest extends DatabaseBackedTestCase
             )
         );
     }
+
+    public function testJoinConditionWithOnlyAJoinedField(): void
+    {
+        $mockSelect = $this->createMock(SelectProxy::class);
+        $mockSelect->expects($this->any())
+            ->method('createSelectAST')
+            ->willReturn(
+                self::$tableLocator->getParser()
+                    ->parseSelectStatement(
+                        'select foo, bar from baz as self'
+                    )
+            );
+
+        $joinCondition = new SqlStringCondition(self::$tableLocator->getParser(), 'joined.foo');
+
+        $exists = new ExistsCondition($mockSelect, $joinCondition, 'stupid');
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            'exists( select 1 from baz as stupid where stupid.foo )',
+            $exists->generateExpression()->dispatch(
+                self::$tableLocator->getStatementFactory()->getBuilder()
+            )
+        );
+    }
 }

@@ -75,8 +75,9 @@ final class InlineStrategy implements JoinStrategy
 
         $statement->where->and($joined->where);
         if (null !== $condition) {
-            $condition->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
             $statement->where->and($condition);
+            // Done after adding the condition, as it should have the parent node set
+            $condition->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
         }
 
         if ($statement instanceof Select && !$isCount) {

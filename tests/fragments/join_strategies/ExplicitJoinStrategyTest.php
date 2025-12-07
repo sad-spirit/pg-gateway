@@ -286,4 +286,58 @@ SQL
             $this->factory->createFromAST($base)->getSql()
         );
     }
+
+    public function testSimpleJoinWithOnlyAJoinedFieldAsCondition(): void
+    {
+        /** @var Select $base */
+        $base = $this->factory->createFromString(
+            "select self.* from foo as self order by self.title limit 10"
+        );
+        /** @var Select $joined */
+        $joined = $this->factory->createFromString(
+            "select m_1.* from bar as m_1 where m_1.title ~* 'something' order by m_1.title"
+        );
+        (new ExplicitJoinStrategy())->join(
+            $base,
+            clone $joined,
+            $this->factory->getParser()->parseExpression('joined.foo'),
+            'm_1',
+            false
+        );
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            <<<SQL
+select self.*, m_1.*
+from foo as self inner join bar as m_1 on m_1.foo
+where  m_1.title ~* 'something'
+order by self.title, m_1.title limit 10
+SQL
+            ,
+            $this->factory->createFromAST($base)->getSql()
+        );
+    }
+    public function testSubselectJoinWithOnlyAJoinedFieldAsCondition(): void
+    {
+        /** @var Select $base */
+        $base = $this->factory->createFromString('select self.* from foo as self');
+        /** @var Select $joined */
+        $joined = $this->factory->createFromString('select r_1.id, r_1.foo from bar as r_1 limit 10');
+
+        ($strategy = new ExplicitJoinStrategy(ExplicitJoinType::Inner))->join(
+            $base,
+            $joined,
+            $this->factory->getParser()->parseExpression('joined.foo'),
+            'r_1',
+            false
+        );
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            <<<SQL
+select self.*, {$strategy->getSubselectAlias()}.*
+from foo as self inner join (
+            select r_1.id, r_1.foo from bar as r_1 limit 10
+        ) as {$strategy->getSubselectAlias()} on {$strategy->getSubselectAlias()}.foo
+SQL
+            ,
+            $this->factory->createFromAST($base)->getSql()
+        );
+    }
 }

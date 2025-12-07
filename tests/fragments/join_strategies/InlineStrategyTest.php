@@ -139,6 +139,31 @@ class InlineStrategyTest extends TestCase
         );
     }
 
+    public function testJoinConditionWithOnlyAJoinedField(): void
+    {
+        /** @var Select $base */
+        $base = $this->factory->createFromString(
+            "select self.* from foo as self order by self.title limit 10"
+        );
+        /** @var Select $joined */
+        $joined = $this->factory->createFromString(
+            "select gw_1.* from bar as gw_1 where gw_1.title ~* 'something' order by gw_1.title"
+        );
+        (new InlineStrategy())->join(
+            $base,
+            $joined,
+            $this->factory->getParser()->parseExpression('joined.foo'),
+            'gw_1',
+            false
+        );
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            "select self.*, gw_1.* from foo as self, bar as gw_1 "
+            . "where  gw_1.title ~* 'something' and gw_1.foo "
+            . "order by self.title, gw_1.title limit 10",
+            $this->factory->createFromAST($base)->getSql()
+        );
+    }
+
     #[DataProvider('addClauseProvider')]
     public function testCannotInline(\Closure $addClause): void
     {

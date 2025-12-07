@@ -78,9 +78,9 @@ final class SubqueryAppender extends TargetListFragment implements Parametrized
                     $select::class
                 ));
             }
-            $condition = $this->joinCondition->generateExpression();
+            $select->where->and($condition = $this->joinCondition->generateExpression());
+            // Done after adding the condition, as it should have the parent node set
             $condition->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
-            $select->where->and($condition);
         }
 
         if (false !== $this->returningRow) {
