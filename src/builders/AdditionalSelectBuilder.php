@@ -45,7 +45,6 @@ abstract class AdditionalSelectBuilder implements FragmentBuilder
      *                             specify the columns on the child side that should be part of the key
      * @param bool|null $fromChild If a self-join is being made, this specifies whether the base table should be
      *                             on the child side of the join or the parent one. Ignored otherwise.
-     * @return ForeignKeyCondition
      */
     protected function createForeignKeyCondition(array $keyColumns = [], ?bool $fromChild = null): ForeignKeyCondition
     {
@@ -94,8 +93,9 @@ abstract class AdditionalSelectBuilder implements FragmentBuilder
     /**
      * Sets additional parameters to pass with the select being joined
      *
-     * This should be used when the class creating SELECT cannot contain parameters itself,
-     * e.g. SqlStringSelectBuilder that is a wrapper around SQL string
+     * This should be used when the class creating `SELECT` cannot contain parameters itself,
+     * e.g. {@see \sad_spirit\pg_gateway\SqlStringSelectBuilder SqlStringSelectBuilder}
+     * that is a wrapper around SQL string.
      *
      * @param array<string, mixed> $parameters
      * @return $this
@@ -114,7 +114,7 @@ abstract class AdditionalSelectBuilder implements FragmentBuilder
     }
 
     /**
-     * Wraps {@see $additional} with {@see ParametrizedSelectBuilder} if {@see parameters()} were given
+     * Wraps $additional with ParametrizedSelectBuilder if parameters() were given
      */
     protected function wrapAdditional(): SelectBuilder
     {

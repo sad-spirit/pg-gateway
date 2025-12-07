@@ -29,8 +29,8 @@ interface JoinStrategy extends KeyEquatable
     /**
      * Merges the Select with the Statement
      *
-     * It is assumed that a unique alias for a joined table was already substituted into $joined and that "self" alias
-     * (if present) references the base table. "joined" alias in $condition should be handled by a strategy.
+     * It is assumed that a unique alias for a joined table was already substituted into `$joined` and that "self" alias
+     * (if present) references the base table. "joined" alias in `$condition` should be handled by a strategy.
      *
      * @param Statement             $statement Statement for the base table (aliased as "self")
      * @param SelectCommon          $joined    SELECT statement for the table being joined

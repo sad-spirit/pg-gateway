@@ -35,8 +35,6 @@ abstract class SelectOnlyJoinStrategy implements JoinStrategy
 
     /**
      * Returns the alias for a subselect in FROM clause
-     *
-     * @return string
      */
     public function getSubselectAlias(): string
     {
@@ -46,15 +44,11 @@ abstract class SelectOnlyJoinStrategy implements JoinStrategy
     /**
      * Finds the item in FROM clause to which the JOIN will be applied
      *
-     * NB: we do not use a Walker here, as the node for the base table should not be in sub-select,
-     * it should either be a top-level member of FromList or participate in some JoinExpression
+     * NB: we do not use a `Walker` here, as the node for the base table should not be in sub-select,
+     * it should either be a top-level member of `FromList` or participate in some `JoinExpression`
      *
-     * A top-level FromElement is returned, as the base table could have had some (higher priority) joins
+     * A top-level `FromElement` is returned, as the base table could have had some (higher priority) joins
      * applied already, thus we should join to the result of the join, rather than to the table reference
-     *
-     * @param FromList $list
-     * @param string $alias
-     * @return FromElement
      */
     protected function findNodeForJoin(FromList $list, string $alias): FromElement
     {
@@ -67,11 +61,7 @@ abstract class SelectOnlyJoinStrategy implements JoinStrategy
     }
 
     /**
-     * Recursive part of {@see findNodeForJoin()}
-     *
-     * @param FromElement $from
-     * @param string $alias
-     * @return bool
+     * Recursive part of findNodeForJoin()
      */
     private function containsAliasedTable(FromElement $from, string $alias): bool
     {

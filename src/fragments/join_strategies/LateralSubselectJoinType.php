@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\fragments\join_strategies;
 
 /**
- * Possible join types for {@see LateralSubselectStrategy}
+ * Possible join types for LateralSubselectStrategy
  */
 enum LateralSubselectJoinType: string
 {

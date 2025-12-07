@@ -56,16 +56,16 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
      * "Upsert"s the given $rows adding the given $keyPart, deletes rows with that $keyPart that were not in $rows
      *
      * This can e.g. be used for replacing items in users basket:
-     * <code>
+     * ```PHP
      * $basketGateway->replaceRelated(
      *     ['user_id' => $user->id],
      *     [
      *         ['item_id' => $itemOne->id, 'amount' => $itemOne->amount, ...]
-     *         ...
+     *         // ...
      *     ]
      * );
-     * </code>
-     * after that call the basket for the given user will contain only the items from $rows
+     * ```
+     * after that call the basket for the given user will contain only the items from `$rows`
      *
      * @param array<string, mixed> $primaryKeyPart Part of primary key for rows, ['field name' => 'field value', ...].
      * @param iterable<array>      $rows           Other fields for rows being stored
@@ -120,13 +120,13 @@ class CompositePrimaryKeyTableGateway extends PrimaryKeyTableGateway
      * Deletes the rows having the same $keyPart, when primary key has exactly one extra column
      *
      * The method builds a query similar to
-     * <pre>
+     * ```SQL
      * delete from table_name
      * where keyPart1 = :keyPart1 and ... and keyPartN = :keyPartN and
      *       otherPart <> all(:otherPart)
-     * </pre>
-     * and runs it using primary keys returned by upsert(). This essentially removes all related records,
-     * whose keys were not upsert()ed this time.
+     * ```
+     * and runs it using primary keys returned by `upsert()`. This essentially removes all related records,
+     * whose keys were not `upsert()`ed this time.
      *
      * @param non-empty-array<string, mixed> $keyPart     Part of primary key for rows,
      *                                                    ['column name' => 'column value', ...]

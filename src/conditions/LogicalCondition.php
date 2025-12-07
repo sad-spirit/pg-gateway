@@ -46,10 +46,11 @@ abstract class LogicalCondition extends Condition implements Parametrized
      * Returns the array of child Conditions' keys
      *
      * Note that the array is sorted alphabetically. We do not care in what order Conditions are added:
-     * https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-EXPRESS-EVAL
+     * {@link https://www.postgresql.org/docs/current/sql-expressions.html#SYNTAX-EXPRESS-EVAL}
      * Sorting the keys allows us to have the same key for the same set of Conditions.
      *
-     * @return array|null Returns null if any child Condition returns null from {@see getKey()}
+     * @return array|null Returns `null` if any child `Condition` returns `null` from
+     *                    {@see \sad_spirit\pg_gateway\KeyEquatable::getKey getKey()}
      */
     protected function getChildKeys(): ?array
     {

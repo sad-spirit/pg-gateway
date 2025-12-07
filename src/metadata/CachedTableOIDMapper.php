@@ -30,7 +30,7 @@ class CachedTableOIDMapper implements TableOIDMapper
     /**
      * Relations for current database, loaded from pg_catalog.pg_class
      *
-     * First array dimension is relation name, second is schema name. The value is an array of table OID and relkind
+     * First array dimension is relation name, second is schema name. The value is an array of table OID and `relkind`
      * column
      *
      * @var array<string, array<string, array{int|numeric-string, RelationKind}>>
@@ -40,7 +40,7 @@ class CachedTableOIDMapper implements TableOIDMapper
     /**
      * Mapping 'table OID' => ['schema name', 'table name']
      *
-     * This is built based on $tableNames, but not saved to cache
+     * This is built based on `$tableNames`, but not saved to cache
      *
      * @var array<array{string, string}>
      */

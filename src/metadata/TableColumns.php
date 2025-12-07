@@ -21,7 +21,8 @@ use sad_spirit\pg_wrapper\Connection;
 /**
  * Default implementation of Columns interface
  *
- * This should probably work with views as well after overriding {@see assertCorrectRelkind()}
+ * This should probably work with views as well after overriding
+ * {@see TableColumns::assertCorrectRelkind() assertCorrectRelkind()}
  *
  * @since 0.2.0
  */

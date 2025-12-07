@@ -21,8 +21,8 @@ use sad_spirit\pg_wrapper\Connection;
 /**
  * Base class for classes loading various table metadata from system catalogs
  *
- * If the provided Connection object has a cache for metadata, that cache will be used to prevent querying
- * system catalogs on each object instantiation
+ * If the provided {@see \sad_spirit\pg_wrapper\Connection Connection} object has a cache for metadata,
+ * that cache will be used to prevent querying system catalogs on each object instantiation
  */
 abstract class CachedMetadataLoader
 {

@@ -39,12 +39,12 @@ use sad_spirit\pg_builder\nodes\{
 /**
  * Wraps the joined Select statement in a LATERAL subselect and adds that to the base Select
  *
- * The main difference with ExplicitJoinStrategy is that join condition is added to the WHERE clause of subselect
- * rather than the ON clause of JOIN
+ * The main difference with `ExplicitJoinStrategy` is that join condition is added to the `WHERE` clause of subselect
+ * rather than the `ON` clause of `JOIN`
  *
- * While lateral subselects *can* appear in FROM clause of UPDATE statements and USING clause of DELETE statements,
- * these cannot reference the base table (the one being modified). Therefore, we only allow joining with
- * Select statements which can eventually be added to Delete or Update
+ * While lateral subselects *can* appear in `FROM` clause of `UPDATE` statements and `USING` clause
+ * of `DELETE` statements, these cannot reference the base table (the one being modified). Therefore, we only allow
+ * joining with `Select` statements which can eventually be added to `Delete` or `Update`
  */
 class LateralSubselectStrategy extends SelectOnlyJoinStrategy
 {

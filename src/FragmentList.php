@@ -28,7 +28,8 @@ use sad_spirit\pg_builder\Statement;
 /**
  * A list of Fragments behaving as a single Fragment, also aggregates parameters
  *
- * This is used internally by GenericTableGateway to normalize whatever was passed to its methods as $fragments
+ * This is used internally by {@see \sad_spirit\pg_gateway\gateways\GenericTableGateway GenericTableGateway}
+ * to normalize whatever was passed to its methods as `$fragments`.
  *
  * @implements \IteratorAggregate<int, Fragment>
  */
@@ -90,7 +91,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
     /**
      * Adds a fragment to the list
      *
-     * Instances of FragmentList will be "flattened" with their items added rather than the list itself
+     * Instances of `FragmentList` will be "flattened" with their items added rather than the list itself
      *
      * @return $this
      */
@@ -179,7 +180,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
      * Returns values for query parameters
      *
      * All parameter values are returned: those that were merged into the list itself and those that belong
-     * to Parametrized fragments in the list
+     * to `Parametrized` fragments in the list
      *
      * @return array<string, mixed>
      */
@@ -225,8 +226,8 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
     /**
      * Returns a string that uniquely identifies this fragment list
      *
-     * The string is generated using the sorted fragment keys. If any of these keys is null,
-     * this method will return null.
+     * The string is generated using the sorted fragment keys. If any of these keys is `null`,
+     * this method will return `null`.
      */
     public function getKey(): ?string
     {
@@ -263,7 +264,7 @@ class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, 
     /**
      * Filters the FragmentList using the given callback
      *
-     * This uses array_filter() internally so callback should be compatible to that
+     * This uses `array_filter()` internally so callback should be compatible to that
      *
      * @param callable(Fragment): bool $callback
      */

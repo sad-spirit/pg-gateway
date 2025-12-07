@@ -26,8 +26,9 @@ use sad_spirit\pg_builder\Statement;
 /**
  * Adds a Condition to the HAVING clause of a SELECT Statement
  *
- * Conditions are added to query using having->and() method, not by replacing $statement->having->condition,
- * as this allows using multiple fragments that modify HAVING clause.
+ * Conditions are added to the query using `$statement->having->and()` method,
+ * not by replacing `$statement->having->condition`, as this allows using multiple fragments
+ * that modify `HAVING` clause.
  */
 final class HavingClauseFragment implements SelectFragment, Parametrized
 {
@@ -59,7 +60,7 @@ final class HavingClauseFragment implements SelectFragment, Parametrized
     /**
      * {@inheritDoc}
      *
-     * Adding a HAVING clause to a query that should return a total number of rows does not make much sense
+     * Adding a `HAVING` clause to a query that should return a total number of rows does not make much sense
      */
     public function isUsedForCount(): bool
     {

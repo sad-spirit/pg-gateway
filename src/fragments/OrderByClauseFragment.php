@@ -44,7 +44,7 @@ class OrderByClauseFragment implements SelectFragment
      * Class constructor
      *
      * @param Parser $parser
-     * @param iterable<OrderByElement|string>|string $orderBy As accepted by OrderByList
+     * @param iterable<OrderByElement|string>|string $orderBy As accepted by `OrderByList`
      * @param bool $restricted Whether only column names and ordinal numbers are allowed in ORDER BY list
      * @param bool $merge Whether new sort expressions should be added to the existing list
      *                    via merge() rather than replace() it

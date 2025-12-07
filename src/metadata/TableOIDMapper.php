@@ -19,8 +19,11 @@ use sad_spirit\pg_gateway\exceptions\InvalidArgumentException;
 /**
  * Interface for classes that map OIDs to table names and can return info about relation type
  *
- * This is mostly needed to check relkind column of pg_class and create a proper implementation of TableDefinition.
- * Also table OIDs are returned by Result::getTableOID() and may be used e.g. to map result rows to DTOs.
+ * This is mostly needed to check `relkind` column of `pg_class` and create a proper implementation of
+ * {@see \sad_spirit\pg_gateway\TableDefinition TableDefinition}.
+ * Also table OIDs are returned by
+ * {@see \sad_spirit\pg_wrapper\Result::getTableOID() Result::getTableOID()}
+ * and may be used e.g. to map result rows to DTOs.
  *
  * @since 0.2.0
  */

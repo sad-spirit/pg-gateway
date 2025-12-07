@@ -22,10 +22,10 @@ use sad_spirit\pg_builder\SelectCommon;
 /**
  * A decorator for a SelectProxy replacing its generated Select statement with another one
  *
- * Fragments can only modify the child Nodes of an existing Statement, sometimes it is needed to return a new one.
- * A subclass of SelectTransformer may e.g.
- *  - Combine the given Select with another one using UNION, returning a new SetOpSelect object
- *  - Put the original Select into a CTE or a sub-query in FROM, returning the outer Select
+ * Fragments can only modify the child `Node`s of an existing `Statement`, sometimes it is needed to return a new one.
+ * A subclass of `SelectTransformer` may e.g.
+ *  - Combine the given `Select` with another one using `UNION`, returning a new `SetOpSelect` object
+ *  - Put the original `Select` into a CTE or a sub-query in `FROM`, returning the outer `Select`
  */
 abstract class SelectTransformer implements SelectProxy
 {

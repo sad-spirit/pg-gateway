@@ -26,7 +26,8 @@ use sad_spirit\pg_builder\nodes\lists\IdentifierList;
 /**
  * Builder for WithClauseFragment
  *
- * Currently, this only builds SelectProxyFragment as it has far more parameters
+ * Currently, this only builds {@see \sad_spirit\pg_gateway\fragments\with\SelectProxyFragment SelectProxyFragment}
+ * as it has far more parameters.
  *
  * @since 0.2.0
  */
@@ -108,7 +109,7 @@ class WithClauseBuilder implements FragmentBuilder
      * Sets the priority for the fragment
      *
      * Order may be important for the CTEs in the WITH clause without the RECURSIVE option, see
-     * https://www.postgresql.org/docs/current/sql-select.html#SQL-WITH
+     * {@link https://www.postgresql.org/docs/current/sql-select.html#SQL-WITH}.
      * > Without RECURSIVE, WITH queries can only reference sibling WITH queries that are earlier in the WITH list.
      *
      * @return $this

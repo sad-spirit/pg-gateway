@@ -60,9 +60,11 @@ class FluentBuilder extends FragmentListBuilder
     use PrimaryKeyBuilder;
 
     /**
-     * A non-fluent version of {@see any()}
+     * A non-fluent version of any()
      *
-     * The returned value can be combined with AND / OR before adding to the list
+     * The returned value can be combined with `AND` / `OR` before adding to the list
+     *
+     * @see \sad_spirit\pg_gateway\builders\FluentBuilder::any()
      */
     public function createAny(string $column, array $values): ParametrizedCondition
     {
@@ -76,9 +78,11 @@ class FluentBuilder extends FragmentListBuilder
     }
 
     /**
-     * A non-fluent version of {@see boolColumn()}
+     * A non-fluent version of boolColumn()
      *
-     * The returned value can be combined with AND / OR before adding to the list
+     * The returned value can be combined with `AND` / `OR` before adding to the list
+     *
+     * @see \sad_spirit\pg_gateway\builders\FluentBuilder::boolColumn()
      */
     public function createBoolColumn(string $column): BoolCondition
     {
@@ -86,9 +90,11 @@ class FluentBuilder extends FragmentListBuilder
     }
 
     /**
-     * A non-fluent version of {@see notBoolColumn()}
+     * A non-fluent version of notBoolColumn()
      *
-     * The returned value can be combined with AND / OR before adding to the list
+     * The returned value can be combined with `AND` / `OR` before adding to the list
+     *
+     * @see \sad_spirit\pg_gateway\builders\FluentBuilder::notBoolColumn()
      */
     public function createNotBoolColumn(string $column): NotCondition
     {
@@ -96,9 +102,11 @@ class FluentBuilder extends FragmentListBuilder
     }
 
     /**
-     * A non-fluent version of {@see isNull()}
+     * A non-fluent version of isNull()
      *
-     * The returned value can be combined with AND / OR before adding to the list
+     * The returned value can be combined with `AND` / `OR` before adding to the list
+     *
+     * @see \sad_spirit\pg_gateway\builders\FluentBuilder::isNull()
      */
     public function createIsNull(string $column): IsNullCondition
     {
@@ -106,9 +114,11 @@ class FluentBuilder extends FragmentListBuilder
     }
 
     /**
-     * A non-fluent version of {@see isNotNull()}
+     * A non-fluent version of isNotNull()
      *
-     * The returned value can be combined with AND / OR before adding to the list
+     * The returned value can be combined with `AND` / `OR` before adding to the list
+     *
+     * @see \sad_spirit\pg_gateway\builders\FluentBuilder::isNotNull()
      */
     public function createIsNotNull(string $column): NotCondition
     {
@@ -116,9 +126,11 @@ class FluentBuilder extends FragmentListBuilder
     }
 
     /**
-     * A non-fluent version of {@see notAll()}
+     * A non-fluent version of notAll()
      *
-     * The returned value can be combined with AND / OR before adding to the list
+     * The returned value can be combined with `AND` / `OR` before adding to the list
+     *
+     * @see \sad_spirit\pg_gateway\builders\FluentBuilder::notAll()
      */
     public function createNotAll(string $column, array $values): ParametrizedCondition
     {
@@ -132,9 +144,11 @@ class FluentBuilder extends FragmentListBuilder
     }
 
     /**
-     * A non-fluent version of {@see operatorCondition()}
+     * A non-fluent version of operatorCondition()
      *
-     * The returned value can be combined with AND / OR before adding to the list
+     * The returned value can be combined with `AND` / `OR` before adding to the list
+     *
+     * @see \sad_spirit\pg_gateway\builders\FluentBuilder::operatorCondition()
      */
     public function createOperatorCondition(string $column, string $operator, mixed $value): ParametrizedCondition
     {
@@ -149,9 +163,11 @@ class FluentBuilder extends FragmentListBuilder
     }
 
     /**
-     * A non-fluent version of {@see equal()}
+     * A non-fluent version of equal()
      *
-     * The returned value can be combined with AND / OR before adding to the list
+     * The returned value can be combined with `AND` / `OR` before adding to the list
+     *
+     * @see \sad_spirit\pg_gateway\builders\FluentBuilder::equal()
      */
     public function createEqual(string $column, mixed $value): ParametrizedCondition
     {
@@ -159,11 +175,12 @@ class FluentBuilder extends FragmentListBuilder
     }
 
     /**
-     * A non-fluent version of {@see sqlCondition()}
+     * A non-fluent version of sqlCondition()
      *
-     * The returned value can be combined with AND / OR before adding to the list
+     * The returned value can be combined with `AND` / `OR` before adding to the list
      *
      * @param array<string, mixed> $parameters
+     * @see \sad_spirit\pg_gateway\builders\FluentBuilder::sqlCondition()
      */
     public function createSqlCondition(string $sql, array $parameters = []): ParametrizedCondition
     {
@@ -176,7 +193,9 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Creates a Builder for configuring a `[NOT] EXISTS(...)` condition
      *
-     * The Condition returned by the Builder can be combined with AND / OR before adding to the list
+     * The Condition returned by the Builder can be combined with `AND` / `OR` before adding to the list
+     *
+     * @see \sad_spirit\pg_gateway\builders\FluentBuilder::exists()
      */
     public function createExists(string|TableName|QualifiedName|TableGateway|SelectBuilder $select): ExistsBuilder
     {
@@ -285,7 +304,6 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Adds a condition on a primary key
      *
-     * @param mixed $value
      * @return $this
      */
     public function primaryKey(mixed $value): self
@@ -356,8 +374,8 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Adds a join to the given table
      *
-     * The method will try to call `onForeignKey()` method of builder if $joined contains table metadata (i.e. is not
-     * an SQL string). If an Exception is thrown in that call (due to missing / ambiguous FK), it will be silenced
+     * The method will try to call `onForeignKey()` method of builder if `$joined` contains table metadata (i.e. is not
+     * an SQL string). If an `Exception` is thrown in that call (due to missing / ambiguous FK), it will be silenced
      * and the join will remain unconditional.
      *
      * @return proxies\JoinBuilderProxy<static>
@@ -412,7 +430,7 @@ class FluentBuilder extends FragmentListBuilder
     /**
      * Adds a [part of] WITH clause represented by an SQL string
      *
-     * The string may contain either a complete WITH clause `WITH foo AS (...)`, possibly with multiple CTEs,
+     * The string may contain either a complete `WITH` clause `WITH foo AS (...)`, possibly with multiple CTEs,
      * or a single CTE `foo AS (...)`
      *
      * @param array<string, mixed> $parameters

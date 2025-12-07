@@ -19,14 +19,16 @@ interface TableGatewayFactory
     /**
      * Creates a table data gateway for a given table name
      *
-     * Should return null if it cannot find a specific gateway so that TableLocator can fall back to a generic one
+     * Should return `null` if it cannot find a specific gateway so that
+     * {@see \sad_spirit\pg_gateway\TableLocator TableLocator} can fall back to a generic one
      */
     public function createGateway(TableDefinition $definition, TableLocator $tableLocator): ?TableGateway;
 
     /**
      * Creates a fluent builder for a given table name
      *
-     * Should return null if it cannot find a specific builder so that TableLocator can fall back to a generic one
+     * Should return `null` if it cannot find a specific builder so that
+     * {@see \sad_spirit\pg_gateway\TableLocator TableLocator} can fall back to a generic one
      */
     public function createBuilder(
         TableDefinition $definition,

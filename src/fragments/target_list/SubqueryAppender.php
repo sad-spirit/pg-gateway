@@ -38,7 +38,7 @@ use sad_spirit\pg_builder\nodes\{
 /**
  * Adds a scalar subquery created using SelectBuilder to the TargetList
  *
- * https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-SCALAR-SUBQUERIES
+ * @link https://www.postgresql.org/docs/current/sql-expressions.html#SQL-SYNTAX-SCALAR-SUBQUERIES
  */
 final class SubqueryAppender extends TargetListFragment implements Parametrized
 {

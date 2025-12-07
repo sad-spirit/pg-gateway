@@ -24,18 +24,18 @@ interface SelectFragment extends Fragment
     /**
      * {@inheritDoc}
      *
-     * The second parameter is intended for the JOIN-type queries: while the join itself may be needed as it affects
+     * The second parameter is intended for the `JOIN`-type queries: while the join itself may be needed as it affects
      * the number of returned rows, adding fields from the joined table to the target list should be omitted
      *
-     * @param bool $isCount   Whether a "SELECT COUNT(*)" query is being processed
+     * @param bool $isCount   Whether a `SELECT COUNT(*)` query is being processed
      */
     public function applyTo(Statement $statement, bool $isCount = false): void;
 
     /**
      * Returns whether this fragment should be added to a "SELECT COUNT(*)" query
      *
-     * If the fragment does not change the number of returned rows or if it doesn't make sense for "SELECT COUNT(*)"
-     * query (e.g. ORDER, LIMIT, OFFSET), then it should be skipped
+     * If the fragment does not change the number of returned rows or if it doesn't make sense for `SELECT COUNT(*)`
+     * query (e.g. `ORDER`, `LIMIT`, `OFFSET`), then it should be skipped
      */
     public function isUsedForCount(): bool;
 }

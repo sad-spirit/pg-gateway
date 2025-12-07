@@ -41,10 +41,9 @@ abstract class WithClauseFragment implements Fragment, Parametrized
     /**
      * Creates a WithClause object that will be merged into Statement
      *
-     * We are creating a WithClause rather than a CommonTableExpression as $recursive property belongs to the former
-     *
-     * @param Statement $statement
-     * @return WithClause
+     * We are creating a {@see \sad_spirit\pg_builder\nodes\WithClause WithClause}
+     * rather than a {@see \sad_spirit\pg_builder\nodes\CommonTableExpression CommonTableExpression}
+     * as `$recursive` property belongs to the former
      */
     abstract protected function createWithClause(Statement $statement): WithClause;
 }

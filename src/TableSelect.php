@@ -48,10 +48,10 @@ final readonly class TableSelect implements SelectProxy
      * Class constructor
      *
      * @param null|\Closure(): SelectCommon $baseSelectAST Overrides the base AST
-     *      (corresponding to "SELECT self.* from tablename as self" in SQL) which is used when building
-     *      the SELECT query. May be used to add some default calculated fields, default JOINs, etc.
+     *      (corresponding to `SELECT self.* from tablename as self` in SQL) which is used when building
+     *      the `SELECT` query. May be used to add some default calculated fields, default `JOIN`s, etc.
      * @param null|\Closure(): SelectCommon $baseCountAST Overrides the base AST
-     *      (corresponding to "SELECT count(self.*) from tablename as self" in SQL) which is used in executeCount()
+     *      (corresponding to `SELECT count(self.*) from tablename as self` in SQL) which is used in executeCount()
      */
     public function __construct(
         private TableLocator $tableLocator,

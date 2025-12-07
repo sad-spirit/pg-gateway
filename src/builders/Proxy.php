@@ -27,9 +27,8 @@ interface Proxy extends FragmentBuilder
     /**
      * Returns the fragment built by a non-proxied part
      *
-     * The {@see getFragment()} method will return the fragment built by the proxied Builder
-     *
-     * @return Fragment
+     * The {@see \sad_spirit\pg_gateway\FragmentBuilder::getFragment() getFragment()}
+     * method will return the fragment built by the proxied Builder
      */
     public function getOwnFragment(): Fragment;
 }

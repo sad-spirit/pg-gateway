@@ -17,7 +17,8 @@ namespace sad_spirit\pg_gateway;
 /**
  * Interface for classes transferring query parameter values with their related Fragments/Conditions
  *
- * Objects implementing this interface are used to "bubble" all parameters up to the FragmentList and to ensure
+ * Objects implementing this interface are used to "bubble" all parameters up to the
+ * {@see \sad_spirit\pg_gateway\FragmentList FragmentList} and to ensure
  * that several parameters with the same name but different values do not appear anywhere.
  */
 interface ParameterHolder

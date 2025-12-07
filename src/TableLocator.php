@@ -130,8 +130,9 @@ class TableLocator
     /**
      * Returns a Factory for TableDefinition implementations
      *
-     * If a factory was not set with {@see setTableDefinitionFactory()}, then an instance of
-     * {@see OrdinaryTableDefinitionFactory} will be created and returned
+     * If a factory was not set with {@see TableLocator::setTableDefinitionFactory() setTableDefinitionFactory()},
+     * then an instance of {@see \sad_spirit\pg_gateway\OrdinaryTableDefinitionFactory OrdinaryTableDefinitionFactory}
+     * will be created and returned
      */
     public function getTableDefinitionFactory(): TableDefinitionFactory
     {
@@ -177,13 +178,14 @@ class TableLocator
     /**
      * Runs a given function atomically
      *
-     * This behaves exactly like {@see Connection::atomic()}, except the callback will receive two arguments:
-     *  - This TableLocator instance
-     *  - The Connection instance used for transaction
+     * This behaves exactly like {@see \sad_spirit\pg_wrapper\Connection::atomic() Connection::atomic()},
+     * except the callback will receive two arguments:
+     *  - This `TableLocator` instance
+     *  - The `Connection` instance used for transaction
      *
      * @param callable $callback  The function to execute atomically
      * @param bool     $savepoint Whether to create a savepoint if the transaction is already in progress
-     * @return mixed The value returned by $callback
+     * @return mixed The value returned by `$callback`
      * @throws \Throwable
      */
     public function atomic(callable $callback, bool $savepoint = false): mixed
@@ -261,7 +263,7 @@ class TableLocator
      * Loads the previously generated NativeStatement from cache or generates it using given factory method
      *
      * @param callable(): Statement $factoryMethod This will be used to generate the AST in case of cache miss
-     * @param string|null           $cacheKey      If not null, NativeStatement will be stored in cache under that key
+     * @param string|null           $cacheKey      If not null, `NativeStatement` will be stored in cache under that key
      */
     public function createNativeStatementUsingCache(callable $factoryMethod, ?string $cacheKey): NativeStatement
     {
@@ -289,8 +291,10 @@ class TableLocator
     /**
      * Returns a TableGateway implementation for a given table name
      *
-     * Will use an implementation of TableGatewayFactory if available, falling back to returning
-     * GenericTableGateway or its subclass based on table's primary key
+     * Will use an implementation of
+     * {@see \sad_spirit\pg_gateway\TableGatewayFactory TableGatewayFactory} if available, falling back to returning
+     * {@see \sad_spirit\pg_gateway\gateways\GenericTableGateway GenericTableGateway}
+     * or its subclass based on table's primary key.
      */
     public function createGateway(string|TableName|QualifiedName $name): TableGateway
     {

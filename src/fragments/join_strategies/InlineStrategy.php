@@ -33,13 +33,14 @@ use sad_spirit\pg_builder\{
 /**
  * The most generic strategy, adds the joined table as another item to FROM (or USING) clause of the base statement
  *
- * This can be used to join to DELETE and UPDATE statements as well as to SELECT
+ * This can be used to join to `DELETE` and `UPDATE` statements as well as to `SELECT`
  *
  * Select statement being joined can only contain
- *  - WITH clause
- *  - WHERE clause
- *  - ORDER BY clause
- * in addition to obvious target list and FROM clause, everything else will trigger an Exception.
+ *  - `WITH` clause
+ *  - `WHERE` clause
+ *  - `ORDER BY` clause
+ *
+ * in addition to obvious target list and `FROM` clause, everything else will trigger an `Exception`.
  * All the clauses will be merged into the relevant clauses of the base statement.
  */
 final class InlineStrategy implements JoinStrategy
@@ -89,8 +90,6 @@ final class InlineStrategy implements JoinStrategy
     /**
      * Checks that the query being joined does not contain "fancy" clauses that cannot be safely inlined
      *
-     * @param SelectCommon $select
-     * @return bool
      * @psalm-assert-if-true Select $select
      */
     public static function canBeInlined(SelectCommon $select): bool

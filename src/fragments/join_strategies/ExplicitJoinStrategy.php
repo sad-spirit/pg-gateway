@@ -43,10 +43,10 @@ use sad_spirit\pg_builder\nodes\{
 /**
  * Adds the joined table to the base one using the explicit JOIN clause
  *
- * Join condition will be added via ON clause. If the joined Select
- *  - has multiple FROM elements
- *  - contains LIMIT / OFFSET / DISTINCT / GROUP BY / HAVING / WINDOW / locking clauses
- *  - is an OUTER JOIN and has a WHERE clause
+ * Join condition will be added via `ON` clause. If the joined Select
+ *  - has multiple `FROM` elements
+ *  - contains `LIMIT` / `OFFSET` / `DISTINCT` / `GROUP BY` / `HAVING` / `WINDOW` / locking clauses
+ *  - is an `OUTER JOIN` and has a `WHERE` clause
  * then it will be wrapped in a sub-select when joining
  */
 class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
@@ -153,8 +153,6 @@ class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
     /**
      * Checks whether the joined query should be wrapped in a subselect
      *
-     * @param SelectCommon $joined
-     * @return bool
      * @psalm-assert-if-false Select $joined
      */
     private function requiresSubSelect(SelectCommon $joined): bool

@@ -48,7 +48,7 @@ class NameMappingGatewayFactory implements TableGatewayFactory
     /**
      * Adds a mapping from database schema to gateway and builder namespaces
      *
-     * Removes mapping if $namespace is null
+     * Removes mapping if `$namespace` is null
      */
     public function setSchemaMapping(string $schema, ?string $namespace): void
     {

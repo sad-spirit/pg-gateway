@@ -27,8 +27,8 @@ use sad_spirit\pg_builder\Statement;
 /**
  * Adds a Condition to the WHERE clause of a Statement
  *
- * Conditions are added to query using where->and() method, not by replacing $statement->where->condition,
- * as this allows using multiple fragments that modify WHERE clause.
+ * Conditions are added to the query using `$statement->where->and()` method,
+ * not by replacing `$statement->where->condition`, as this allows using multiple fragments that modify `WHERE` clause.
  */
 final class WhereClauseFragment implements Fragment, Parametrized
 {

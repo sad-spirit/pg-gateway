@@ -20,8 +20,9 @@ use sad_spirit\pg_gateway\exceptions\InvalidArgumentException;
 /**
  * Represents a qualified name of a database table (or maybe other relation)
  *
- * The name represented by this class always has two parts (schema and relation), while {@see QualifiedName}
- * may have from one to three. It also doesn't need to be cloned like QualifiedName.
+ * The name represented by this class always has two parts (schema and relation), while
+ * {@see \sad_spirit\pg_builder\nodes\QualifiedName QualifiedName}
+ * may have from one to three. It also doesn't need to be cloned like `QualifiedName`.
  *
  * @since 0.2.0
  */
@@ -67,7 +68,7 @@ final class TableName implements \Stringable
     /**
      * Creates an instance of TableName based on QualifiedName node
      *
-     * $catalog property is ignored, missing $schema property will default to 'public'
+     * `$catalog` property is ignored, missing `$schema` property will default to 'public'
      */
     public static function createFromNode(QualifiedName $qualifiedName): self
     {

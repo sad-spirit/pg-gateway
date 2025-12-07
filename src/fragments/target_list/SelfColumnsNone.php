@@ -28,7 +28,7 @@ use sad_spirit\pg_builder\nodes\{
 /**
  * Removes TargetList elements having "self.column_name" for expression
  *
- * This is usually a no-op for RETURNING clauses since those are empty by default
+ * This is usually a no-op for `RETURNING` clauses since those are empty by default
  */
 final class SelfColumnsNone extends TargetListFragment
 {

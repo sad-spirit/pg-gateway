@@ -84,7 +84,7 @@ class ScalarSubqueryBuilder extends AdditionalSelectBuilder
     }
 
     /**
-     * Another name for {@see alias()} method, to prevent confusion with {@see columnAlias()}
+     * Another name for alias() method, to prevent confusion with columnAlias()
      *
      * @return $this
      */

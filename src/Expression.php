@@ -18,9 +18,13 @@ namespace sad_spirit\pg_gateway;
  * Wrapper for expressions used as column values in INSERT and UPDATE statements
  *
  * Passing
- * <code>['foo' => 'default']</code>
- * to insert() or update() means: set the value of column 'foo' to a string 'default', while
- * <code>['foo' => new Expression('default')]</code>
+ * ```PHP
+ * ['foo' => 'default']
+ * ```
+ * to `insert()` or `update()` means: set the value of column 'foo' to a string 'default', while
+ * ```PHP
+ * ['foo' => new Expression('default')]
+ * ```
  * means: set foo to its default value.
  */
 final readonly class Expression implements \Stringable
@@ -31,8 +35,6 @@ final readonly class Expression implements \Stringable
 
     /**
      * Returns the expression.
-     *
-     * @return string
      */
     public function __toString(): string
     {

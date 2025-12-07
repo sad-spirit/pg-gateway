@@ -46,7 +46,7 @@ use sad_spirit\pg_gateway\{
 /**
  * Fragment populating either the SET clause of an UPDATE statement or columns and VALUES clause of an INSERT
  *
- * NB: passing empty array to the constructor is disallowed: it may be technically legit for an INSERT, but simply
+ * NB: passing empty array to the constructor is disallowed: it may be technically legit for an `INSERT`, but simply
  * not adding this fragment is easier.
  */
 class SetClauseFragment implements Fragment, Parametrized
@@ -55,10 +55,10 @@ class SetClauseFragment implements Fragment, Parametrized
      * Mapping "column name" -> "new column value"
      *
      * The values are processed as follows:
-     *  - null will trigger generation of 'field = :field::type' clause;
-     *  - Node implementing ScalarExpression (or instance of SetToDefault) is directly inserted into SQL:
-     *    'field = expression';
-     *  - Value of Expression instance is fed to Parser and the resultant Node is processed as above.
+     *  - `null` will trigger generation of `field = :field::type` clause;
+     *  - Node implementing `ScalarExpression` (or instance of `SetToDefault`) is directly inserted into SQL:
+     *    `field = expression`;
+     *  - Value of `Expression` instance is fed to Parser and the resultant Node is processed as above.
      *
      * @var array<string, null|Expression|ScalarExpression|SetToDefault>
      */
@@ -67,7 +67,7 @@ class SetClauseFragment implements Fragment, Parametrized
     /**
      * Mapping "column name" => "parameter value"
      *
-     * If $set array passed to constructor contains actual column values (i.e. anything different from Expressions),
+     * If `$set` array passed to constructor contains actual column values (i.e. anything different from Expressions),
      * those end up here.
      *
      * @var array<string, mixed>
@@ -75,7 +75,7 @@ class SetClauseFragment implements Fragment, Parametrized
     private array $parameters = [];
 
     /**
-     * Mapping "column name" => "column type OID", {@see Attributes::getColumns()}
+     * Mapping "column name" => "column type OID", from Columns::getAll()
      * @var array<string, int|numeric-string>
      */
     private array $types;
@@ -134,9 +134,6 @@ class SetClauseFragment implements Fragment, Parametrized
 
     /**
      * Adds the fragment as the SET clause of the given UPDATE statement
-     *
-     * @param Update $update
-     * @return void
      */
     private function applyToUpdate(Update $update): void
     {
@@ -150,9 +147,6 @@ class SetClauseFragment implements Fragment, Parametrized
 
     /**
      * Adds the fragment as the columns and VALUES clause of the given INSERT statement
-     *
-     * @param Insert $insert
-     * @return void
      */
     private function applyToInsert(Insert $insert): void
     {

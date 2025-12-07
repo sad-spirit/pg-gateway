@@ -25,8 +25,8 @@ use sad_spirit\pg_gateway\{
 /**
  * Builder for ExistsCondition
  *
- * We don't (yet?) have a ConditionBuilder, so this is essentially a builder for WhereClauseFragment
- * which happens to also implement a getCondition() method
+ * We don't (yet?) have a `ConditionBuilder`, so this is essentially a builder for `WhereClauseFragment`
+ * which happens to also implement a `getCondition()` method
  */
 class ExistsBuilder extends AdditionalSelectBuilder
 {
@@ -50,7 +50,7 @@ class ExistsBuilder extends AdditionalSelectBuilder
     /**
      * Sets the join condition between the base and the checked tables
      *
-     * The Condition will be added to the WHERE clause of the query inside EXISTS()
+     * The `Condition` will be added to the `WHERE` clause of the query inside `EXISTS()`
      *
      * @return $this
      */
@@ -64,7 +64,7 @@ class ExistsBuilder extends AdditionalSelectBuilder
     /**
      * Sets the join condition based on a FOREIGN KEY constraint between the base and the checked tables
      *
-     * The Condition will be added to the WHERE clause of the query inside EXISTS()
+     * The `Condition` will be added to the `WHERE` clause of the query inside `EXISTS()`
      *
      * @param string[] $keyColumns If there are several FOREIGN KEY constraints between the tables,
      *                             specify the columns on the child side that should be part of the key
@@ -78,7 +78,7 @@ class ExistsBuilder extends AdditionalSelectBuilder
     /**
      * Sets the self-join condition based on a recursive FOREIGN KEY constraint
      *
-     * The Condition will be added to the WHERE clause of the query inside EXISTS()
+     * The `Condition` will be added to the `WHERE` clause of the query inside `EXISTS()`
      *
      * @param bool $fromChild Whether the base table should be on the child side (default) of the join or the parent one
      * @param string[] $keyColumns In the unlikely event that there are several recursive FOREIGN KEY constraints

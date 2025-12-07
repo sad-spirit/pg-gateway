@@ -15,7 +15,7 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\fragments\join_strategies;
 
 /**
- * Possible join types for {@see ExplicitJoinStrategy}
+ * Possible join types for ExplicitJoinStrategy
  */
 enum ExplicitJoinType: string
 {

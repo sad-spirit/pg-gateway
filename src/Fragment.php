@@ -20,10 +20,11 @@ use sad_spirit\pg_builder\Statement;
  * Interface for fragments that add themselves to the given statement
  *
  * Classes implementing this interface serve as a sort of proxy for a part of Statement AST, they should usually
- * create the actual Nodes only when the <code>apply()</code> method is called.
+ * create the actual Nodes only when the `apply()` method is called.
  *
- * Fragments should either be immutable, receiving all their dependencies in constructor, or should return null
- * from <code>getKey()</code>. A {@see FragmentBuilder} may be used if the class requires complex configuration.
+ * Fragments should either be immutable, receiving all their dependencies in constructor, or should return `null`
+ * from `getKey()`. A {@see \sad_spirit\pg_gateway\FragmentBuilder FragmentBuilder} may be used
+ * if the class requires complex configuration.
  */
 interface Fragment extends KeyEquatable
 {
@@ -44,7 +45,7 @@ interface Fragment extends KeyEquatable
      * Returns the fragment's priority
      *
      * Fragments with higher priority will be processed earlier, this may be relevant for CTEs, joins,
-     * and parts of ORDER BY / GROUP BY clauses
+     * and parts of `ORDER BY` / `GROUP BY` clauses
      */
     public function getPriority(): int;
 }

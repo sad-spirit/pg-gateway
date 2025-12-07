@@ -28,7 +28,7 @@ use sad_spirit\pg_gateway\{
 /**
  * Replaces TargetList elements having "self.column_name" for expression with "self.*" shorthand
  *
- * This is usually a no-op for SELECT output list as that already contains "self.*" by default
+ * This is usually a no-op for `SELECT` output list as that already contains "self.*" by default
  */
 final class SelfColumnsShorthand extends TargetListFragment
 {

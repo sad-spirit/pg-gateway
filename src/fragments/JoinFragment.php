@@ -33,7 +33,8 @@ use sad_spirit\pg_builder\Statement;
 /**
  * Fragment for joining a SelectProxy object to the current statement
  *
- * The actual merging of the two statements is performed by an implementation of JoinStrategy
+ * The actual merging of the two statements is performed by an implementation of
+ * {@see \sad_spirit\pg_gateway\fragments\JoinStrategy JoinStrategy}
  */
 class JoinFragment implements SelectFragment, Parametrized
 {
@@ -56,8 +57,6 @@ class JoinFragment implements SelectFragment, Parametrized
 
     /**
      * Returns the alias for the joined table
-     *
-     * @return string
      */
     protected function getAlias(): string
     {
@@ -77,12 +76,10 @@ class JoinFragment implements SelectFragment, Parametrized
         $select = clone $this->joined->createSelectAST();
         $select->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_SELF, $alias));
 
-        $condition = $this->condition?->generateExpression();
-
         $this->strategy->join(
             $statement,
             $select,
-            $condition,
+            $this->condition?->generateExpression(),
             $alias,
             $isCount
         );

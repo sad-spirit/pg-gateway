@@ -31,8 +31,8 @@ use sad_spirit\pg_builder\nodes\{
  * Changes the list of returned columns and / or adds aliases to them
  *
  * The "projection" and "rename" operations are combined here for convenience
- *  - By default SELECT returns all columns using "self.*", it is not possible to apply aliases in this form;
- *  - Other statements have an empty RETURNING clause, it isn't possible to apply aliases either.
+ *  - By default `SELECT` returns all columns using `self.*`, it is not possible to apply aliases in this form;
+ *  - Other statements have an empty `RETURNING` clause, it isn't possible to apply aliases either.
  */
 final class SelfColumnsList extends TargetListFragment
 {

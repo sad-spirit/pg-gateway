@@ -26,21 +26,21 @@ interface References extends \IteratorAggregate, \Countable
     /**
      * Returns a ForeignKey object matching the given related table and constraint columns
      *
-     * While $relatedTable should almost always be the "other" member of the foreign key constraint
-     * (unless you are requesting a recursive foreign key), $keyColumns always represent the columns
+     * While `$relatedTable `should almost always be the "other" member of the foreign key constraint
+     * (unless you are requesting a recursive foreign key), `$keyColumns` always represent the columns
      * of the child table, where the constraint is defined.
      *
      * Consider the following schema
-     * <code>
+     * ```SQL
      * create table documents (
-     *     ...
+     *     -- ...
      *     employee_id integer references employees (id),
      *     boss_id integer references employees (id),
-     *     ...
+     *     -- ...
      * );
-     * </code>
-     * Here specifying the constraint column "employee_id" or "boss_id" uniquely identifies the constraint,
-     * while specifying referenced "id" column is useless, it will most likely be the primary key.
+     * ```
+     * Here specifying the constraint column `employee_id` or `boss_id` uniquely identifies the constraint,
+     * while specifying referenced `id` column is useless, it will most likely be the primary key.
      *
      * @param string[] $keyColumns
      */

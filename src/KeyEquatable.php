@@ -21,18 +21,19 @@ namespace sad_spirit\pg_gateway;
  * is used, we need a means to generate cache key for a query without generating SQL itself.
  * That key will depend on some unique identifiers for query's parts, thus this interface.
  *
- * Keys are also used by FragmentList to discard duplicate fragments: those may appear when several Fragments
- * have the same Fragment they depend on, e.g. a CTE or a join to a related table
+ * Keys are also used by {@see \sad_spirit\pg_gateway\FragmentList FragmentList} to discard duplicate fragments:
+ * those may appear when several Fragments have the same Fragment they depend on, e.g. a CTE or
+ * a join to a related table.
  *
  * Classes implementing this interface should either be immutable, receiving all their dependencies in constructor,
- * or should return null from <code>getKey()</code>.
+ * or should return `null` from `getKey()`.
  */
 interface KeyEquatable
 {
     /**
      * Returns a string that uniquely identifies this object based on its properties
      *
-     * Returning null means that this fragment (and consequently the query using it) cannot be cached.
+     * Returning `null` means that this fragment (and consequently the query using it) cannot be cached.
      * This is the case with e.g. ad-hoc queries using Closures.
      */
     public function getKey(): ?string;

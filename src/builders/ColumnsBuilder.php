@@ -77,7 +77,7 @@ class ColumnsBuilder implements FragmentBuilder
     /**
      * The fragment being built will add "self.*" shorthand to the target list
      *
-     * This is a no-op for SELECT statements as they have "self.*" for a target list by default. Obviously
+     * This is a no-op for `SELECT` statements as they have `self.*` for a target list by default. Obviously,
      * aliases are not possible here.
      *
      * @return $this

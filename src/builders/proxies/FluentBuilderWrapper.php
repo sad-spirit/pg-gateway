@@ -51,20 +51,20 @@ trait FluentBuilderWrapper
     /**
      * Returns the proxied builder, explicitly ending work with the proxy
      *
-     * This is needed when the result of the fluent calls should be an instance of FluentBuilder, not Proxy
-     * <code>
+     * This is needed when the result of the fluent calls should be an instance of `FluentBuilder`, not `Proxy`
+     * ```PHP
      *     $prototype = clone $builder->returningColumns()
      *          ->primaryKey()
      *          ->end();
-     * </code>
-     * or when calling methods of the proxied builder having the same names as those of the Proxy:
-     * <code>
+     * ```
+     * or when calling methods of the proxied builder having the same names as those of the `Proxy`:
+     * ```PHP
      *     $builder
      *          ->returningColumns()
      *              ->primaryKey()
      *              ->end()
      *          ->primaryKey(123);
-     * </code>
+     * ```
      *
      * @return Owner
      */
