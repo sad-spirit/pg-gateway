@@ -167,13 +167,11 @@ class SetClauseFragment implements Fragment, Parametrized
 
     /**
      * Creates a Node that will be used for a column's value
-     *
-     * @param null|Expression|ScalarExpression|SetToDefault $value
-     * @param string $name
-     * @return ScalarExpression|SetToDefault
      */
-    private function createValueNode($value, string $name): Node
-    {
+    private function createValueNode(
+        Expression|ScalarExpression|SetToDefault|null $value,
+        string $name
+    ): ScalarExpression|SetToDefault {
         if ($value instanceof ScalarExpression || $value instanceof SetToDefault) {
             return clone $value;
         } elseif ($value instanceof Expression) {
