@@ -1,5 +1,22 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+Tested on PHP 8.5
+
+### Fixed
+- `fragments\join_strategies\ExplicitJoinStrategy` now checks that the columns used in join condition remain available
+  when wrapping the joined table in a subselect. It will throw an exception if those do not appear in the `SELECT`
+  list and will use aliases if those are aliased there.
+- `joined` alias is now properly replaced in join conditions containing only a column reference, e.g.
+  `joined.foo`.
+
+### Removed
+Methods deprecated in 0.9.0 and 0.10.0:
+- Getters for value objects `metadata\TableName`, `metadata\Column`, and `metadata\ForeignKey`;
+- `outputColumns()`, `outputExpression()`, and `outputSubquery()` methods of `builders\FluentBuilder`.
+
 ## [0.10.0] - 2025-08-03
 
 Package manual is now published on [Read the Docs](https://pg-gateway.readthedocs.io)
@@ -230,4 +247,4 @@ Initial release on GitHub.
 [0.4.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.3.0...v0.4.0
 [0.9.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.4.0...v0.9.0
 [0.10.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.9.0...v0.10.0
-
+[Unreleased]: https://github.com/sad-spirit/pg-gateway/compare/v0.10.0...HEAD
