@@ -21,9 +21,9 @@ use sad_spirit\pg_gateway\{
     holders\SimpleParameterHolder
 };
 use sad_spirit\pg_builder\{
+    Keyword,
     Parser,
     Statement,
-    exceptions\SyntaxException,
     nodes\WithClause
 };
 
@@ -32,7 +32,7 @@ use sad_spirit\pg_builder\{
  *
  * @since 0.2.0
  */
-class SqlStringFragment extends WithClauseFragment
+final class SqlStringFragment extends WithClauseFragment
 {
     /**
      * Constructor
@@ -51,15 +51,11 @@ class SqlStringFragment extends WithClauseFragment
     protected function createWithClause(Statement $statement): WithClause
     {
         $parser = $statement->getParser() ?? $this->parser;
-        if (\preg_match('/^\s*[wW][iI][tT][hH][\s"]/', $this->sql)) {
-            return $parser->parseWithClause($this->sql);
-        } else {
-            try {
-                return new WithClause([$parser->parseCommonTableExpression($this->sql)]);
-            } catch (SyntaxException) {
-                return $parser->parseWithClause($this->sql);
-            }
-        }
+        $stream = $parser->lexer->tokenize($this->sql);
+
+        return Keyword::WITH === $stream->getKeyword()
+            ? $parser->parseWithClause($stream)
+            : new WithClause([$parser->parseCommonTableExpression($stream)]);
     }
 
     public function getKey(): ?string
