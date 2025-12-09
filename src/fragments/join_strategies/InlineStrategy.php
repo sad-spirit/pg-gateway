@@ -29,6 +29,7 @@ use sad_spirit\pg_builder\{
     Update,
     nodes\ScalarExpression
 };
+use sad_spirit\pg_builder\nodes\expressions\LogicalExpression;
 
 /**
  * The most generic strategy, adds the joined table as another item to FROM (or USING) clause of the base statement
@@ -76,9 +77,12 @@ final class InlineStrategy implements JoinStrategy
 
         $statement->where->and($joined->where);
         if (null !== $condition) {
-            $statement->where->and($condition);
-            // Done after adding the condition, as it should have the parent node set
-            $condition->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
+            // Cannot run dispatch() on generated condition itself:
+            // - ColumnReference may need to be replaced by a different one, doesn't work without parent node;
+            // - LogicalExpression may be empty after a call to and().
+            $wrapped = new LogicalExpression([$condition]);
+            $wrapped->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
+            $statement->where->and($wrapped[0]);
         }
 
         if ($statement instanceof Select && !$isCount) {

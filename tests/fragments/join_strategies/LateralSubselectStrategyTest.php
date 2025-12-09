@@ -46,13 +46,13 @@ class LateralSubselectStrategyTest extends TestCase
         );
         /** @var Select $joined */
         $joined = $this->factory->createFromString(
-            "select array_agg(gw_1.field) from gw_1"
+            "select array_agg(gw_1.field) from gw_1 where gw_1.blah = 1"
         );
 
         ($strategy = new LateralSubselectStrategy())->join(
             $base,
             clone $joined,
-            $this->factory->getParser()->parseExpression('self.id = joined.foo_id'),
+            $this->factory->getParser()->parseExpression('self.id = joined.foo_id and something.something'),
             'gw_1',
             false
         );
@@ -62,7 +62,9 @@ select self.*, {$strategy->getSubselectAlias()}.*
 from foo as self, lateral (
         select array_agg(gw_1.field)
         from gw_1
-        where self.id = gw_1.foo_id
+        where gw_1.blah = 1 and
+              self.id = gw_1.foo_id and
+              something.something
     ) as {$strategy->getSubselectAlias()}
 SQL
             ,
@@ -86,7 +88,8 @@ select count(self.*)
 from foo as self, lateral (
         select array_agg(gw_1.field)
         from gw_1
-        where self.id = gw_1.foo_id
+        where gw_1.blah = 1 and
+              self.id = gw_1.foo_id
     ) as {$strategy->getSubselectAlias()}
 SQL
             ,
@@ -102,12 +105,12 @@ SQL
         );
         /** @var Select $joined */
         $joined = $this->factory->createFromString(
-            "select array_agg(gw_1.field) from gw_1"
+            "select array_agg(gw_1.field) from gw_1 where gw_1.blah = 1"
         );
         ($strategy = new LateralSubselectStrategy(LateralSubselectJoinType::Left))->join(
             $base,
             clone $joined,
-            $this->factory->getParser()->parseExpression('self.id = joined.foo_id'),
+            $this->factory->getParser()->parseExpression('self.id = joined.foo_id and something.something'),
             'gw_1',
             false
         );
@@ -118,7 +121,9 @@ select self.*, {$strategy->getSubselectAlias()}.*
 from foo as self left join lateral (
         select array_agg(gw_1.field)
         from gw_1
-        where self.id = gw_1.foo_id
+        where gw_1.blah = 1 and 
+              self.id = gw_1.foo_id and
+              something.something
     ) as {$strategy->getSubselectAlias()} on true
 SQL
             ,
@@ -142,7 +147,8 @@ select count(self.*)
 from foo as self left join lateral (
         select array_agg(gw_1.field)
         from gw_1
-        where self.id = gw_1.foo_id
+        where gw_1.blah = 1 and 
+              self.id = gw_1.foo_id
     ) as {$strategy->getSubselectAlias()} on true
 SQL
             ,

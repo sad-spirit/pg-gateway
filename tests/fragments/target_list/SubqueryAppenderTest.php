@@ -116,17 +116,21 @@ class SubqueryAppenderTest extends TestCase
         $mockSelect->expects($this->any())
             ->method('createSelectAST')
             ->willReturn($factory->createFromString(
-                'select foo from baz as self'
+                'select foo from baz as self where self.blah = 1'
             ));
 
-        $joinCondition = new SqlStringCondition($factory->getParser(), 'self.quux = joined.foo');
+        $joinCondition = new SqlStringCondition(
+            $factory->getParser(),
+            'self.quux = joined.foo and something.something'
+        );
 
         (new SubqueryAppender($mockSelect, $joinCondition, 'custom', 'klmn'))
             ->applyTo($select);
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             'select self.foo as bar, quux.xyzzy, ( select 1 ),'
-             . ' ( select foo from baz as custom where self.quux = custom.foo ) as klmn',
+             . ' ( select foo from baz as custom'
+             . ' where custom.blah = 1 and self.quux = custom.foo and something.something ) as klmn',
             $factory->createFromAST($select)->getSql()
         );
     }

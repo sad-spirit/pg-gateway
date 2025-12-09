@@ -33,6 +33,7 @@ use sad_spirit\pg_builder\nodes\{
     ScalarExpression,
     TargetElement,
     expressions\KeywordConstant,
+    expressions\LogicalExpression,
     range\Subselect
 };
 
@@ -87,9 +88,12 @@ final class LateralSubselectStrategy extends SelectOnlyJoinStrategy
             if (!$joined instanceof Select) {
                 throw new LogicException("Conditions can only be applied to simple SELECT statements");
             }
-            $joined->where->and($condition);
-            // Done after adding the condition, as it should have the parent node set
-            $condition->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
+            // Cannot run dispatch() on generated condition itself:
+            // - ColumnReference may need to be replaced by a different one, doesn't work without parent node;
+            // - LogicalExpression may be empty after a call to and().
+            $wrapped = new LogicalExpression([$condition]);
+            $wrapped->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
+            $joined->where->and($wrapped[0]);
         }
 
         $subSelect = new Subselect($joined);

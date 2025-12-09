@@ -103,13 +103,14 @@ class InlineStrategyTest extends TestCase
         (new InlineStrategy())->join(
             $base,
             $joined,
-            $this->factory->getParser()->parseExpression('self.id >= joined.id'),
+            $this->factory->getParser()->parseExpression('self.id >= joined.id and something.something'),
             'gw_1',
             false
         );
         $this::assertStringEqualsStringNormalizingWhitespace(
             "select self.*, gw_2.*, gw_1.* from foo as self, baz as gw_2, bar as gw_1 "
             . "where  self.id <= gw_2.id and gw_1.title ~* 'something' and self.id >= gw_1.id "
+            . "and something.something "
             . "order by self.title, gw_1.title limit 10",
             $this->factory->createFromAST($base)->getSql()
         );

@@ -30,6 +30,7 @@ use sad_spirit\pg_builder\enums\SubselectConstruct;
 use sad_spirit\pg_builder\nodes\{
     TargetElement,
     ScalarExpression,
+    expressions\LogicalExpression,
     expressions\NumericConstant,
     expressions\SubselectExpression
 };
@@ -65,9 +66,12 @@ final class ExistsCondition extends Condition implements Parametrized
                     $select::class
                 ));
             }
-            $select->where->and($condition = $this->joinCondition->generateExpression());
-            // Done after adding the condition, as it should have the parent node set
-            $condition->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
+            // Cannot run dispatch() on generated condition itself:
+            // - ColumnReference may need to be replaced by a different one, doesn't work without parent node;
+            // - LogicalExpression may be empty after a call to and().
+            $wrapped = new LogicalExpression([$this->joinCondition->generateExpression()]);
+            $wrapped->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
+            $select->where->and($wrapped[0]);
         }
 
         return new SubselectExpression($select, SubselectConstruct::EXISTS);

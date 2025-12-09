@@ -212,18 +212,19 @@ class ExistsConditionTest extends DatabaseBackedTestCase
             ->willReturn(
                 self::$tableLocator->getParser()
                     ->parseSelectStatement(
-                        'select foo, bar from baz as self'
+                        'select foo, bar from baz as self where self.blah = 1'
                     )
             );
 
         $joinCondition = new SqlStringCondition(
             self::$tableLocator->getParser(),
-            'self.quux = joined.foo'
+            'self.quux = joined.foo and something.something'
         );
 
         $exists = new ExistsCondition($mockSelect, $joinCondition, 'custom');
         $this::assertStringEqualsStringNormalizingWhitespace(
-            'exists( select 1 from baz as custom where self.quux = custom.foo )',
+            'exists( select 1 from baz as custom where '
+            . ' custom.blah = 1 and self.quux = custom.foo and something.something )',
             $exists->generateExpression()->dispatch(
                 self::$tableLocator->getStatementFactory()->getBuilder()
             )
