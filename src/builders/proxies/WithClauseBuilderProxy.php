@@ -31,7 +31,7 @@ use sad_spirit\pg_gateway\builders\{
  * @mixin Owner
  * @since 0.4.0
  */
-class WithClauseBuilderProxy extends WithClauseBuilder implements Proxy
+final class WithClauseBuilderProxy extends WithClauseBuilder implements Proxy
 {
     /** @template-use FluentBuilderWrapper<Owner> */
     use FluentBuilderWrapper;

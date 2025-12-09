@@ -20,7 +20,7 @@ use sad_spirit\pg_gateway\TableLocator;
 /**
  * Finds an alias in explicitly provided mapping 'column name' => 'alias'
  */
-readonly class MapStrategy implements ColumnAliasStrategy
+final readonly class MapStrategy implements ColumnAliasStrategy
 {
     public function __construct(
         /** @var array<string, string> */

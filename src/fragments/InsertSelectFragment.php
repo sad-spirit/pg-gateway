@@ -30,7 +30,7 @@ use sad_spirit\pg_builder\{
 /**
  * Wrapper for SelectBuilder object passed as $values to GenericTableGateway::insert()
  */
-readonly class InsertSelectFragment implements Fragment, Parametrized
+final readonly class InsertSelectFragment implements Fragment, Parametrized
 {
     public function __construct(private SelectBuilder $select)
     {

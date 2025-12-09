@@ -49,7 +49,7 @@ use sad_spirit\pg_gateway\{
  * NB: passing empty array to the constructor is disallowed: it may be technically legit for an `INSERT`, but simply
  * not adding this fragment is easier.
  */
-class SetClauseFragment implements Fragment, Parametrized
+final class SetClauseFragment implements Fragment, Parametrized
 {
     /**
      * Mapping "column name" -> "new column value"

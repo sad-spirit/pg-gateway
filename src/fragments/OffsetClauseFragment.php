@@ -29,7 +29,7 @@ use sad_spirit\pg_builder\nodes\expressions\NamedParameter;
 /**
  * Adds an `OFFSET :offset` clause, possibly keeps a value for that parameter
  */
-readonly class OffsetClauseFragment implements SelectFragment, Parametrized
+final readonly class OffsetClauseFragment implements SelectFragment, Parametrized
 {
     public function __construct(private ?int $offset = null)
     {

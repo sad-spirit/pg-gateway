@@ -27,7 +27,7 @@ use sad_spirit\pg_wrapper\Connection;
  *
  * @since 0.2.0
  */
-readonly class OrdinaryTableDefinitionFactory implements TableDefinitionFactory
+final readonly class OrdinaryTableDefinitionFactory implements TableDefinitionFactory
 {
     public function __construct(private Connection $connection, private TableOIDMapper $mapper)
     {

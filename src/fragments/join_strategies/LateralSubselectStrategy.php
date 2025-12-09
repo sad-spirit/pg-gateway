@@ -46,7 +46,7 @@ use sad_spirit\pg_builder\nodes\{
  * of `DELETE` statements, these cannot reference the base table (the one being modified). Therefore, we only allow
  * joining with `Select` statements which can eventually be added to `Delete` or `Update`
  */
-class LateralSubselectStrategy extends SelectOnlyJoinStrategy
+final class LateralSubselectStrategy extends SelectOnlyJoinStrategy
 {
     public function __construct(public readonly LateralSubselectJoinType $joinType = LateralSubselectJoinType::Append)
     {

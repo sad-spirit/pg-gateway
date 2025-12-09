@@ -23,7 +23,7 @@ use sad_spirit\pg_gateway\{
 /**
  * Factory for ParameterHolder implementations
  */
-class ParameterHolderFactory
+final class ParameterHolderFactory
 {
     /**
      * Creates an implementation of ParameterHolder based on arguments that actually are implementations of Parametrized

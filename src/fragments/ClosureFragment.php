@@ -20,7 +20,7 @@ use sad_spirit\pg_gateway\Fragment;
 /**
  * Wrapper around closure passed to a method of AdHocStatement implementation
  */
-class ClosureFragment implements Fragment
+final class ClosureFragment implements Fragment
 {
     public function __construct(private readonly \Closure $closure)
     {

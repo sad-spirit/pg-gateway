@@ -36,7 +36,7 @@ use sad_spirit\pg_builder\nodes\{
 /**
  * Updates the `ORDER BY` clause of a `SELECT` statement
  */
-class OrderByClauseFragment implements SelectFragment
+final class OrderByClauseFragment implements SelectFragment
 {
     use VariablePriority;
 

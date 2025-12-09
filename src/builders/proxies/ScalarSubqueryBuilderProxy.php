@@ -32,7 +32,7 @@ use sad_spirit\pg_gateway\builders\{
  * @mixin Owner
  * @since 0.4.0
  */
-class ScalarSubqueryBuilderProxy extends ScalarSubqueryBuilder implements Proxy
+final class ScalarSubqueryBuilderProxy extends ScalarSubqueryBuilder implements Proxy
 {
     /** @template-use FluentBuilderWrapper<Owner> */
     use FluentBuilderWrapper;

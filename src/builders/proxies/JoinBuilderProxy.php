@@ -32,7 +32,7 @@ use sad_spirit\pg_gateway\builders\{
  * @mixin Owner
  * @since 0.4.0
  */
-class JoinBuilderProxy extends JoinBuilder implements Proxy
+final class JoinBuilderProxy extends JoinBuilder implements Proxy
 {
     /** @template-use FluentBuilderWrapper<Owner> */
     use FluentBuilderWrapper;

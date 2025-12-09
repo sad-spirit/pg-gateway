@@ -19,7 +19,7 @@ use sad_spirit\pg_gateway\fragments\target_list\ColumnAliasStrategy;
 /**
  * Creates an alias by running the provided callback on the column name
  */
-readonly class ClosureStrategy implements ColumnAliasStrategy
+final readonly class ClosureStrategy implements ColumnAliasStrategy
 {
     /**
      * Constructor

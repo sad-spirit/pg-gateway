@@ -33,7 +33,7 @@ use sad_spirit\pg_builder\nodes\{
  *
  * @since 0.2.0
  */
-class SelectProxyFragment extends WithClauseFragment
+final class SelectProxyFragment extends WithClauseFragment
 {
     public function __construct(
         private readonly SelectProxy $select,

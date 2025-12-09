@@ -36,7 +36,7 @@ use sad_spirit\pg_builder\Statement;
  * The actual merging of the two statements is performed by an implementation of
  * {@see \sad_spirit\pg_gateway\fragments\JoinStrategy JoinStrategy}
  */
-class JoinFragment implements SelectFragment, Parametrized
+final class JoinFragment implements SelectFragment, Parametrized
 {
     use VariablePriority;
 

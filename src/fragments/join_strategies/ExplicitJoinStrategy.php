@@ -49,7 +49,7 @@ use sad_spirit\pg_builder\nodes\{
  *  - is an `OUTER JOIN` and has a `WHERE` clause
  * then it will be wrapped in a sub-select when joining
  */
-class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
+final class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
 {
     public function __construct(public readonly ExplicitJoinType $joinType = ExplicitJoinType::Inner)
     {

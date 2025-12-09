@@ -33,7 +33,7 @@ use sad_spirit\pg_builder\Statement;
  *
  * @implements \IteratorAggregate<int, Fragment>
  */
-class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, \Countable
+final class FragmentList implements SelectFragment, Parametrized, \IteratorAggregate, \Countable
 {
     /**
      * Fragments added to the list

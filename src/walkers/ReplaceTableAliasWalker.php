@@ -28,7 +28,7 @@ use sad_spirit\pg_builder\nodes\{
  * When creating a join between two TableGateways / SelectProxies we need to replace the default "self" alias
  * of the second gateway's table and "joined" alias in join condition
  */
-class ReplaceTableAliasWalker extends BlankWalker
+final class ReplaceTableAliasWalker extends BlankWalker
 {
     public function __construct(
         private readonly string $oldAlias,

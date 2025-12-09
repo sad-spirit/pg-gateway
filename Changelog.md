@@ -3,14 +3,25 @@
 ## [Unreleased]
 
 ### Added
-Tested on PHP 8.5
+Tested on PHP 8.5 and Postgres 18
 
 ### Fixed
-- `fragments\join_strategies\ExplicitJoinStrategy` now checks that the columns used in join condition remain available
+- `fragments\join_strategies\ExplicitJoinStrategy` now checks that the columns used in `JOIN` condition remain available
   when wrapping the joined table in a subselect. It will throw an exception if those do not appear in the `SELECT`
   list and will use aliases if those are aliased there.
 - `joined` alias is now properly replaced in join conditions containing only a column reference, e.g.
   `joined.foo`.
+- PHPDoc: removed redundant type info, fixed usage of `@see` and `@link` tags, fixed markup in descriptions.
+  The API docs are now rendered correctly by phpDocumentor.
+
+### Changed
+The following classes are now declared `final`:
+- All classes in `builders\proxies` namespace;
+- All non-abstract classes in `fragments` namespace and below;
+- `holders\ParameterHolderFactory`;
+- `walkers\ReplaceTableAliasWalker`;
+- `FragmentList`, `NameMappingGatewayFactory`, `OrdinaryTableDefinitionFactory`, `SqlStringSelectBuilder`,
+  `TableLocator`.
 
 ### Removed
 Methods deprecated in 0.9.0 and 0.10.0:

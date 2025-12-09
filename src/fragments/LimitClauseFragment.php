@@ -29,7 +29,7 @@ use sad_spirit\pg_builder\nodes\expressions\NamedParameter;
 /**
  * Adds a `LIMIT :limit` clause, possibly keeps a value for that parameter
  */
-readonly class LimitClauseFragment implements SelectFragment, Parametrized
+final readonly class LimitClauseFragment implements SelectFragment, Parametrized
 {
     public function __construct(private ?int $limit = null)
     {

@@ -20,7 +20,7 @@ use sad_spirit\pg_gateway\TableLocator;
 /**
  * Creates an alias by using preg_replace() on column name
  */
-readonly class PregReplaceStrategy implements ColumnAliasStrategy
+final readonly class PregReplaceStrategy implements ColumnAliasStrategy
 {
     /**
      * Constructor, $pattern and $replacement will be passed to preg_replace() eventually

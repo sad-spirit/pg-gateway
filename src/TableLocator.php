@@ -47,7 +47,7 @@ use Psr\Cache\InvalidArgumentException as PsrException;
  *
  * @psalm-import-type FragmentsInput from TableGateway
  */
-class TableLocator
+final class TableLocator
 {
     private static int $aliasIndex = 0;
     /** @var array<TableGatewayFactory>  */

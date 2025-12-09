@@ -15,26 +15,20 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\assets;
 
 use sad_spirit\pg_builder\Statement;
-use sad_spirit\pg_gateway\fragments\ClosureFragment;
-use sad_spirit\pg_gateway\SelectFragment;
+use sad_spirit\pg_gateway\fragments\CustomSelectFragment;
 
 /**
  * An implementation of SelectFragment used for testing TableSelect
  */
-class SelectFragmentImplementation extends ClosureFragment implements SelectFragment
+class SelectFragmentImplementation extends CustomSelectFragment
 {
-    public function __construct(\Closure $closure, private readonly bool $useForCount = true)
+    public function __construct(private readonly \Closure $closure, bool $useForCount = true)
     {
-        parent::__construct($closure);
+        parent::__construct(null, $useForCount);
     }
 
     public function applyTo(Statement $statement, bool $isCount = false): void
     {
-        parent::applyTo($statement);
-    }
-
-    public function isUsedForCount(): bool
-    {
-        return $this->useForCount;
+        ($this->closure)($statement);
     }
 }

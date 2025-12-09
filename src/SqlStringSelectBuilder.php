@@ -22,7 +22,7 @@ use sad_spirit\pg_builder\SelectCommon;
  *
  * @since 0.4.0
  */
-readonly class SqlStringSelectBuilder implements SelectBuilder
+final readonly class SqlStringSelectBuilder implements SelectBuilder
 {
     public function __construct(private Parser $parser, private string $sql)
     {

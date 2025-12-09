@@ -22,7 +22,7 @@ use sad_spirit\pg_gateway\metadata\TableName;
  *
  * @since 0.2.0
  */
-class NameMappingGatewayFactory implements TableGatewayFactory
+final class NameMappingGatewayFactory implements TableGatewayFactory
 {
     /** @var array<string,string> */
     private array $schemaMapping = [];
