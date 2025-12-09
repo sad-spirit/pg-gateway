@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [1.0.0-beta] - 2025-12-09
 
 ### Added
 Tested on PHP 8.5 and Postgres 18
@@ -258,4 +258,4 @@ Initial release on GitHub.
 [0.4.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.3.0...v0.4.0
 [0.9.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.4.0...v0.9.0
 [0.10.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.9.0...v0.10.0
-[Unreleased]: https://github.com/sad-spirit/pg-gateway/compare/v0.10.0...HEAD
+[1.0.0-beta]: https://github.com/sad-spirit/pg-gateway/compare/v0.10.0...v1.0.0-beta
