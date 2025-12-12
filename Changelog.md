@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.0-beta.3] - 2025-12-12
+
+### Fixed
+The checks for columns used in `JOIN` conditions introduced in 1.0.0-beta were not applicable
+to joins done to a custom `SELECT` query. It is now assumed that the author of such query expects it to be wrapped
+in a subselect and that `joined` alias in the condition references that subselect rather than an individual table.
+
 ## [1.0.0-beta.2] - 2025-12-09
 
 ### Fixed
@@ -266,3 +273,4 @@ Initial release on GitHub.
 [0.10.0]: https://github.com/sad-spirit/pg-gateway/compare/v0.9.0...v0.10.0
 [1.0.0-beta]: https://github.com/sad-spirit/pg-gateway/compare/v0.10.0...v1.0.0-beta
 [1.0.0-beta.2]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-beta...v1.0.0-beta.2
+[1.0.0-beta.3]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-beta.2...v1.0.0-beta.3
