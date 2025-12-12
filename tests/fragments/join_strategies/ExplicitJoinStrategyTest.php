@@ -227,13 +227,25 @@ SQL
             'm_2',
             false
         );
+        /** @var Select $second */
+        $second = $this->factory->createFromString('select * from another as nthr where nthr.id = 123');
+        ($strategy2 = new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
+            $base,
+            $second,
+            $this->factory->getParser()->parseExpression('self.id < joined.id'),
+            'nthr',
+            false
+        );
         $this::assertStringEqualsStringNormalizingWhitespace(
             <<<SQL
-select self.*, m_1.*, {$strategy->getSubselectAlias()}.*
+select self.*, m_1.*, {$strategy->getSubselectAlias()}.*, {$strategy2->getSubselectAlias()}.*
 from foo as self inner join bar as m_1 on self.id = m_1.id
         left join (
             select m_2.* from baz as m_2 where m_2.title ~* 'something'
         ) as {$strategy->getSubselectAlias()} on self.id > {$strategy->getSubselectAlias()}.id
+        left join (
+            select * from another as nthr where nthr.id = 123
+        ) as {$strategy2->getSubselectAlias()} on self.id < {$strategy2->getSubselectAlias()}.id
 order by self.title limit 10
 SQL
             ,
@@ -284,6 +296,89 @@ order by self.title
 SQL
             ,
             $this->factory->createFromAST($base)->getSql()
+        );
+    }
+
+    public function testSubselectJoinWithCustomSelect(): void
+    {
+        /** @var Select $base */
+        $base   = $this->factory->createFromString('select self.* from foo as self order by self.title');
+        /** @var Select $first */
+        $first  = $this->factory->createFromString('select a.id, a.foo as alias from bar as a limit 10');
+        /** @var Select $second */
+        $second = $this->factory->createFromString("select b.* from baz as b where b.title ~* 'something'");
+        /** @var Select $third */
+        $third  = $this->factory->createFromString('select * from quux as c where c.id = 123');
+
+        ($firstStrategy = new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
+            $base,
+            $first,
+            $this->factory->getParser()->parseExpression('self.id = joined.id and self.foo = joined.alias'),
+            'missing',
+            false
+        );
+        ($secondStrategy = new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
+            $base,
+            $second,
+            $this->factory->getParser()->parseExpression('self.id = joined.wtf'),
+            'unused',
+            false
+        );
+        ($thirdStrategy = new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
+            $base,
+            $third,
+            $this->factory->getParser()->parseExpression('self.foo = joined.nthr'),
+            'discarded',
+            false
+        );
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            <<<SQL
+select self.*, {$firstStrategy->getSubselectAlias()}.*, {$secondStrategy->getSubselectAlias()}.*,
+       {$thirdStrategy->getSubselectAlias()}.*
+from foo as self
+        left join (
+            select a.id, a.foo as alias from bar as a limit 10
+        ) as {$firstStrategy->getSubselectAlias()} on 
+            self.id = {$firstStrategy->getSubselectAlias()}.id
+                and self.foo = {$firstStrategy->getSubselectAlias()}.alias
+        left join (
+            select b.* from baz as b where b.title ~* 'something'
+        ) as {$secondStrategy->getSubselectAlias()} on self.id = {$secondStrategy->getSubselectAlias()}.wtf
+        left join (
+            select * from quux as c where c.id = 123
+        ) as {$thirdStrategy->getSubselectAlias()} on self.foo = {$thirdStrategy->getSubselectAlias()}.nthr
+order by self.title
+SQL
+            ,
+            $this->factory->createFromAST($base)->getSql()
+        );
+    }
+
+    public function testSubselectJoinWithCustomSelectMissingFields(): void
+    {
+        /** @var Select $base */
+        $base   = $this->factory->createFromString('select self.* from foo as self order by self.title');
+        /** @var Select $custom */
+        $custom = $this->factory->createFromString(
+            <<<SQL
+select a.id as alias, coalesce(a.foo, b.foo) as bid
+from bar as a, baz as b
+where a.id = b.id
+SQL
+        );
+        $this::expectException(LogicException::class);
+        $this::expectExceptionMessage(
+            "columns 'foo', 'nthr' for joined table are not selected, but present in join condition"
+        );
+
+        (new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
+            $base,
+            $custom,
+            $this->factory->getParser()->parseExpression(
+                'self.id = joined.bid and self.foo = joined.foo and joined.nthr is null'
+            ),
+            'wtf',
+            false
         );
     }
 
