@@ -230,8 +230,8 @@ class TableLocatorTest extends DatabaseBackedTestCase
 
     public function testFirstApplicableFactoryCreatesGateway(): void
     {
-        $gatewayOne = $this->createMock(TableGateway::class);
-        $gatewayTwo = $this->createMock(TableGateway::class);
+        $gatewayOne = $this->createStub(TableGateway::class);
+        $gatewayTwo = $this->createStub(TableGateway::class);
 
         $factoryOne = $this->createMock(TableGatewayFactory::class);
         $factoryOne->expects($this::once())
@@ -251,8 +251,8 @@ class TableLocatorTest extends DatabaseBackedTestCase
 
     public function testFirstApplicableFactoryCreatesBuilder(): void
     {
-        $builderOne = $this->createMock(FragmentListBuilder::class);
-        $builderTwo = $this->createMock(FragmentListBuilder::class);
+        $builderOne = $this->createStub(FragmentListBuilder::class);
+        $builderTwo = $this->createStub(FragmentListBuilder::class);
 
         $factoryOne = $this->createMock(TableGatewayFactory::class);
         $factoryOne->expects($this::once())

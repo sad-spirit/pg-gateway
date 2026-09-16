@@ -55,12 +55,12 @@ class ExistsConditionTest extends DatabaseBackedTestCase
     public function testKeyDependsOnConstructorArguments(): void
     {
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('getKey')
             ->willReturn('selectkey');
 
         $mockCondition = $this->createMock(Condition::class);
-        $mockCondition->expects($this->any())
+        $mockCondition->expects($this->atLeastOnce())
             ->method('getKey')
             ->willReturn('conditionkey');
 
@@ -72,12 +72,12 @@ class ExistsConditionTest extends DatabaseBackedTestCase
     public function testKeyDependsOnExplicitAlias(): void
     {
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('getKey')
             ->willReturn('selectkey');
 
         $mockCondition = $this->createMock(Condition::class);
-        $mockCondition->expects($this->any())
+        $mockCondition->expects($this->atLeastOnce())
             ->method('getKey')
             ->willReturn('conditionkey');
 
@@ -94,7 +94,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
     public function testKeyIsNotNullForMissingCondition(): void
     {
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('getKey')
             ->willReturn('selectkey');
 
@@ -105,7 +105,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
     public function testKeyIsNullForNullSelectKey(): void
     {
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('getKey')
             ->willReturn(null);
 
@@ -116,12 +116,12 @@ class ExistsConditionTest extends DatabaseBackedTestCase
     public function testKeyIsNullForNullConditionKey(): void
     {
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('getKey')
             ->willReturn('selectkey');
 
         $mockCondition = $this->createMock(Condition::class);
-        $mockCondition->expects($this->any())
+        $mockCondition->expects($this->atLeastOnce())
             ->method('getKey')
             ->willReturn(null);
 
@@ -132,7 +132,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
     public function testGetParameters(): void
     {
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('getParameterHolder')
             ->willReturn(new SimpleParameterHolder($mockSelect, ['foo' => 'bar']));
 
@@ -148,7 +148,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
     public function testReplaceTargetListOnSelect(): void
     {
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('createSelectAST')
             ->willReturn(
                 self::$tableLocator->getParser()
@@ -167,7 +167,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
     public function testDoesNotReplaceTargetListOnSetOpSelect(): void
     {
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('createSelectAST')
             ->willReturn(
                 self::$tableLocator->getParser()
@@ -188,7 +188,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
     public function testDisallowJoinConditionWithSetOpSelect(): void
     {
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('createSelectAST')
             ->willReturn(
                 self::$tableLocator->getParser()
@@ -207,7 +207,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
     public function testExplicitAlias(): void
     {
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('createSelectAST')
             ->willReturn(
                 self::$tableLocator->getParser()
@@ -234,7 +234,7 @@ class ExistsConditionTest extends DatabaseBackedTestCase
     public function testJoinConditionWithOnlyAJoinedField(): void
     {
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('createSelectAST')
             ->willReturn(
                 self::$tableLocator->getParser()

@@ -51,29 +51,19 @@ class PrimaryKeyConditionTest extends TestCase
         return $mock;
     }
 
-    private function getConverterFactoryMock(): TypeNameNodeHandler
-    {
-        $mock = $this->createMock(TypeNameNodeHandler::class);
-
-        $mock->expects($this->any())
-            ->method('createTypeNameNodeForOID')
-            ->willReturnCallback(fn (): TypeName => new TypeName(new QualifiedName('int5')));
-
-        return $mock;
-    }
-
     public function testMissingPrimaryKeyInfo(): void
     {
         $this::expectException(UnexpectedValueException::class);
         $this::expectExceptionMessage('No columns');
-        new PrimaryKeyCondition($this->getPrimaryKeyMock([]), $this->getConverterFactoryMock());
+        new PrimaryKeyCondition($this->getPrimaryKeyMock([]), $this->createStub(TypeNameNodeHandler::class));
     }
 
     public function testKeyDependsOnColumns(): void
     {
-        $fooOne = new PrimaryKeyCondition($this->getPrimaryKeyMock(['foo']), $this->getConverterFactoryMock());
-        $fooTwo = new PrimaryKeyCondition($this->getPrimaryKeyMock(['foo']), $this->getConverterFactoryMock());
-        $fooBar = new PrimaryKeyCondition($this->getPrimaryKeyMock(['foo', 'bar']), $this->getConverterFactoryMock());
+        $stub   = $this->createStub(TypeNameNodeHandler::class);
+        $fooOne = new PrimaryKeyCondition($this->getPrimaryKeyMock(['foo']), $stub);
+        $fooTwo = new PrimaryKeyCondition($this->getPrimaryKeyMock(['foo']), $stub);
+        $fooBar = new PrimaryKeyCondition($this->getPrimaryKeyMock(['foo', 'bar']), $stub);
 
         $this::assertNotNull($fooOne->getKey());
         $this::assertStringNotContainsString('foo', $fooOne->getKey());
@@ -83,7 +73,10 @@ class PrimaryKeyConditionTest extends TestCase
 
     public function testNormalizeValueSingleColumn(): void
     {
-        $foo = new PrimaryKeyCondition($this->getPrimaryKeyMock(['foo']), $this->getConverterFactoryMock());
+        $foo = new PrimaryKeyCondition(
+            $this->getPrimaryKeyMock(['foo']),
+            $this->createStub(TypeNameNodeHandler::class)
+        );
 
         $this::assertEquals(['foo' => 5], $foo->normalizeValue(['foo' => 5]));
         $this::assertEquals(['foo' => 5], $foo->normalizeValue(5));
@@ -92,7 +85,10 @@ class PrimaryKeyConditionTest extends TestCase
 
     public function testNormalizeValueMultipleColumns(): void
     {
-        $foobar = new PrimaryKeyCondition($this->getPrimaryKeyMock(['foo', 'bar']), $this->getConverterFactoryMock());
+        $foobar = new PrimaryKeyCondition(
+            $this->getPrimaryKeyMock(['foo', 'bar']),
+            $this->createStub(TypeNameNodeHandler::class)
+        );
 
         $this::assertEquals(
             ['foo' => 'value', 'bar' => 'another value'],
@@ -106,7 +102,10 @@ class PrimaryKeyConditionTest extends TestCase
 
     public function testMissingPrimaryKeyColumn(): void
     {
-        $foo = new PrimaryKeyCondition($this->getPrimaryKeyMock(['foo']), $this->getConverterFactoryMock());
+        $foo = new PrimaryKeyCondition(
+            $this->getPrimaryKeyMock(['foo']),
+            $this->createStub(TypeNameNodeHandler::class)
+        );
 
         $this::expectException(InvalidArgumentException::class);
         $this::expectExceptionMessage('not found');
@@ -115,7 +114,10 @@ class PrimaryKeyConditionTest extends TestCase
 
     public function testExtraFieldInArray(): void
     {
-        $foo = new PrimaryKeyCondition($this->getPrimaryKeyMock(['foo']), $this->getConverterFactoryMock());
+        $foo = new PrimaryKeyCondition(
+            $this->getPrimaryKeyMock(['foo']),
+            $this->createStub(TypeNameNodeHandler::class)
+        );
 
         $this::expectException(InvalidArgumentException::class);
         $this::expectExceptionMessage('do not correspond to primary key columns');
@@ -124,13 +126,16 @@ class PrimaryKeyConditionTest extends TestCase
 
     public function testAddToStatement(): void
     {
+        $mock = $this->createMock(TypeNameNodeHandler::class);
+
+        $mock->expects($this->atLeastOnce())
+            ->method('createTypeNameNodeForOID')
+            ->willReturnCallback(fn (): TypeName => new TypeName(new QualifiedName('int5')));
+
         $factory   = new StatementFactory();
 
         $delete    = $factory->delete('some_table');
-        $condition = new PrimaryKeyCondition(
-            $this->getPrimaryKeyMock(['foo', 'bar']),
-            $this->getConverterFactoryMock()
-        );
+        $condition = new PrimaryKeyCondition($this->getPrimaryKeyMock(['foo', 'bar']), $mock);
         $condition->getFragment()->applyTo($delete);
 
         $this::assertStringEqualsStringNormalizingWhitespace(

@@ -105,7 +105,7 @@ class SubqueryAppenderTest extends TestCase
 
         $mockSelect = $this->createMock(SelectProxy::class);
 
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('createSelectAST')
             ->willReturn($factory->createFromString('select 1'));
 
@@ -113,7 +113,7 @@ class SubqueryAppenderTest extends TestCase
             ->applyTo($select);
 
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('createSelectAST')
             ->willReturn($factory->createFromString(
                 'select foo from baz as self where self.blah = 1'
@@ -140,7 +140,7 @@ class SubqueryAppenderTest extends TestCase
         $factory = new StatementFactory();
 
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('createSelectAST')
             ->willReturn($factory->createFromString(
                 'select foo, bar from baz except all select foo, bar from quux'
@@ -164,7 +164,7 @@ class SubqueryAppenderTest extends TestCase
         $select  = $factory->createFromString('select self.foo as bar, quux.xyzzy');
 
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('createSelectAST')
             ->willReturn($factory->createFromString(
                 'select foo from baz as self'
@@ -189,7 +189,7 @@ class SubqueryAppenderTest extends TestCase
 
         $mockSelect = $this->createMock(SelectProxy::class);
 
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('createSelectAST')
             ->willReturn($factory->createFromString('select baz from bazbaz'));
 
@@ -211,7 +211,7 @@ class SubqueryAppenderTest extends TestCase
 
         $mockSelect = $this->createMock(SelectProxy::class);
 
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('createSelectAST')
             ->willReturn($factory->createFromString('select baz, quux, xyzzy from meta.syntactic'));
 
@@ -227,7 +227,7 @@ class SubqueryAppenderTest extends TestCase
     public function testGetParameters(): void
     {
         $mockSelect = $this->createMock(SelectProxy::class);
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('getParameterHolder')
             ->willReturn(new SimpleParameterHolder($mockSelect, ['foo' => 'bar']));
 
@@ -244,7 +244,7 @@ class SubqueryAppenderTest extends TestCase
     {
         $mockSelect = $this->createMock(SelectBuilder::class);
 
-        $mockSelect->expects($this->any())
+        $mockSelect->expects($this->atLeastOnce())
             ->method('getKey')
             ->willReturn($key);
 
@@ -254,7 +254,7 @@ class SubqueryAppenderTest extends TestCase
     private function getMockKeyedCondition(?string $key): Condition
     {
         $mockCondition = $this->createMock(Condition::class);
-        $mockCondition->expects($this->any())
+        $mockCondition->expects($this->atLeastOnce())
             ->method('getKey')
             ->willReturn($key);
 
