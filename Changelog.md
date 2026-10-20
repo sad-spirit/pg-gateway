@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+ * Tested on PHP 8.6 and Postgres 19
+ * `PrimaryKeyTableGateway::upsert()` will use `ON CONFLICT ... SELECT` clause added in Postgres 19
+   when no columns are to be updated.
+
+### Fixed
+ * `PrimaryKeyTableGateway::upsert()` will no longer change the data in columns not present in `$values`  
+
 ## [1.0.0-beta.3] - 2025-12-12
 
 ### Fixed
@@ -274,3 +284,4 @@ Initial release on GitHub.
 [1.0.0-beta]: https://github.com/sad-spirit/pg-gateway/compare/v0.10.0...v1.0.0-beta
 [1.0.0-beta.2]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-beta...v1.0.0-beta.2
 [1.0.0-beta.3]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-beta.2...v1.0.0-beta.3
+[Unreleased]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-beta.3...HEAD

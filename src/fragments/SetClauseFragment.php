@@ -113,6 +113,16 @@ final class SetClauseFragment implements Fragment, Parametrized
         $this->types = \array_map(fn (Column $column) => $column->typeOID, $columns->getAll());
     }
 
+    /**
+     * Returns the names of the columns targeted by this fragment
+     *
+     * @return string[]
+     */
+    public function getColumnNames(): array
+    {
+        return \array_keys($this->columns);
+    }
+
     public function getParameterHolder(): SimpleParameterHolder
     {
         return new SimpleParameterHolder($this, $this->parameters);

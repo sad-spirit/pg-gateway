@@ -15,13 +15,19 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\tests\gateways;
 
 use sad_spirit\pg_gateway\{
+    FragmentList,
     OrdinaryTableDefinition,
     TableLocator,
     exceptions\InvalidArgumentException,
     exceptions\UnexpectedValueException,
+    fragments\SetClauseFragment,
     gateways\PrimaryKeyTableGateway,
     metadata\TableName,
     tests\DatabaseBackedTestCase
+};
+use sad_spirit\pg_builder\{
+    Insert,
+    enums\OnConflictAction
 };
 
 /**
@@ -127,5 +133,51 @@ class PrimaryKeyTableGatewayTest extends DatabaseBackedTestCase
         $this::assertEquals($pkey, $gateway->upsert($pkey));
 
         $this::assertEquals($pkey, $gateway->selectByPrimaryKey($pkey)->getIterator()->current());
+    }
+
+    public function testRequiresSetClauseFragmentForCreateUpsertStatement(): void
+    {
+        $this::expectException(InvalidArgumentException::class);
+        $this::expectExceptionMessage('a list of affected columns');
+
+        $gateway = $this->createTableGateway('public', 'haskey');
+        $gateway->createUpsertStatement(new FragmentList());
+    }
+
+    public function testColumnMissingFromUpsertShouldNotBeAffected(): void
+    {
+        $gateway = $this->createTableGateway('public', 'haskey');
+        $gateway->insert(['id' => 20, 'name' => 'A text value']);
+
+        $gateway->upsert(['id' => 20]);
+        $this::assertEquals(
+            ['id' => 20, 'name' => 'A text value'],
+            $gateway->selectByPrimaryKey(20)->getIterator()->current()
+        );
+        $gateway->deleteByPrimaryKey(20);
+    }
+
+    public function testUseOnConflictSelectOnPostgres19(): void
+    {
+        if (
+            !\version_compare(
+                \pg_parameter_status(self::$connection->getNative(), 'server_version'),
+                '19beta',
+                '>='
+            )
+        ) {
+            $this::markTestSkipped('This test requires connection to Postgres version 19+');
+        }
+
+        $gateway = $this->createTableGateway('pkey_test', 'composite');
+        $stmt    = $gateway->createUpsertStatement(new FragmentList(new SetClauseFragment(
+            $gateway->getDefinition()->getColumns(),
+            self::$tableLocator,
+            ['e_id' => 6, 's_id' => 6, 'i_id' => 6]
+        )));
+
+        /** @var Insert $parsed */
+        $parsed  = self::$tableLocator->createFromString($stmt->getSql());
+        $this::assertSame(OnConflictAction::SELECT, $parsed->onConflict?->action);
     }
 }

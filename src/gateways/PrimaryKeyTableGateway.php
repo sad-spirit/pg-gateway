@@ -15,11 +15,13 @@ declare(strict_types=1);
 namespace sad_spirit\pg_gateway\gateways;
 
 use sad_spirit\pg_gateway\{
+    Fragment,
     FragmentList,
     PrimaryKeyAccess,
     SelectProxy,
     StatementType,
     builders\PrimaryKeyBuilder,
+    exceptions\InvalidArgumentException,
     fragments\SetClauseFragment
 };
 use sad_spirit\pg_builder\{
@@ -47,6 +49,9 @@ use sad_spirit\pg_wrapper\Result;
 class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAccess
 {
     use PrimaryKeyBuilder;
+
+    /** Whether to use ON CONFLICT ... SELECT construct available in Postgres 19+ */
+    private ?bool $onConflictSelect = null;
 
     public function deleteByPrimaryKey(mixed $primaryKey): Result
     {
@@ -98,7 +103,11 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
     {
         return $this->tableLocator->createNativeStatementUsingCache(
             function () use ($fragments): Insert {
-                $insert = $this->createBaseUpsertAST();
+                $insert = $this->tableLocator->getStatementFactory()->insert(new InsertTarget(
+                    $this->definition->getName()->createNode(),
+                    new Identifier(self::ALIAS_SELF)
+                ));
+                $this->addOnConflictAndReturningClauses($insert, $fragments);
                 $fragments->applyTo($insert);
                 return $insert;
             },
@@ -106,42 +115,51 @@ class PrimaryKeyTableGateway extends GenericTableGateway implements PrimaryKeyAc
         );
     }
 
-    /**
-     * Generates base AST for "INSERT ... ON CONFLICT DO UPDATE ..." statement executed by upsert()
-     */
-    protected function createBaseUpsertAST(): Insert
+    private function addOnConflictAndReturningClauses(Insert $insert, FragmentList $fragments): void
     {
-        $insert = $this->tableLocator->getStatementFactory()->insert(new InsertTarget(
-            $this->definition->getName()->createNode(),
-            new Identifier(self::ALIAS_SELF)
-        ));
+        $setFragments = $fragments->filter(
+            static fn (Fragment $fragment): bool => $fragment instanceof SetClauseFragment
+        )
+            ->getSortedFragments();
 
-        $target            = new IndexParameters();
-        $set               = new SetClauseList();
+        if ([] === $setFragments) {
+            throw new InvalidArgumentException('Cannot add an ON CONFLICT clause without a list of affected columns');
+        }
+
+        // Even if we have multiple SetClauseFragment instances, the last one will overwrite everything in the query
+        /** @var SetClauseFragment $fragment */
+        $fragment          = \array_pop($setFragments);
         /** @var non-empty-array<string> $primaryKeyColumns */
         $primaryKeyColumns = $this->definition->getPrimaryKey()->getNames();
-        $nonPrimaryKey     = \array_diff($this->definition->getColumns()->getNames(), $primaryKeyColumns);
+        $nonPrimaryKey     = \array_diff($fragment->getColumnNames(), $primaryKeyColumns);
+        $target            = new IndexParameters();
 
         foreach ($primaryKeyColumns as $pk) {
             $target[]            = new IndexElement(new Identifier($pk));
             $insert->returning[] = new TargetElement(new ColumnReference($pk));
         }
 
-        // "DO INSTEAD NOTHING" clause leads to no rows returned by RETURNING clause, thus a fake update
-        if ([] === $nonPrimaryKey) {
-            $pkey  = \reset($primaryKeyColumns);
-            $set[] = new SingleSetClause(new SetTargetElement($pkey), new ColumnReference('excluded', $pkey));
+        if ([] !== $nonPrimaryKey) {
+            $set = new SetClauseList(\array_map(
+                static fn(string $column): SingleSetClause =>
+                    new SingleSetClause(new SetTargetElement($column), new ColumnReference('excluded', $column)),
+                $nonPrimaryKey
+            ));
+            $insert->onConflict = new OnConflictClause(OnConflictAction::UPDATE, $target, $set);
+
+        } elseif (
+            $this->onConflictSelect ??=
+                false !== ($version = \pg_parameter_status($this->getConnection()->getNative(), 'server_version'))
+                && \version_compare($version, '19beta', 'ge')
+        ) {
+            $insert->onConflict = new OnConflictClause(OnConflictAction::SELECT, $target);
+
         } else {
-            foreach ($nonPrimaryKey as $column) {
-                $set[] = new SingleSetClause(
-                    new SetTargetElement($column),
-                    new ColumnReference('excluded', $column)
-                );
-            }
+            // "DO INSTEAD NOTHING" clause leads to no rows returned by RETURNING clause, thus a fake update
+            $pkey = \reset($primaryKeyColumns);
+            $insert->onConflict = new OnConflictClause(OnConflictAction::UPDATE, $target, new SetClauseList([
+                new SingleSetClause(new SetTargetElement($pkey), new ColumnReference('excluded', $pkey))
+            ]));
         }
-
-        $insert->onConflict = new OnConflictClause(OnConflictAction::UPDATE, $target, $set);
-
-        return $insert;
     }
 }
