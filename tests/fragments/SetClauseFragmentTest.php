@@ -143,6 +143,25 @@ class SetClauseFragmentTest extends DatabaseBackedTestCase
         );
     }
 
+    public function testApplyToInsertMultiple(): void
+    {
+        $fragmentOne = new SetClauseFragment(self::$columns, self::$tableLocator, ['id' => 1]);
+        $fragmentTwo = new SetClauseFragment(self::$columns, self::$tableLocator, ['title' => 'A new title']);
+        $statement   = self::$tableLocator->getStatementFactory()
+            ->insert(new QualifiedName('update_test'));
+
+        $fragmentOne->applyTo($statement);
+        $fragmentTwo->applyTo($statement);
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            <<<SQL
+            insert into update_test (title)
+            values (:title::"text")
+            SQL,
+            $statement->dispatch(self::$tableLocator->getStatementFactory()->getBuilder())
+        );
+    }
+
     public function testApplyToUpdate(): void
     {
         $fragment  = new SetClauseFragment(
@@ -162,6 +181,25 @@ class SetClauseFragmentTest extends DatabaseBackedTestCase
             <<<SQL
             update update_test
             set id = :id::int4, title = 'A new title', added = now()
+            SQL,
+            $statement->dispatch(self::$tableLocator->getStatementFactory()->getBuilder())
+        );
+    }
+
+    public function testApplyToUpdateMultiple(): void
+    {
+        $fragmentOne = new SetClauseFragment(self::$columns, self::$tableLocator, ['title' => 'A new title']);
+        $fragmentTwo = new SetClauseFragment(self::$columns, self::$tableLocator, ['id' => 1]);
+        $statement   = self::$tableLocator->getStatementFactory()
+            ->update('update_test', []);
+
+        $fragmentOne->applyTo($statement);
+        $fragmentTwo->applyTo($statement);
+
+        $this::assertStringEqualsStringNormalizingWhitespace(
+            <<<SQL
+            update update_test
+            set id = :id::int4
             SQL,
             $statement->dispatch(self::$tableLocator->getStatementFactory()->getBuilder())
         );

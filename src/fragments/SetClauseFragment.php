@@ -161,11 +161,13 @@ final class SetClauseFragment implements Fragment, Parametrized
     private function applyToInsert(Insert $insert): void
     {
         $valuesRow = new RowExpression();
+        $columns   = [];
         foreach ($this->columns as $name => $value) {
-            $insert->cols[] = new SetTargetElement($name);
-            $valuesRow[]    = $this->createValueNode($value, $name);
+            $columns[]   = new SetTargetElement($name);
+            $valuesRow[] = $this->createValueNode($value, $name);
         }
 
+        $insert->cols->replace($columns);
         $insert->values = new Values(new RowList([$valuesRow]));
     }
 

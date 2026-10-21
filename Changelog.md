@@ -8,7 +8,8 @@
    when no columns are to be updated.
 
 ### Fixed
- * `PrimaryKeyTableGateway::upsert()` will no longer change the data in columns not present in `$values`  
+ * `PrimaryKeyTableGateway::upsert()` will no longer change the data in columns not present in `$values`
+ * `SetClauseFragment` will replace the list of columns in `INSERT` rather than append to it
 
 ## [1.0.0-beta.3] - 2025-12-12
 
