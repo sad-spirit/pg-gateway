@@ -1,15 +1,16 @@
 # Changelog
 
-## [Unreleased]
+## [1.0.0-rc] - 2026-10-29
 
 ### Added
- * Tested on PHP 8.6 and Postgres 19
- * `PrimaryKeyTableGateway::upsert()` will use `ON CONFLICT ... SELECT` clause added in Postgres 19
+ * Tested on PHP 8.6 and Postgres 19.
+ * `PrimaryKeyTableGateway::upsert()` uses `ON CONFLICT ... SELECT` clause added in Postgres 19
    when no columns are to be updated.
+ * `SetClauseFragment::getColumnNames()` method.
 
 ### Fixed
- * `PrimaryKeyTableGateway::upsert()` will no longer change the data in columns not present in `$values`
- * `SetClauseFragment` will replace the list of columns in `INSERT` rather than append to it
+ * `PrimaryKeyTableGateway::upsert()` no longer changes the data in columns not present in `$values`.
+ * `SetClauseFragment` replaces the list of columns in `INSERT` rather than appends to it.
 
 ## [1.0.0-beta.3] - 2025-12-12
 
@@ -285,4 +286,4 @@ Initial release on GitHub.
 [1.0.0-beta]: https://github.com/sad-spirit/pg-gateway/compare/v0.10.0...v1.0.0-beta
 [1.0.0-beta.2]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-beta...v1.0.0-beta.2
 [1.0.0-beta.3]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-beta.2...v1.0.0-beta.3
-[Unreleased]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-beta.3...HEAD
+[1.0.0-rc]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-beta.3...v1.0.0-rc
