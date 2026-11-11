@@ -46,26 +46,26 @@ class LateralSubselectStrategyTest extends TestCase
         );
         /** @var Select $joined */
         $joined = $this->factory->createFromString(
-            "select array_agg(gw_1.field) from gw_1 where gw_1.blah = 1"
+            "select array_agg(self.field) from bar as self where self.blah = 1"
         );
 
         ($strategy = new LateralSubselectStrategy())->join(
             $base,
             clone $joined,
             $this->factory->getParser()->parseExpression('self.id = joined.foo_id and something.something'),
-            'gw_1',
+            'custom',
             false
         );
         $this::assertStringEqualsStringNormalizingWhitespace(
             <<<SQL
-select self.*, {$strategy->getSubselectAlias()}.*
+select self.*, custom.*
 from foo as self, lateral (
-        select array_agg(gw_1.field)
-        from gw_1
-        where gw_1.blah = 1 and
-              self.id = gw_1.foo_id and
+        select array_agg({$strategy->getJoinedAlias()}.field)
+        from bar as {$strategy->getJoinedAlias()}
+        where {$strategy->getJoinedAlias()}.blah = 1 and
+              self.id = {$strategy->getJoinedAlias()}.foo_id and
               something.something
-    ) as {$strategy->getSubselectAlias()}
+    ) as custom
 SQL
             ,
             $this->factory->createFromAST($base)->getSql()
@@ -79,18 +79,18 @@ SQL
             $base,
             $joined,
             $this->factory->getParser()->parseExpression('self.id = joined.foo_id'),
-            'gw_1',
+            'bespoke',
             true
         );
         $this::assertStringEqualsStringNormalizingWhitespace(
             <<<SQL
 select count(self.*)
 from foo as self, lateral (
-        select array_agg(gw_1.field)
-        from gw_1
-        where gw_1.blah = 1 and
-              self.id = gw_1.foo_id
-    ) as {$strategy->getSubselectAlias()}
+        select array_agg({$strategy->getJoinedAlias()}.field)
+        from bar as {$strategy->getJoinedAlias()}
+        where {$strategy->getJoinedAlias()}.blah = 1 and
+              self.id = {$strategy->getJoinedAlias()}.foo_id
+    ) as bespoke
 SQL
             ,
             $this->factory->createFromAST($base)->getSql()
@@ -105,26 +105,26 @@ SQL
         );
         /** @var Select $joined */
         $joined = $this->factory->createFromString(
-            "select array_agg(gw_1.field) from gw_1 where gw_1.blah = 1"
+            "select array_agg(self.field) from bar as self where self.blah = 1"
         );
         ($strategy = new LateralSubselectStrategy(LateralSubselectJoinType::Left))->join(
             $base,
             clone $joined,
             $this->factory->getParser()->parseExpression('self.id = joined.foo_id and something.something'),
-            'gw_1',
+            'custom',
             false
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             <<<SQL
-select self.*, {$strategy->getSubselectAlias()}.*
+select self.*, custom.*
 from foo as self left join lateral (
-        select array_agg(gw_1.field)
-        from gw_1
-        where gw_1.blah = 1 and 
-              self.id = gw_1.foo_id and
+        select array_agg({$strategy->getJoinedAlias()}.field)
+        from bar as {$strategy->getJoinedAlias()}
+        where {$strategy->getJoinedAlias()}.blah = 1 and 
+              self.id = {$strategy->getJoinedAlias()}.foo_id and
               something.something
-    ) as {$strategy->getSubselectAlias()} on true
+    ) as custom on true
 SQL
             ,
             $this->factory->createFromAST($base)->getSql()
@@ -137,7 +137,7 @@ SQL
             $base,
             clone $joined,
             $this->factory->getParser()->parseExpression('self.id = joined.foo_id'),
-            'gw_1',
+            'bespoke',
             true
         );
 
@@ -145,11 +145,11 @@ SQL
             <<<SQL
 select count(self.*)
 from foo as self left join lateral (
-        select array_agg(gw_1.field)
-        from gw_1
-        where gw_1.blah = 1 and 
-              self.id = gw_1.foo_id
-    ) as {$strategy->getSubselectAlias()} on true
+        select array_agg({$strategy->getJoinedAlias()}.field)
+        from bar as {$strategy->getJoinedAlias()}
+        where {$strategy->getJoinedAlias()}.blah = 1 and 
+              self.id = {$strategy->getJoinedAlias()}.foo_id
+    ) as bespoke on true
 SQL
             ,
             $this->factory->createFromAST($base)->getSql()
@@ -164,24 +164,24 @@ SQL
         );
         /** @var Select $joined */
         $joined = $this->factory->createFromString(
-            "select array_agg(gw_1.field) from gw_1"
+            "select array_agg(self.field) from bar as self"
         );
         ($strategy = new LateralSubselectStrategy(LateralSubselectJoinType::Left))->join(
             $base,
             clone $joined,
             $this->factory->getParser()->parseExpression('joined.foo'),
-            'gw_1',
+            'custom',
             false
         );
 
         $this::assertStringEqualsStringNormalizingWhitespace(
             <<<SQL
-select self.*, {$strategy->getSubselectAlias()}.*
+select self.*, custom.*
 from foo as self left join lateral (
-        select array_agg(gw_1.field)
-        from gw_1
-        where gw_1.foo
-    ) as {$strategy->getSubselectAlias()} on true
+        select array_agg({$strategy->getJoinedAlias()}.field)
+        from bar as {$strategy->getJoinedAlias()}
+        where {$strategy->getJoinedAlias()}.foo
+    ) as custom on true
 SQL
             ,
             $this->factory->createFromAST($base)->getSql()

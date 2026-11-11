@@ -57,7 +57,7 @@ final class LateralSubselectStrategy extends SelectOnlyJoinStrategy
         Statement $statement,
         SelectCommon $joined,
         ?ScalarExpression $condition,
-        string $alias,
+        string $publicAlias,
         bool $isCount
     ): void {
         if (!$statement instanceof Select) {
@@ -67,7 +67,8 @@ final class LateralSubselectStrategy extends SelectOnlyJoinStrategy
             ));
         }
 
-        $subSelect = $this->prepareSubselect($joined, $condition, $alias);
+        $this->setAliases(subselectAlias: $publicAlias);
+        $subSelect = $this->prepareSubselect($joined, $condition);
 
         if (LateralSubselectJoinType::Append === $this->joinType) {
             $statement->from[] = $subSelect;
@@ -78,12 +79,13 @@ final class LateralSubselectStrategy extends SelectOnlyJoinStrategy
         }
 
         if (!$isCount) {
-            $statement->list[] = new TargetElement(new ColumnReference($this->getSubselectAlias(), '*'));
+            $statement->list[] = new TargetElement(new ColumnReference($this->getSubselectAlias() ?? '', '*'));
         }
     }
 
-    private function prepareSubselect(SelectCommon $joined, ?ScalarExpression $condition, string $alias): Subselect
+    private function prepareSubselect(SelectCommon $joined, ?ScalarExpression $condition): Subselect
     {
+        $joined->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_SELF, $this->getJoinedAlias()));
         if (null !== $condition) {
             if (!$joined instanceof Select) {
                 throw new LogicException("Conditions can only be applied to simple SELECT statements");
@@ -92,12 +94,12 @@ final class LateralSubselectStrategy extends SelectOnlyJoinStrategy
             // - ColumnReference may need to be replaced by a different one, doesn't work without parent node;
             // - LogicalExpression may be empty after a call to and().
             $wrapped = new LogicalExpression([$condition]);
-            $wrapped->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
+            $wrapped->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $this->getJoinedAlias()));
             $joined->where->and($wrapped[0]);
         }
 
         $subSelect = new Subselect($joined);
-        $subSelect->setTableAlias(new Identifier($this->getSubselectAlias()));
+        $subSelect->setTableAlias(new Identifier($this->getSubselectAlias() ?? ''));
         $subSelect->setLateral(true);
 
         return $subSelect;

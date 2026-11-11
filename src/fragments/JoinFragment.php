@@ -72,15 +72,11 @@ final class JoinFragment implements SelectFragment, Parametrized
             ));
         }
 
-        $alias  = $this->getAlias();
-        $select = clone $this->joined->createSelectAST();
-        $select->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_SELF, $alias));
-
         $this->strategy->join(
             $statement,
-            $select,
+            clone $this->joined->createSelectAST(),
             $this->condition?->generateExpression(),
-            $alias,
+            $this->getAlias(),
             $isCount
         );
     }

@@ -29,21 +29,22 @@ interface JoinStrategy extends KeyEquatable
     /**
      * Merges the Select with the Statement
      *
-     * It is assumed that a unique alias for a joined table was already substituted into `$joined` and that "self" alias
-     * (if present) references the base table. "joined" alias in `$condition` should be handled by a strategy.
+     * "self" alias in `$joined` and "joined" alias in `$condition` should be handled by a strategy.
+     * "self" alias in `$condition is assumed to reference the base table.
      *
-     * @param Statement             $statement Statement for the base table (aliased as "self")
-     * @param SelectCommon          $joined    SELECT statement for the table being joined
-     * @param ScalarExpression|null $condition JOIN condition (possibly empty)
-     * @param string                $alias     Alias for joined table
-     * @param bool                  $isCount   Whether the statement being generated is a "SELECT count(*)"
+     * @param Statement             $statement   Statement for the base table (aliased as "self")
+     * @param SelectCommon          $joined      SELECT statement for the table being joined
+     * @param ScalarExpression|null $condition   JOIN condition (possibly empty)
+     * @param string                $publicAlias Alias for joined table or a subselect wrapping it,
+     *                                           will be accessible in the outer query
+     * @param bool                  $isCount     Whether the statement being generated is a "SELECT count(*)"
      * @return void
      */
     public function join(
         Statement $statement,
         SelectCommon $joined,
         ?ScalarExpression $condition,
-        string $alias,
+        string $publicAlias,
         bool $isCount
     ): void;
 }

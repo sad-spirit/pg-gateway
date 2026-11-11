@@ -50,7 +50,7 @@ class InlineStrategyTest extends TestCase
         $delete = $this->factory->createFromString("delete from foo as self where self.id > 2");
         /** @var Select $select */
         $select = $this->factory->createFromString(
-            "with baz as (select 1) select gw_1.* from bar as gw_1 where gw_1.id < 3 order by gw_1.name"
+            "with baz as (select 1) select self.* from bar as self where self.id < 3 order by self.name"
         );
         (new InlineStrategy())->join(
             $delete,
@@ -74,18 +74,18 @@ class InlineStrategyTest extends TestCase
         );
         /** @var Select $select */
         $select = $this->factory->createFromString(
-            "select gw_1.* from bar as gw_1 where gw_1.id > self.id"
+            "select self.* from bar as self where self.baz = 'quux'"
         );
         (new InlineStrategy())->join(
             $update,
             $select,
-            null,
+            $this->factory->getParser()->parseExpression('joined.id > self.id'),
             'gw_1',
             false
         );
         $this::assertStringEqualsStringNormalizingWhitespace(
             "with baz as ( select 1 ) update foo as self set title = 'new title' "
-            . "from bar as gw_1 where self.id > 2 and gw_1.id > self.id",
+            . "from bar as gw_1 where self.id > 2 and gw_1.baz = 'quux' and gw_1.id > self.id",
             $this->factory->createFromAST($update)->getSql()
         );
     }
@@ -98,7 +98,7 @@ class InlineStrategyTest extends TestCase
         );
         /** @var Select $joined */
         $joined = $this->factory->createFromString(
-            "select gw_1.* from bar as gw_1 where gw_1.title ~* 'something' order by gw_1.title"
+            "select self.* from bar as self where self.title ~* 'something' order by self.title"
         );
         (new InlineStrategy())->join(
             $base,
@@ -124,7 +124,7 @@ class InlineStrategyTest extends TestCase
         );
         /** @var Select $joined */
         $joined = $this->factory->createFromString(
-            "select gw_1.* from bar as gw_1 where gw_1.title ~* 'something' order by gw_1.title"
+            "select self.* from bar as self where self.title ~* 'something' order by self.title"
         );
         (new InlineStrategy())->join(
             $base,
@@ -148,7 +148,7 @@ class InlineStrategyTest extends TestCase
         );
         /** @var Select $joined */
         $joined = $this->factory->createFromString(
-            "select gw_1.* from bar as gw_1 where gw_1.title ~* 'something' order by gw_1.title"
+            "select self.* from bar as self where self.title ~* 'something' order by self.title"
         );
         (new InlineStrategy())->join(
             $base,
@@ -169,7 +169,7 @@ class InlineStrategyTest extends TestCase
     public function testCannotInline(\Closure $addClause): void
     {
         $base   = $this->factory->select('self.*', 'foo as self');
-        $joined = $this->factory->select('gw_1.*', 'bar as gw_1');
+        $joined = $this->factory->select('self.*', 'bar as self');
         $addClause($joined);
 
         $this::expectException(UnexpectedValueException::class);

@@ -50,7 +50,7 @@ final class InlineStrategy implements JoinStrategy
         Statement $statement,
         SelectCommon $joined,
         ?ScalarExpression $condition,
-        string $alias,
+        string $publicAlias,
         bool $isCount
     ): void {
         if (!self::canBeInlined($joined)) {
@@ -66,6 +66,9 @@ final class InlineStrategy implements JoinStrategy
                 $statement::class
             ));
         }
+
+        $joined->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_SELF, $publicAlias));
+
         /** @psalm-var Delete|Select|Update $statement */
         $statement->with->merge($joined->with);
 
@@ -81,7 +84,7 @@ final class InlineStrategy implements JoinStrategy
             // - ColumnReference may need to be replaced by a different one, doesn't work without parent node;
             // - LogicalExpression may be empty after a call to and().
             $wrapped = new LogicalExpression([$condition]);
-            $wrapped->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
+            $wrapped->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $publicAlias));
             $statement->where->and($wrapped[0]);
         }
 

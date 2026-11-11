@@ -31,14 +31,31 @@ use sad_spirit\pg_builder\nodes\{
  */
 abstract class SelectOnlyJoinStrategy implements JoinStrategy
 {
-    private ?string $alias = null;
+    private ?string $joinedAlias = null;
+    private ?string $subselectAlias = null;
+
+    protected function setAliases(?string $joinedAlias = null, ?string $subselectAlias = null): void
+    {
+        $this->joinedAlias    = $joinedAlias;
+        $this->subselectAlias = $subselectAlias;
+    }
 
     /**
-     * Returns the alias for a subselect in FROM clause
+     * Returns the alias for the joined table
+     *
+     * If the table is wrapped in a subselect, this will be inaccessible in the outer query
      */
-    public function getSubselectAlias(): string
+    public function getJoinedAlias(): string
     {
-        return $this->alias ??= TableLocator::generateAlias();
+        return $this->joinedAlias ??= TableLocator::generateAlias();
+    }
+
+    /**
+     * Returns the alias for a subselect in FROM clause, if available
+     */
+    public function getSubselectAlias(): ?string
+    {
+        return $this->subselectAlias;
     }
 
     /**

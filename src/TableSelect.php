@@ -187,7 +187,7 @@ final readonly class TableSelect implements SelectProxy
             /** @psalm-suppress MixedArrayTypeCoercion */
             $parameters = \array_filter(
                 $this->fragments->getParameters(),
-                fn ($key): bool => isset($namesHash[$key]),
+                fn (string $key): bool => isset($namesHash[$key]),
                 \ARRAY_FILTER_USE_KEY
             );
             $result     = $native->executeParams($this->gateway->getConnection(), $parameters);

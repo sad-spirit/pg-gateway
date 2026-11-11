@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.0.0-rc.2] - 2026-11-11
+
+### Changed
+ * Join strategies that can wrap the joined expression in a subselect will use an explicit alias
+   provided to `JoinFragment` for that subselect, rather than for a table inside it. Thus, an
+   explicit alias will be accessible in an outer query rather than a generated one.
+ * `JoinFragment` no longer replaces aliases in the joined expression itself, delegating this to
+   a join strategy.
+
 ## [1.0.0-rc] - 2026-10-29
 
 ### Added

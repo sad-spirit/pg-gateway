@@ -60,7 +60,7 @@ final class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
         Statement $statement,
         SelectCommon $joined,
         ?ScalarExpression $condition,
-        string $alias,
+        string $publicAlias,
         bool $isCount
     ): void {
         if (!$statement instanceof Select) {
@@ -73,9 +73,11 @@ final class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
         $condition   ??= new KeywordConstant(ConstantName::TRUE);
         $fromElement   = $this->findNodeForJoin($statement->from, 'self');
         if ($this->requiresSubSelect($joined)) {
-            $this->joinUsingSubselect($statement, $fromElement, $joined, $condition, $alias, $isCount);
+            $this->setAliases(subselectAlias: $publicAlias);
+            $this->joinUsingSubselect($statement, $fromElement, $joined, $condition, $isCount);
         } else {
-            $this->joinSimple($statement, $fromElement, $joined, $condition, $alias, $isCount);
+            $this->setAliases(joinedAlias: $publicAlias);
+            $this->joinSimple($statement, $fromElement, $joined, $condition, $isCount);
         }
     }
 
@@ -89,10 +91,11 @@ final class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
         FromElement $fromElement,
         SelectCommon $joined,
         ScalarExpression $condition,
-        string $alias,
         bool $isCount
     ): void {
-        $subAlias  = $this->getSubselectAlias();
+        $joined->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_SELF, $this->getJoinedAlias()));
+
+        $subAlias  = $this->getSubselectAlias() ?? '';
         $subselect = new Subselect($joined);
         $subselect->setAlias(new Identifier($subAlias));
 
@@ -107,7 +110,7 @@ final class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
             $joinedColumns = $this->findReferencedColumns($condition, TableGateway::ALIAS_JOINED);
             if ([] !== $joinedColumns) {
                 // Step 2: assert these appear as columns of `self` in $joined, find aliases, if any
-                $columnAliases = $this->assertColumnsAreInSelectList($joined, $joinedColumns, $alias);
+                $columnAliases = $this->assertColumnsAreInSelectList($joined, $joinedColumns, $this->getJoinedAlias());
             }
         }
 
@@ -132,15 +135,16 @@ final class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
         FromElement $fromElement,
         Select $joined,
         ScalarExpression $condition,
-        string $alias,
         bool $isCount
     ): void {
+        $joined->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_SELF, $this->getJoinedAlias()));
+
         $select->with->merge($joined->with);
 
         $fromElement->join($joined->from[0], JoinType::from($this->joinType->value))->on = $condition;
         if (!$condition instanceof KeywordConstant) {
             // Done after adding the condition, as it should have the parent node set
-            $condition->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $alias));
+            $condition->dispatch(new ReplaceTableAliasWalker(TableGateway::ALIAS_JOINED, $this->getJoinedAlias()));
         }
 
         $select->where->and($joined->where);

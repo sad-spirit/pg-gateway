@@ -122,7 +122,7 @@ class JoinFragmentTest extends DatabaseBackedTestCase
                 Statement $statement,
                 SelectCommon $joined,
                 ?ScalarExpression $condition,
-                string $alias,
+                string $publicAlias,
                 bool $isCount
             ): void {
                 // no-op

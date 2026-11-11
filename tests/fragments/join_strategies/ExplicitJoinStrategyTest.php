@@ -47,7 +47,7 @@ class ExplicitJoinStrategyTest extends TestCase
         );
         /** @var Select $joined */
         $joined = $this->factory->createFromString(
-            "select m_1.* from bar as m_1 where m_1.title ~* 'something' order by m_1.title"
+            "select self.* from bar as self where self.title ~* 'something' order by self.title"
         );
         (new ExplicitJoinStrategy())->join(
             $base,
@@ -96,26 +96,26 @@ SQL
         );
         /** @var Select $joined */
         $joined = $this->factory->createFromString(
-            "select m_1.*, m_2.* from bar as m_1, baz as m_2 "
-            . "where m_1.title ~* 'something' and m_2.id > m_1.id order by m_1.title"
+            "select self.*, m_2.* from bar as self, baz as m_2 "
+            . "where self.title ~* 'something' and m_2.id > self.id order by self.title"
         );
         ($strategy = new ExplicitJoinStrategy())->join(
             $base,
             clone $joined,
             $this->factory->getParser()->parseExpression('self.id > joined.id'),
-            'm_1',
+            'custom',
             false
         );
         $this::assertStringEqualsStringNormalizingWhitespace(
             <<<SQL
-select self.*, {$strategy->getSubselectAlias()}.*
+select self.*, custom.*
 from foo as self inner join 
      (
-        select m_1.*, m_2.*
-        from bar as m_1, baz as m_2
-        where m_1.title ~* 'something' and m_2.id > m_1.id
-        order by m_1.title
-     ) as {$strategy->getSubselectAlias()} on self.id > {$strategy->getSubselectAlias()}.id
+        select {$strategy->getJoinedAlias()}.*, m_2.*
+        from bar as {$strategy->getJoinedAlias()}, baz as m_2
+        where {$strategy->getJoinedAlias()}.title ~* 'something' and m_2.id > {$strategy->getJoinedAlias()}.id
+        order by {$strategy->getJoinedAlias()}.title
+     ) as custom on self.id > custom.id
 where self.id > 0
 order by self.title limit 10
 SQL
@@ -130,7 +130,7 @@ SQL
             $base,
             $joined,
             $this->factory->getParser()->parseExpression('self.id < joined.id'),
-            'm_1',
+            'bespoke',
             true
         );
         $this::assertStringEqualsStringNormalizingWhitespace(
@@ -138,11 +138,11 @@ SQL
 select count(self.*)
 from foo as self inner join 
      (
-        select m_1.*, m_2.*
-        from bar as m_1, baz as m_2
-        where m_1.title ~* 'something' and m_2.id > m_1.id
-        order by m_1.title
-     ) as {$strategy->getSubselectAlias()} on self.id < {$strategy->getSubselectAlias()}.id
+        select {$strategy->getJoinedAlias()}.*, m_2.*
+        from bar as {$strategy->getJoinedAlias()}, baz as m_2
+        where {$strategy->getJoinedAlias()}.title ~* 'something' and m_2.id > {$strategy->getJoinedAlias()}.id
+        order by {$strategy->getJoinedAlias()}.title
+     ) as bespoke on self.id < bespoke.id
 where self.id > 0
 SQL
             ,
@@ -159,7 +159,7 @@ SQL
         );
         /** @var Select $joined */
         $joined = $this->factory->createFromString(
-            "with cte as (select 1) select m_3.* from quux as m_3"
+            "with cte as (select 1) select self.* from quux as self"
         );
 
         (new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
@@ -218,7 +218,7 @@ SQL
         );
         /** @var Select $joined */
         $joined = $this->factory->createFromString(
-            "select m_2.* from baz as m_2 where m_2.title ~* 'something'"
+            "select self.* from baz as self where self.title ~* 'something'"
         );
         ($strategy = new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
             $base,
@@ -228,7 +228,7 @@ SQL
             false
         );
         /** @var Select $second */
-        $second = $this->factory->createFromString('select * from another as nthr where nthr.id = 123');
+        $second = $this->factory->createFromString('select * from another as self where self.id = 123');
         ($strategy2 = new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
             $base,
             $second,
@@ -238,14 +238,15 @@ SQL
         );
         $this::assertStringEqualsStringNormalizingWhitespace(
             <<<SQL
-select self.*, m_1.*, {$strategy->getSubselectAlias()}.*, {$strategy2->getSubselectAlias()}.*
+select self.*, m_1.*, m_2.*, nthr.*
 from foo as self inner join bar as m_1 on self.id = m_1.id
         left join (
-            select m_2.* from baz as m_2 where m_2.title ~* 'something'
-        ) as {$strategy->getSubselectAlias()} on self.id > {$strategy->getSubselectAlias()}.id
+            select {$strategy->getJoinedAlias()}.* from baz as {$strategy->getJoinedAlias()}
+            where {$strategy->getJoinedAlias()}.title ~* 'something'
+        ) as m_2 on self.id > m_2.id
         left join (
-            select * from another as nthr where nthr.id = 123
-        ) as {$strategy2->getSubselectAlias()} on self.id < {$strategy2->getSubselectAlias()}.id
+            select * from another as {$strategy2->getJoinedAlias()} where {$strategy2->getJoinedAlias()}.id = 123
+        ) as nthr on self.id < nthr.id
 order by self.title limit 10
 SQL
             ,
@@ -277,7 +278,7 @@ SQL
         /** @var Select $base */
         $base = $this->factory->createFromString('select self.* from foo as self order by self.title');
         /** @var Select $joined */
-        $joined = $this->factory->createFromString('select r_1.id as alias from bar as r_1 limit 10');
+        $joined = $this->factory->createFromString('select self.id as alias from bar as self limit 10');
 
         ($strategy = new ExplicitJoinStrategy(ExplicitJoinType::Inner))->join(
             $base,
@@ -288,10 +289,10 @@ SQL
         );
         $this::assertStringEqualsStringNormalizingWhitespace(
             <<<SQL
-select self.*, {$strategy->getSubselectAlias()}.*
+select self.*, r_1.*
 from foo as self inner join (
-            select r_1.id as alias from bar as r_1 limit 10
-        ) as {$strategy->getSubselectAlias()} on self.id = {$strategy->getSubselectAlias()}.alias
+            select {$strategy->getJoinedAlias()}.id as alias from bar as {$strategy->getJoinedAlias()} limit 10
+        ) as r_1 on self.id = r_1.alias
 order by self.title
 SQL
             ,
@@ -310,43 +311,42 @@ SQL
         /** @var Select $third */
         $third  = $this->factory->createFromString('select * from quux as c where c.id = 123');
 
-        ($firstStrategy = new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
+        (new ExplicitJoinStrategy(ExplicitJoinType::Inner))->join(
             $base,
             $first,
             $this->factory->getParser()->parseExpression('self.id = joined.id and self.foo = joined.alias'),
-            'missing',
+            'custom',
             false
         );
-        ($secondStrategy = new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
+        (new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
             $base,
             $second,
             $this->factory->getParser()->parseExpression('self.id = joined.wtf'),
-            'unused',
+            'bespoke',
             false
         );
-        ($thirdStrategy = new ExplicitJoinStrategy(ExplicitJoinType::Left))->join(
+        (new ExplicitJoinStrategy(ExplicitJoinType::Right))->join(
             $base,
             $third,
             $this->factory->getParser()->parseExpression('self.foo = joined.nthr'),
-            'discarded',
+            'tailored',
             false
         );
         $this::assertStringEqualsStringNormalizingWhitespace(
             <<<SQL
-select self.*, {$firstStrategy->getSubselectAlias()}.*, {$secondStrategy->getSubselectAlias()}.*,
-       {$thirdStrategy->getSubselectAlias()}.*
+select self.*, custom.*, bespoke.*, tailored.*
 from foo as self
-        left join (
+        inner join (
             select a.id, a.foo as alias from bar as a limit 10
-        ) as {$firstStrategy->getSubselectAlias()} on 
-            self.id = {$firstStrategy->getSubselectAlias()}.id
-                and self.foo = {$firstStrategy->getSubselectAlias()}.alias
+        ) as custom on 
+            self.id = custom.id
+                and self.foo = custom.alias
         left join (
             select b.* from baz as b where b.title ~* 'something'
-        ) as {$secondStrategy->getSubselectAlias()} on self.id = {$secondStrategy->getSubselectAlias()}.wtf
-        left join (
+        ) as bespoke on self.id = bespoke.wtf
+        right join (
             select * from quux as c where c.id = 123
-        ) as {$thirdStrategy->getSubselectAlias()} on self.foo = {$thirdStrategy->getSubselectAlias()}.nthr
+        ) as tailored on self.foo = tailored.nthr
 order by self.title
 SQL
             ,
@@ -390,7 +390,7 @@ SQL
         );
         /** @var Select $joined */
         $joined = $this->factory->createFromString(
-            "select m_1.* from bar as m_1 where m_1.title ~* 'something' order by m_1.title"
+            "select self.* from bar as self where self.title ~* 'something' order by self.title"
         );
         (new ExplicitJoinStrategy())->join(
             $base,
@@ -415,7 +415,7 @@ SQL
         /** @var Select $base */
         $base = $this->factory->createFromString('select self.* from foo as self');
         /** @var Select $joined */
-        $joined = $this->factory->createFromString('select r_1.id, r_1.foo from bar as r_1 limit 10');
+        $joined = $this->factory->createFromString('select self.id, self.foo from bar as self limit 10');
 
         ($strategy = new ExplicitJoinStrategy(ExplicitJoinType::Inner))->join(
             $base,
@@ -426,10 +426,12 @@ SQL
         );
         $this::assertStringEqualsStringNormalizingWhitespace(
             <<<SQL
-select self.*, {$strategy->getSubselectAlias()}.*
+select self.*, r_1.*
 from foo as self inner join (
-            select r_1.id, r_1.foo from bar as r_1 limit 10
-        ) as {$strategy->getSubselectAlias()} on {$strategy->getSubselectAlias()}.foo
+            select {$strategy->getJoinedAlias()}.id, {$strategy->getJoinedAlias()}.foo
+            from bar as {$strategy->getJoinedAlias()}
+            limit 10
+        ) as r_1 on r_1.foo
 SQL
             ,
             $this->factory->createFromAST($base)->getSql()
