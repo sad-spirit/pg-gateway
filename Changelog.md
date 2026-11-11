@@ -3,11 +3,14 @@
 ## [1.0.0-rc.2] - 2026-11-11
 
 ### Changed
- * Join strategies that can wrap the joined expression in a subselect will use an explicit alias
-   provided to `JoinFragment` for that subselect, rather than for a table inside it. Thus, an
-   explicit alias will be accessible in an outer query rather than a generated one.
- * `JoinFragment` no longer replaces aliases in the joined expression itself, delegating this to
+ * Join strategies that can wrap the joined expression in a subselect will use an alias explicitly
+   provided to `fragments\JoinFragment` for that subselect, not for a table inside it. Thus, the explicit alias
+   rather than a generated one will be accessible in the outer query.
+ * `fragments\JoinFragment` no longer replaces aliases in the joined expression itself, delegating this to
    a join strategy.
+ * The code that searches for a suitable item in `FROM` list to perform a join to was extracted 
+   from `fragments\join_strategies\SelectOnlyJoinStrategy`
+   to `fragments\join_strategies\JoinTargetFinder` trait so that it may be reused outside of join strategies.
 
 ## [1.0.0-rc] - 2026-10-29
 
@@ -296,3 +299,4 @@ Initial release on GitHub.
 [1.0.0-beta.2]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-beta...v1.0.0-beta.2
 [1.0.0-beta.3]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-beta.2...v1.0.0-beta.3
 [1.0.0-rc]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-beta.3...v1.0.0-rc
+[1.0.0-rc.2]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-rc...v1.0.0-rc.2
