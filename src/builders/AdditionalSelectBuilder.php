@@ -57,13 +57,7 @@ abstract class AdditionalSelectBuilder implements FragmentBuilder
         $foreignKey = $this->base->getReferences()
             ->get($this->additional->getDefinition()->getName(), $keyColumns);
         if (!$foreignKey->isRecursive()) {
-            $fromChild = true;
-            foreach ($this->base->getReferences()->from($this->additional->getDefinition()->getName()) as $to) {
-                if ($to === $foreignKey) {
-                    $fromChild = false;
-                    break;
-                }
-            }
+            $fromChild = $foreignKey->childTable->equals($this->base->getName());
         } elseif (null === $fromChild) {
             throw new LogicException(\sprintf(
                 "Cannot join on recursive foreign key without specifying whether to join"
