@@ -248,7 +248,8 @@ final class TableLocator
     /**
      * Returns the result of calling select() on the table gateway created for the given table name
      *
-     * @param FragmentsInput $fragments
+     * @template B of builders\FragmentListBuilder
+     * @param FragmentsInput|\Closure(B) $fragments
      * @param array<string, mixed> $parameters
      */
     public function select(
@@ -256,6 +257,7 @@ final class TableLocator
         null|iterable|\Closure|Fragment|FragmentBuilder $fragments = null,
         array $parameters = []
     ): SelectProxy {
+        /** @psalm-suppress InvalidArgument */
         return $this->createGateway($name)->select($fragments, $parameters);
     }
 

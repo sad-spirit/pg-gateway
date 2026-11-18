@@ -27,6 +27,7 @@ use sad_spirit\pg_gateway\{
     TableLocator,
     TableSelect,
     builders\FragmentListBuilder,
+    builders\FluentBuilder,
     fragments\ClosureFragment,
     fragments\InsertSelectFragment,
     fragments\SetClauseFragment
@@ -52,6 +53,8 @@ use sad_spirit\pg_wrapper\{
 /**
  * A generic implementation of TableGateway
  *
+ * @template B of FragmentListBuilder = FluentBuilder
+ * @implements TableGateway<B>
  * @psalm-import-type FragmentsInput from TableGateway
  */
 class GenericTableGateway implements TableGateway, AdHocStatement
@@ -77,12 +80,18 @@ class GenericTableGateway implements TableGateway, AdHocStatement
 
     /**
      * Creates a specific builder for the current table
+     *
+     * @return B
      */
     public function createBuilder(): FragmentListBuilder
     {
+        /** @var B */
         return $this->tableLocator->createBuilder($this->definition->getName());
     }
 
+    /**
+     * @param FragmentsInput|\Closure(B) $fragments
+     */
     public function delete(
         null|iterable|\Closure|Fragment|FragmentBuilder $fragments = null,
         array $parameters = []
@@ -92,6 +101,9 @@ class GenericTableGateway implements TableGateway, AdHocStatement
         return $this->execute($this->createDeleteStatement($fragmentList), $fragmentList);
     }
 
+    /**
+     * @param FragmentsInput|\Closure(B) $fragments
+     */
     public function insert(
         array|SelectCommon|SelectBuilder $values,
         null|iterable|\Closure|Fragment|FragmentBuilder $fragments = null,
@@ -118,6 +130,9 @@ class GenericTableGateway implements TableGateway, AdHocStatement
         return $this->execute($this->createInsertStatement($fragmentList), $fragmentList);
     }
 
+    /**
+     * @param FragmentsInput|\Closure(B) $fragments
+     */
     public function select(
         null|iterable|\Closure|Fragment|FragmentBuilder $fragments = null,
         array $parameters = []
@@ -125,6 +140,9 @@ class GenericTableGateway implements TableGateway, AdHocStatement
         return new TableSelect($this->tableLocator, $this, $this->convertFragments($fragments, $parameters));
     }
 
+    /**
+     * @param FragmentsInput|\Closure(B) $fragments
+     */
     public function update(
         array $set,
         null|iterable|\Closure|Fragment|FragmentBuilder $fragments = null,
@@ -141,8 +159,8 @@ class GenericTableGateway implements TableGateway, AdHocStatement
     /**
      * Converts $fragments and $parameters passed to a method defined in TableGateway to an instance of FragmentList
      *
-     * @param FragmentsInput       $fragments
-     * @param array<string, mixed> $parameters
+     * @param FragmentsInput|\Closure(B) $fragments
+     * @param array<string, mixed>       $parameters
      */
     protected function convertFragments(
         null|iterable|\Closure|Fragment|FragmentBuilder $fragments,
