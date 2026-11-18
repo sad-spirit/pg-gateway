@@ -162,12 +162,11 @@ final class ExplicitJoinStrategy extends SelectOnlyJoinStrategy
      */
     private function requiresSubSelect(SelectCommon $joined): bool
     {
-        return !$joined instanceof Select
+        return !InlineStrategy::canBeInlined($joined)
             || \count($joined->from) > 1
             // We can merge the WHERE clauses in case of INNER JOIN, but not with OUTER
             || ExplicitJoinType::Inner !== $this->joinType
-                && null !== $joined->where->condition
-            || !InlineStrategy::canBeInlined($joined);
+                && null !== $joined->where->condition;
     }
 
     /**
