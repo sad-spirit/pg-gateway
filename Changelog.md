@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.1] - 2026-11-27
+
+### Changed
+`fetchFirst()` method that was previously defined only in `TableSelect` class is now in `SelectProxy` interface.
+`SelectTransformer` now implements the method as well.
+
 ## [1.0.0] - 2026-11-20
 
 ### Added
@@ -310,3 +316,4 @@ Initial release on GitHub.
 [1.0.0-rc]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-beta.3...v1.0.0-rc
 [1.0.0-rc.2]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-rc...v1.0.0-rc.2
 [1.0.0]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0-rc.2...v1.0.0
+[1.0.1]: https://github.com/sad-spirit/pg-gateway/compare/v1.0.0...v1.0.1

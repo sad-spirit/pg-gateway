@@ -48,7 +48,7 @@ interface SelectProxy extends SelectBuilder, Parametrized, TableAccessor, \Itera
      * {@see \sad_spirit\pg_gateway\SelectFragment::isUsedForCount() SelectFragment::isUsedForCount()})
      * will be omitted.
      *
-     * NB: There is no `int` return typehint as `COUNT()` returns `bigint` in Postgres and that may be out of range for
+     * NB: The return typehint is not `int`  as `COUNT()` returns `bigint` in Postgres and that may be out of range for
      * PHP's `int` type on 32-bit builds
      *
      * @return int|numeric-string
@@ -61,4 +61,9 @@ interface SelectProxy extends SelectBuilder, Parametrized, TableAccessor, \Itera
      * @return Result
      */
     public function getIterator(): Result;
+
+    /**
+     * Executes the "SELECT [target list]" query with current fragments and returns the first row of the result
+     */
+    public function fetchFirst(): ?array;
 }

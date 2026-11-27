@@ -198,9 +198,6 @@ final readonly class TableSelect implements SelectProxy
         return $result[0][0];
     }
 
-    /**
-     * Executes the "SELECT [target list]" query with current fragments and returns the first row of the result
-     */
     public function fetchFirst(): ?array
     {
         return $this->getIterator()->current();

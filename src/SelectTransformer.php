@@ -73,6 +73,11 @@ abstract class SelectTransformer implements SelectProxy
             : $native->executeParams($this->wrapped->getConnection(), $this->getParameterHolder()->getParameters());
     }
 
+    public function fetchFirst(): ?array
+    {
+        return $this->getIterator()->current();
+    }
+
     public function createSelectStatement(): NativeStatement
     {
         $cacheKey = null;
